@@ -1997,6 +1997,51 @@ REASONING REQUIREMENTS:
     return 'Application';
   }
 
+  // Core AI generation method - essential for service functionality
+  private async generateWithRetry(options: {
+    model: string;
+    contents: string;
+    config: {
+      temperature: number;
+      topP: number;
+      topK: number;
+      maxOutputTokens: number;
+    };
+  }, maxRetries: number = 3): Promise<{ text: string }> {
+    let lastError: Error;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const genModel = this.genAI.getGenerativeModel({
+          model: options.model,
+          generationConfig: options.config
+        });
+        
+        const result = await genModel.generateContent(options.contents);
+        const response = await result.response;
+        const text = response.text();
+        
+        if (!text || text.trim().length === 0) {
+          throw new Error("Empty response from AI service");
+        }
+        
+        return { text };
+        
+      } catch (error) {
+        lastError = error as Error;
+        console.warn(`AI generation attempt ${attempt}/${maxRetries} failed:`, error.message);
+        
+        if (attempt < maxRetries) {
+          // Exponential backoff
+          const delay = Math.pow(2, attempt) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+    
+    throw new Error(`AI generation failed after ${maxRetries} attempts: ${lastError.message}`);
+  }
+
   // End of class - all fallback methods removed to ensure only AI-generated implementation plans
 }
 
