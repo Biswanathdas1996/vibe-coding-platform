@@ -1745,84 +1745,199 @@ Make the minimal necessary changes to implement the user's request while keeping
     }
   }
 
-  // Complete AI-driven application generation based on user prompt
+  // Multi-LLM approach: Generate complete application with separate AI calls for each component
   private async generateCompleteApplicationWithAI(prompt: string): Promise<CodeGenerationResponse> {
-    const systemPrompt = `You are an expert full-stack developer. Generate a complete web application based on the user's exact requirements.
-
-User Request: "${prompt}"
-
-Analyze the request carefully and create a professional, fully-functional application that matches EXACTLY what the user described. 
-
-Return ONLY a valid JSON response with this structure (no markdown, no extra text):
-{
-  "plan": [
-    {"step": 1, "action": "Specific action", "details": "Implementation details"},
-    {"step": 2, "action": "Next action", "details": "More details"}
-  ],
-  "files": {
-    "index.html": "Complete HTML file content",
-    "styles.css": "Complete CSS content",
-    "script.js": "Complete JavaScript content"
-  },
-  "reasoning": "Brief explanation",
-  "architecture": "Technical approach",
-  "nextSteps": ["Improvement 1", "Improvement 2"],
-  "dependencies": ["Technology 1", "Technology 2"],
-  "testingStrategy": "Testing approach"
-}
-
-CRITICAL REQUIREMENTS:
-1. The application MUST match the user's specific request - not a generic template
-2. Include relevant features, content, and functionality mentioned in the prompt
-3. Use appropriate terminology, business context, and domain-specific content
-4. Create multiple pages only if the request implies them
-5. Make the design and content authentic to the request
-6. Use professional, production-ready code
-7. Include CSS Grid layout with header, sidebar, and main content
-8. Ensure all navigation links use /preview/ prefix
-
-Generate a complete, functional application that exactly fulfills the user's request.`;
-
+    console.log("🔄 Starting multi-LLM generation approach...");
+    
     try {
-      const response = await this.generateWithRetry({
-        model: "gemini-2.0-flash-lite",
-        contents: systemPrompt,
-        config: {
-          temperature: 0.4,
-          topP: 0.9,
-          topK: 50,
-          maxOutputTokens: 8192
-        }
-      });
-
-      let content = response.text || "";
-      content = this.cleanResponseContent(content);
+      // Step 1: Generate implementation plan
+      const plan = await this.generateImplementationPlan(prompt);
       
-      const result = this.safeJSONParse(content);
+      // Step 2: Generate page structure based on prompt analysis
+      const pageStructure = await this.generatePageStructure(prompt);
       
-      // Validate required fields
-      if (!result.plan || !Array.isArray(result.plan)) {
-        throw new Error("Invalid AI response: missing or invalid plan array");
+      // Step 3: Generate each page with individual AI calls
+      const files: Record<string, string> = {};
+      
+      // Generate main pages
+      for (const page of pageStructure.pages) {
+        console.log(`🎨 Generating ${page.name} with dedicated AI call...`);
+        const pageContent = await this.generateIndividualPage(prompt, page, pageStructure.theme);
+        files[page.filename] = pageContent;
       }
       
-      if (!result.files || typeof result.files !== 'object') {
-        throw new Error("Invalid AI response: missing or invalid files object");
-      }
-
+      // Step 4: Generate CSS with modern design
+      console.log("🎨 Generating modern CSS design...");
+      const cssContent = await this.generateModernCSS(prompt, pageStructure);
+      files['styles.css'] = cssContent;
+      
+      // Step 5: Generate JavaScript functionality
+      console.log("⚡ Generating JavaScript functionality...");
+      const jsContent = await this.generateJavaScriptFunctionality(prompt, pageStructure);
+      files['script.js'] = jsContent;
+      
+      console.log(`✅ Multi-LLM generation complete: ${Object.keys(files).length} files generated`);
+      
       return {
-        plan: result.plan,
-        files: result.files,
-        reasoning: result.reasoning || "AI-generated application matching user requirements",
-        architecture: result.architecture || "Modern web application architecture",
-        nextSteps: result.nextSteps || ["Add advanced features", "Optimize performance"],
-        dependencies: result.dependencies || ["HTML5", "CSS3", "JavaScript"],
-        testingStrategy: result.testingStrategy || "Manual testing and validation"
+        plan: plan.steps,
+        files: files,
+        reasoning: `Multi-LLM approach: ${plan.reasoning}`,
+        architecture: `Modern multi-page application: ${pageStructure.architecture}`,
+        nextSteps: plan.nextSteps,
+        dependencies: pageStructure.dependencies,
+        testingStrategy: "Component-wise testing with modern UI validation"
       };
       
     } catch (error) {
-      console.error("AI application generation failed:", error);
-      throw new Error(`AI application generation failed: ${error.message}`);
+      console.error("Multi-LLM generation failed:", error);
+      throw new Error(`Multi-LLM application generation failed: ${error.message}`);
     }
+  }
+
+  // Generate detailed implementation plan
+  private async generateImplementationPlan(prompt: string): Promise<any> {
+    const planPrompt = `Analyze this user request and create a detailed implementation plan: "${prompt}"
+
+Return ONLY valid JSON:
+{
+  "steps": [
+    {"step": 1, "action": "Analyze requirements", "details": "What pages and features are needed"},
+    {"step": 2, "action": "Design structure", "details": "Layout and navigation design"},
+    {"step": 3, "action": "Implement pages", "details": "Create all required pages"},
+    {"step": 4, "action": "Add styling", "details": "Modern, responsive CSS design"},
+    {"step": 5, "action": "Add functionality", "details": "JavaScript interactions and features"}
+  ],
+  "reasoning": "Detailed approach explanation",
+  "nextSteps": ["Future enhancements"],
+  "estimatedComplexity": "medium"
+}`;
+
+    const response = await this.generateWithRetry({
+      model: "gemini-2.0-flash-lite",
+      contents: planPrompt,
+      config: { temperature: 0.3, maxOutputTokens: 1024 }
+    });
+
+    return this.safeJSONParse(this.cleanResponseContent(response.text || ""));
+  }
+
+  // Generate page structure and theme
+  private async generatePageStructure(prompt: string): Promise<any> {
+    const structurePrompt = `Analyze this request and determine the required pages and design theme: "${prompt}"
+
+Return ONLY valid JSON:
+{
+  "pages": [
+    {"name": "Home", "filename": "index.html", "purpose": "Main landing page", "content": "Overview and navigation"},
+    {"name": "Products", "filename": "products.html", "purpose": "Product listing", "content": "Display products with search/filter"},
+    {"name": "Cart", "filename": "cart.html", "purpose": "Shopping cart", "content": "Cart items and checkout"},
+    {"name": "Orders", "filename": "orders.html", "purpose": "Order management", "content": "Order history and tracking"}
+  ],
+  "theme": "modern-ecommerce",
+  "colorScheme": "blue-gradient",
+  "layout": "header-sidebar-main",
+  "architecture": "Multi-page responsive web application",
+  "dependencies": ["HTML5", "CSS3", "JavaScript", "LocalStorage"]
+}
+
+Create pages that match the user's specific request. For ecommerce: products, cart, orders. For dashboard: analytics, reports, settings. For portfolio: about, projects, contact.`;
+
+    const response = await this.generateWithRetry({
+      model: "gemini-2.0-flash-lite",
+      contents: structurePrompt,
+      config: { temperature: 0.4, maxOutputTokens: 1024 }
+    });
+
+    return this.safeJSONParse(this.cleanResponseContent(response.text || ""));
+  }
+
+  // Generate individual page with dedicated AI call
+  private async generateIndividualPage(prompt: string, page: any, theme: string): Promise<string> {
+    const pagePrompt = `Generate a complete ${page.name} page for this application: "${prompt}"
+
+Page Details:
+- Name: ${page.name}
+- Purpose: ${page.purpose}
+- Content: ${page.content}
+- Theme: ${theme}
+
+Requirements:
+1. Complete HTML5 document with modern structure
+2. CSS Grid layout: header, sidebar, main content
+3. Responsive design with mobile support
+4. All navigation links must use /preview/ prefix
+5. Include realistic content matching the application purpose
+6. Modern UI elements (cards, buttons, forms as needed)
+7. Semantic HTML structure
+8. Accessibility features (alt text, ARIA labels)
+
+Return ONLY the complete HTML content (no JSON, no markdown):`;
+
+    const response = await this.generateWithRetry({
+      model: "gemini-2.0-flash-lite",
+      contents: pagePrompt,
+      config: { temperature: 0.5, maxOutputTokens: 4096 }
+    });
+
+    return this.cleanResponseContent(response.text || "");
+  }
+
+  // Generate modern CSS with dedicated AI call
+  private async generateModernCSS(prompt: string, pageStructure: any): Promise<string> {
+    const cssPrompt = `Generate modern CSS for this application: "${prompt}"
+
+Page Structure: ${JSON.stringify(pageStructure)}
+
+Requirements:
+1. Modern, professional design system
+2. CSS Grid layout for header, sidebar, main content
+3. Responsive design (mobile, tablet, desktop)
+4. Modern color scheme and typography
+5. Smooth animations and transitions
+6. Component-based styling (cards, buttons, forms)
+7. CSS custom properties for theming
+8. Modern shadows, gradients, and effects
+9. Accessible design (contrast, focus states)
+10. Clean, maintainable CSS structure
+
+Return ONLY the complete CSS content (no JSON, no markdown):`;
+
+    const response = await this.generateWithRetry({
+      model: "gemini-2.0-flash-lite",
+      contents: cssPrompt,
+      config: { temperature: 0.4, maxOutputTokens: 4096 }
+    });
+
+    return this.cleanResponseContent(response.text || "");
+  }
+
+  // Generate JavaScript functionality with dedicated AI call
+  private async generateJavaScriptFunctionality(prompt: string, pageStructure: any): Promise<string> {
+    const jsPrompt = `Generate JavaScript functionality for this application: "${prompt}"
+
+Page Structure: ${JSON.stringify(pageStructure)}
+
+Requirements:
+1. Modern ES6+ JavaScript
+2. Functionality specific to the application (cart, search, forms, etc.)
+3. Local storage for data persistence
+4. Responsive navigation and interactions
+5. Form validation and user feedback
+6. Modern DOM manipulation
+7. Event handling for user interactions
+8. Error handling and user notifications
+9. Performance optimizations
+10. Clean, modular code structure
+
+Return ONLY the complete JavaScript content (no JSON, no markdown):`;
+
+    const response = await this.generateWithRetry({
+      model: "gemini-2.0-flash-lite",
+      contents: jsPrompt,
+      config: { temperature: 0.5, maxOutputTokens: 4096 }
+    });
+
+    return this.cleanResponseContent(response.text || "");
   }
 
   // AI recovery method with simplified parameters
