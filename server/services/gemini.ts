@@ -1592,10 +1592,19 @@ console.log('Enhanced ${appType} application fully initialized');`;
     try {
       console.log(`🤖 AI Analyzing prompt: "${prompt}"`);
       
-      // Generate everything using AI - no local templates
-      const aiGeneratedContent = await this.generateCompleteApplicationWithAI(prompt);
+      let aiGeneratedContent: CodeGenerationResponse;
       
-      console.log(`✅ AI generated complete application with ${Object.keys(aiGeneratedContent.files).length} files`);
+      if (existingFiles && Object.keys(existingFiles).length > 0) {
+        // Iterative development - modify existing codebase
+        console.log(`🔧 Modifying existing codebase with ${Object.keys(existingFiles).length} files`);
+        aiGeneratedContent = await this.modifyExistingApplicationWithAI(prompt, existingFiles);
+      } else {
+        // Initial development - create new application
+        console.log(`🆕 Creating new application from scratch`);
+        aiGeneratedContent = await this.generateCompleteApplicationWithAI(prompt);
+      }
+      
+      console.log(`✅ AI ${existingFiles ? 'modified' : 'generated'} application with ${Object.keys(aiGeneratedContent.files).length} files`);
       
       // Store interaction in context for learning
       this.context.previousInteractions.push({
@@ -1631,7 +1640,7 @@ console.log('Enhanced ${appType} application fully initialized');`;
       // Attempt AI-based error recovery with different parameters
       try {
         console.log("Attempting AI recovery with simplified parameters...");
-        return await this.generateWithAIRecovery(prompt);
+        return await this.generateWithAIRecovery(prompt, existingFiles);
       } catch (recoveryError) {
         throw new Error(
           `AI service unavailable. Original error: ${
@@ -1641,6 +1650,98 @@ console.log('Enhanced ${appType} application fully initialized');`;
           }`
         );
       }
+    }
+  }
+
+  // Iterative AI-driven modification of existing application
+  private async modifyExistingApplicationWithAI(prompt: string, existingFiles: Record<string, string>): Promise<CodeGenerationResponse> {
+    const fileList = Object.keys(existingFiles).join(', ');
+    const systemPrompt = `You are an expert full-stack developer working on an iterative modification of an existing web application.
+
+User's Modification Request: "${prompt}"
+
+EXISTING CODEBASE:
+${Object.entries(existingFiles).map(([filename, content]) => `
+=== ${filename} ===
+${content}
+`).join('\n')}
+
+Your task is to modify the existing codebase to implement EXACTLY what the user requested. This is an iterative change, not a complete rewrite.
+
+CRITICAL INSTRUCTIONS:
+1. PRESERVE all existing functionality unless explicitly asked to remove it
+2. ADD/MODIFY/DELETE only what's necessary to fulfill the user's request
+3. Keep the existing design patterns and structure
+4. Maintain compatibility with existing code
+5. Focus on the specific change requested, not a complete overhaul
+6. Ensure all navigation links continue to use /preview/ prefix
+7. Keep the CSS Grid layout with header, sidebar, and main content
+
+Return a JSON response with this structure:
+{
+  "plan": [
+    {"step": 1, "action": "Specific modification", "details": "What exactly will be changed"},
+    {"step": 2, "action": "Next change", "details": "More implementation details"}
+  ],
+  "files": {
+    "filename.html": "COMPLETE modified file content",
+    "styles.css": "COMPLETE modified CSS file",
+    "script.js": "COMPLETE modified JavaScript file"
+  },
+  "reasoning": "Explanation of how these changes fulfill the user's request while preserving existing functionality",
+  "architecture": "Technical approach for the modifications",
+  "nextSteps": ["Suggested improvements"],
+  "dependencies": ["Any new technologies if needed"],
+  "testingStrategy": "How to validate the changes work correctly"
+}
+
+IMPORTANT: Return COMPLETE file contents for ALL files that need changes. Don't return partial files or just the changes - return the entire modified file content.
+
+Make the minimal necessary changes to implement the user's request while keeping everything else intact.`;
+
+    try {
+      const response = await this.generateWithRetry({
+        model: "gemini-2.0-flash-lite",
+        contents: systemPrompt,
+        config: {
+          temperature: 0.3,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 8192
+        }
+      });
+
+      let content = response.text || "";
+      content = this.cleanResponseContent(content);
+      
+      const result = JSON.parse(content);
+      
+      // Validate required fields
+      if (!result.plan || !Array.isArray(result.plan)) {
+        throw new Error("Invalid AI response: missing or invalid plan array");
+      }
+      
+      if (!result.files || typeof result.files !== 'object') {
+        throw new Error("Invalid AI response: missing or invalid files object");
+      }
+
+      // Merge with existing files - keep files that weren't modified
+      const finalFiles = { ...existingFiles };
+      Object.assign(finalFiles, result.files);
+
+      return {
+        plan: result.plan,
+        files: finalFiles,
+        reasoning: result.reasoning || "AI-generated modifications to existing codebase",
+        architecture: result.architecture || "Incremental changes to existing architecture",
+        nextSteps: result.nextSteps || ["Test the new functionality", "Consider additional features"],
+        dependencies: result.dependencies || ["No new dependencies required"],
+        testingStrategy: result.testingStrategy || "Manual testing of modified functionality"
+      };
+      
+    } catch (error) {
+      console.error("AI modification failed:", error);
+      throw new Error(`AI modification failed: ${error.message}`);
     }
   }
 
@@ -1727,11 +1828,14 @@ Generate a complete, functional application that exactly fulfills the user's req
   }
 
   // AI recovery method with simplified parameters
-  private async generateWithAIRecovery(prompt: string): Promise<CodeGenerationResponse> {
-    console.log("🔄 AI Recovery Mode: Using complete AI generation with simplified parameters");
+  private async generateWithAIRecovery(prompt: string, existingFiles?: Record<string, string>): Promise<CodeGenerationResponse> {
+    console.log("🔄 AI Recovery Mode: Using AI generation with simplified parameters");
     
-    // Use the same AI-driven approach with reduced complexity
-    return await this.generateCompleteApplicationWithAI(prompt);
+    if (existingFiles && Object.keys(existingFiles).length > 0) {
+      return await this.modifyExistingApplicationWithAI(prompt, existingFiles);
+    } else {
+      return await this.generateCompleteApplicationWithAI(prompt);
+    }
   }
 
   // Pure AI-driven implementation plan generator

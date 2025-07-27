@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>User List</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,8 +18,19 @@
             </ul>
         </aside>
         <main class="main-content">
-            <h2>Welcome to the Dashboard</h2>
-            <p>Use the navigation to view user list.</p>
+            <h2>User List</h2>
+            <table class="user-list-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="userListTableBody">
+                    <!-- User data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
         </main>
     </div>
     <script src="script.js"></script>
