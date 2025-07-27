@@ -59,7 +59,9 @@ export class AdvancedGeminiAgent {
   private memory: Map<string, any>;
 
   constructor(apiKey: string) {
-    this.genAI = new GoogleGenAI(apiKey);
+    this.genAI = new GoogleGenAI({
+      apiKey: apiKey
+    });
     this.context = {
       previousInteractions: [],
       projectGoals: [],
@@ -1763,8 +1765,9 @@ Make the minimal necessary changes to implement the user's request while keeping
       };
       
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error("AI modification failed:", error);
-      throw new Error(`AI modification failed: ${error.message}`);
+      throw new Error(`AI modification failed: ${errorMessage}`);
     }
   }
 
@@ -1808,7 +1811,7 @@ Return ONLY valid JSON with comprehensive analysis:
     const response = await this.generateWithRetry({
       model: "gemini-2.0-flash-lite",
       contents: analysisPrompt,
-      config: { temperature: 0.3, maxOutputTokens: 2048 }
+      config: { temperature: 0.3, topP: 0.8, topK: 40, maxOutputTokens: 2048 }
     });
 
     return this.safeJSONParse(this.cleanResponseContent(response.text || ""));
@@ -1864,7 +1867,7 @@ Create files that exactly match the user's requirements. Include all necessary p
     const response = await this.generateWithRetry({
       model: "gemini-2.0-flash-lite",
       contents: structurePrompt,
-      config: { temperature: 0.3, maxOutputTokens: 2048 }
+      config: { temperature: 0.3, topP: 0.8, topK: 40, maxOutputTokens: 2048 }
     });
 
     return this.safeJSONParse(this.cleanResponseContent(response.text || ""));
@@ -1904,7 +1907,7 @@ Return ONLY the complete HTML content (no JSON, no markdown):`;
 
 App Type: ${appFeatures.appType}
 UI Requirements: ${JSON.stringify(appFeatures.uiRequirements)}
-All HTML Files: ${fileStructure.files.filter(f => f.type === 'html').map(f => f.name).join(', ')}
+All HTML Files: ${fileStructure.files.filter((f: any) => f.type === 'html').map((f: any) => f.name).join(', ')}
 
 Requirements:
 1. Modern CSS3 with custom properties for theming
@@ -1924,7 +1927,7 @@ Return ONLY the complete CSS content (no JSON, no markdown):`;
 
 App Features: ${JSON.stringify(appFeatures.coreFunctionality)}
 Technical Requirements: ${JSON.stringify(appFeatures.technicalRequirements)}
-All HTML Files: ${fileStructure.files.filter(f => f.type === 'html').map(f => f.name).join(', ')}
+All HTML Files: ${fileStructure.files.filter((f: any) => f.type === 'html').map((f: any) => f.name).join(', ')}
 
 Requirements:
 1. Modern ES6+ JavaScript with proper structure
@@ -1944,7 +1947,7 @@ Return ONLY the complete JavaScript content (no JSON, no markdown):`;
     const response = await this.generateWithRetry({
       model: "gemini-2.0-flash-lite",
       contents: filePrompt,
-      config: { temperature: 0.5, maxOutputTokens: 8192 }
+      config: { temperature: 0.5, topP: 0.9, topK: 50, maxOutputTokens: 8192 }
     });
 
     return this.cleanResponseContent(response.text || "");
@@ -2475,10 +2478,14 @@ REASONING REQUIREMENTS:
           throw new Error('Could not find valid JSON boundaries');
           
         } catch (thirdError) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          const secondErrorMessage = secondError instanceof Error ? secondError.message : String(secondError);
+          const thirdErrorMessage = thirdError instanceof Error ? thirdError.message : String(thirdError);
+          
           console.error('All JSON parsing attempts failed:');
-          console.error('Original error:', error.message);
-          console.error('Second error:', secondError.message);
-          console.error('Third error:', thirdError.message);
+          console.error('Original error:', errorMessage);
+          console.error('Second error:', secondErrorMessage);
+          console.error('Third error:', thirdErrorMessage);
           console.error('Content sample:', content.substring(0, 500));
           
           // Final fallback: extract what we can
@@ -2497,14 +2504,15 @@ REASONING REQUIREMENTS:
               testingStrategy: "Manual review required"
             };
           } catch (extractError) {
-            console.error('Even extraction failed:', extractError.message);
+            const extractErrorMessage = extractError instanceof Error ? extractError.message : String(extractError);
+            console.error('Even extraction failed:', extractErrorMessage);
             
             // Absolute last resort
             return {
               plan: [{ step: 1, action: "Critical Parse Error", details: "Complete parsing failure - manual intervention required" }],
               files: { 
                 "index.html": "<html><body><h1>Parse Error</h1><p>Could not generate application due to parsing issues</p></body></html>",
-                "error.txt": `Parsing failed: ${error.message}\nContent length: ${content.length}\nContent start: ${content.substring(0, 100)}`
+                "error.txt": `Parsing failed: ${errorMessage}\nContent length: ${content.length}\nContent start: ${content.substring(0, 100)}`
               },
               reasoning: "Critical parsing failure",
               architecture: "Error recovery",
@@ -2520,23 +2528,6 @@ REASONING REQUIREMENTS:
 
   // All fallback methods removed - only AI-generated implementation plans supported
 
-  private extractAppName(prompt: string): string {
-    const words = prompt.toLowerCase().split(' ');
-    
-    if (words.includes('fitness') || words.includes('health')) return 'Fitness Tracker';
-    if (words.includes('todo') || words.includes('task')) return 'Task Manager';
-    if (words.includes('shop') || words.includes('store') || words.includes('commerce')) return 'Online Store';
-    if (words.includes('social') || words.includes('chat')) return 'Social Platform';
-    if (words.includes('blog') || words.includes('cms')) return 'Content Manager';
-    if (words.includes('portfolio') || words.includes('showcase')) return 'Portfolio';
-    if (words.includes('dashboard') || words.includes('analytics')) return 'Dashboard';
-    if (words.includes('finance') || words.includes('budget') || words.includes('expense')) return 'Finance Manager';
-    if (words.includes('learning') || words.includes('course')) return 'Learning Platform';
-    if (words.includes('booking') || words.includes('appointment')) return 'Booking System';
-    
-    return 'Application';
-  }
-
   // Core AI generation method - essential for service functionality
   private async generateWithRetry(options: {
     model: string;
@@ -2548,7 +2539,7 @@ REASONING REQUIREMENTS:
       maxOutputTokens: number;
     };
   }, maxRetries: number = 3): Promise<{ text: string }> {
-    let lastError: Error;
+    let lastError: Error = new Error("No attempts made");
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -2565,7 +2556,7 @@ REASONING REQUIREMENTS:
         });
         
         if (!result || !result.candidates || result.candidates.length === 0) {
-          throw new Error("No candidates in AI response");
+          throw new Error("No response from AI service");
         }
         
         const text = result.candidates[0].content.parts[0].text;
