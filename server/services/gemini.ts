@@ -1677,7 +1677,7 @@ CRITICAL INSTRUCTIONS:
 6. Ensure all navigation links continue to use /preview/ prefix
 7. Keep the CSS Grid layout with header, sidebar, and main content
 
-Return a JSON response with this structure:
+Return ONLY a valid JSON response with this EXACT structure (no markdown, no comments, no extra text):
 {
   "plan": [
     {"step": 1, "action": "Specific modification", "details": "What exactly will be changed"},
@@ -1688,11 +1688,11 @@ Return a JSON response with this structure:
     "styles.css": "COMPLETE modified CSS file",
     "script.js": "COMPLETE modified JavaScript file"
   },
-  "reasoning": "Explanation of how these changes fulfill the user's request while preserving existing functionality",
-  "architecture": "Technical approach for the modifications",
-  "nextSteps": ["Suggested improvements"],
-  "dependencies": ["Any new technologies if needed"],
-  "testingStrategy": "How to validate the changes work correctly"
+  "reasoning": "Brief explanation of changes",
+  "architecture": "Technical approach",
+  "nextSteps": ["Improvement 1", "Improvement 2"],
+  "dependencies": ["Technology 1", "Technology 2"],
+  "testingStrategy": "Testing approach"
 }
 
 IMPORTANT: Return COMPLETE file contents for ALL files that need changes. Don't return partial files or just the changes - return the entire modified file content.
@@ -1753,24 +1753,22 @@ User Request: "${prompt}"
 
 Analyze the request carefully and create a professional, fully-functional application that matches EXACTLY what the user described. 
 
-Return a JSON response with this structure:
+Return ONLY a valid JSON response with this structure (no markdown, no extra text):
 {
   "plan": [
     {"step": 1, "action": "Specific action", "details": "Implementation details"},
     {"step": 2, "action": "Next action", "details": "More details"}
   ],
   "files": {
-    "index.html": "Complete HTML file with actual content matching user's request",
-    "styles.css": "Complete CSS with styling specific to the application",
-    "script.js": "Complete JavaScript with functionality specific to the application",
-    "about.html": "Additional pages as needed",
-    "contact.html": "More pages if relevant to the request"
+    "index.html": "Complete HTML file content",
+    "styles.css": "Complete CSS content",
+    "script.js": "Complete JavaScript content"
   },
-  "reasoning": "Explanation of how this matches the user's request",
-  "architecture": "Technical approach used",
-  "nextSteps": ["Future improvements"],
-  "dependencies": ["Required technologies"],
-  "testingStrategy": "How to validate the application"
+  "reasoning": "Brief explanation",
+  "architecture": "Technical approach",
+  "nextSteps": ["Improvement 1", "Improvement 2"],
+  "dependencies": ["Technology 1", "Technology 2"],
+  "testingStrategy": "Testing approach"
 }
 
 CRITICAL REQUIREMENTS:
@@ -2173,48 +2171,125 @@ REASONING REQUIREMENTS:
       // First attempt: direct parse
       return JSON.parse(content);
     } catch (error) {
-      console.warn('Initial JSON parse failed, attempting fixes...');
+      console.warn('Initial JSON parse failed, attempting advanced fixes...');
       
       try {
-        // Second attempt: more aggressive fixing
-        let fixed = content;
+        // More advanced JSON fixing approach
+        let fixed = content.trim();
         
-        // Remove any non-printable characters
-        fixed = fixed.replace(/[\x00-\x1F\x7F]/g, '');
-        
-        // Fix common HTML attribute escaping issues
-        fixed = fixed.replace(/\\"/g, '\\"');
-        fixed = fixed.replace(/"/g, '"');
-        fixed = fixed.replace(/"/g, '"');
-        
-        // Fix line breaks in JSON strings
-        fixed = fixed.replace(/\n/g, '\\n');
-        fixed = fixed.replace(/\r/g, '\\r');
-        fixed = fixed.replace(/\t/g, '\\t');
-        
-        // Try to find and extract the main JSON object
-        const jsonStart = fixed.indexOf('{');
-        const jsonEnd = fixed.lastIndexOf('}') + 1;
-        
-        if (jsonStart !== -1 && jsonEnd > jsonStart) {
-          fixed = fixed.substring(jsonStart, jsonEnd);
+        // Step 1: Extract JSON from markdown or wrapped content
+        const jsonMatches = fixed.match(/\{[\s\S]*\}/);
+        if (jsonMatches) {
+          fixed = jsonMatches[0];
         }
         
-        return JSON.parse(fixed);
-      } catch (secondError) {
-        console.error('JSON parsing failed completely:', error.message);
-        console.error('Content preview:', content.substring(0, 200));
+        // Step 2: Fix common JSON escaping issues systematically
         
-        // Return a basic structure to prevent complete failure
-        return {
-          plan: [{ step: 1, action: "Parse Error", details: "AI response could not be parsed" }],
-          files: { "error.txt": "JSON parsing failed" },
-          reasoning: "Response parsing failed",
-          architecture: "Error state",
-          nextSteps: ["Retry with different parameters"],
-          dependencies: [],
-          testingStrategy: "Manual retry required"
-        };
+        // Replace smart quotes with regular quotes
+        fixed = fixed.replace(/[""]/g, '"');
+        fixed = fixed.replace(/['']/g, "'");
+        
+        // Handle newlines inside JSON strings properly
+        fixed = fixed.replace(/\n(?=\s*")/g, '');  // Remove newlines before property names
+        fixed = fixed.replace(/\n(?=\s*\})/g, '');  // Remove newlines before closing braces
+        fixed = fixed.replace(/\n(?=\s*\])/g, '');  // Remove newlines before closing brackets
+        
+        // Fix trailing commas
+        fixed = fixed.replace(/,(\s*[}\]])/g, '$1');
+        
+        // Fix unescaped quotes in strings
+        fixed = fixed.replace(/"([^"]*)"([^"]*)"([^"]*)"([^,}\]]*)/g, (match, p1, p2, p3, p4) => {
+          if (p2.includes('<') || p4.includes('<')) {
+            return `"${p1}\\"${p2}\\"${p3}\\"${p4}"`;
+          }
+          return match;
+        });
+        
+        // Step 3: Try parsing the fixed content
+        return JSON.parse(fixed);
+        
+      } catch (secondError) {
+        console.warn('Advanced JSON fixing failed, trying fallback approach...');
+        
+        try {
+          // Fallback: Try to parse line by line and reconstruct
+          const lines = content.split('\n');
+          let reconstructed = '';
+          let inString = false;
+          let escapeNext = false;
+          
+          for (const line of lines) {
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              
+              if (escapeNext) {
+                reconstructed += char;
+                escapeNext = false;
+                continue;
+              }
+              
+              if (char === '\\') {
+                escapeNext = true;
+                reconstructed += char;
+                continue;
+              }
+              
+              if (char === '"' && !escapeNext) {
+                inString = !inString;
+              }
+              
+              reconstructed += char;
+            }
+            
+            if (!inString) {
+              reconstructed += '';  // Don't add newline outside strings
+            } else {
+              reconstructed += '\\n';  // Escape newline inside strings
+            }
+          }
+          
+          return JSON.parse(reconstructed);
+          
+        } catch (thirdError) {
+          console.error('All JSON parsing attempts failed:');
+          console.error('Original error:', error.message);
+          console.error('Second error:', secondError.message);
+          console.error('Third error:', thirdError.message);
+          console.error('Content sample:', content.substring(0, 300));
+          
+          // Final fallback: extract what we can
+          try {
+            // Try to extract a basic plan from the content
+            const planMatch = content.match(/"plan"\s*:\s*\[([\s\S]*?)\]/);
+            const filesMatch = content.match(/"files"\s*:\s*\{([\s\S]*?)\}/);
+            
+            return {
+              plan: planMatch ? [{ step: 1, action: "Extracted from partial parse", details: "Found plan data" }] : [{ step: 1, action: "Parse Error", details: "Could not parse AI response" }],
+              files: { "index.html": "<html><body><h1>KYC Management System</h1><p>Application generated but parsing failed</p></body></html>" },
+              reasoning: "Fallback response due to parsing error",
+              architecture: "Basic HTML structure",
+              nextSteps: ["Retry generation", "Check AI response format"],
+              dependencies: ["HTML5"],
+              testingStrategy: "Manual review required"
+            };
+          } catch (extractError) {
+            console.error('Even extraction failed:', extractError.message);
+            
+            // Absolute last resort
+            return {
+              plan: [{ step: 1, action: "Critical Parse Error", details: "Complete parsing failure - manual intervention required" }],
+              files: { 
+                "index.html": "<html><body><h1>Parse Error</h1><p>Could not generate application due to parsing issues</p></body></html>",
+                "error.txt": `Parsing failed: ${error.message}\nContent length: ${content.length}\nContent start: ${content.substring(0, 100)}`
+              },
+              reasoning: "Critical parsing failure",
+              architecture: "Error recovery",
+              nextSteps: ["Contact support", "Check AI service"],
+              dependencies: [],
+              testingStrategy: "Error state - no testing possible"
+            };
+          }
+        }
       }
     }
   }
