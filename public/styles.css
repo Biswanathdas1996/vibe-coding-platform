@@ -1,3 +1,4 @@
+/* General Styles */
 body {
     font-family: sans-serif;
     margin: 0;
@@ -6,57 +7,115 @@ body {
     color: #333;
 }
 
+.app-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 
+        "header header"
+        "sidebar main";
+    min-height: 100vh;
+}
+
 header {
+    grid-area: header;
     background-color: #333;
     color: #fff;
     padding: 1em;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-main {
-    padding: 1em;
-    display: grid;
-    grid-template-columns: 1fr; /* Default: single column */
+header nav {
+    display: flex;
     gap: 1em;
 }
 
-@media (min-width: 768px) {
-    main {
-        grid-template-columns: 1fr 2fr; /* Two columns on larger screens */
-    }
+header a {
+    color: #fff;
+    text-decoration: none;
 }
 
-#task-input, #task-list {
-    background-color: #fff;
+aside {
+    grid-area: sidebar;
+    background-color: #eee;
     padding: 1em;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-#task-form {
-    display: flex;
-    flex-direction: column;
+main {
+    grid-area: main;
+    padding: 1em;
 }
 
-#task-form label, #task-form input, #task-form textarea {
-    margin-bottom: 0.5em;
+/* Product Listing Styles */
+.product-card {
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-bottom: 1em;
+    background-color: #fff;
+    border-radius: 8px;
 }
 
-#tasks {
+.product-card h3 {
+    margin-top: 0;
+}
+
+.product-card button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Cart Display Styles */
+#cart-display {
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-top: 1em;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+#cart-items {
     list-style: none;
     padding: 0;
 }
 
-#tasks li {
-    padding: 1em;
-    border: 1px solid #ddd;
+#cart-items li {
     margin-bottom: 0.5em;
-    border-radius: 5px;
 }
 
-footer {
-    text-align: center;
-    padding: 1em;
-    background-color: #333;
+#checkout-button {
+    background-color: #28a745;
     color: #fff;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-container {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "header"
+            "main";
+    }
+
+    aside {
+        display: none; /* Hide sidebar on mobile */
+    }
+
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header nav {
+        margin-top: 1em;
+    }
 }

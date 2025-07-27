@@ -360,12 +360,40 @@ export class AdvancedGeminiAgent {
       // Enhanced system prompt with agentic reasoning
       const systemPrompt = this.buildAdvancedSystemPrompt(prompt, fileAnalyses, architecturePlan);
 
-      const fullPrompt = `${systemPrompt}\n\nUser request: ${prompt}\n\nContext from previous interactions: ${this.getContextualHistory()}\n\nIMPORTANT: Return ONLY valid JSON in this exact format:
+      const isInitialPrompt = fileAnalyses.length === 0 && this.context.previousInteractions.length === 0;
+      
+      const fullPrompt = `${systemPrompt}
+
+User request: ${prompt}
+
+${isInitialPrompt ? `
+🚀 CRITICAL: This is the FIRST PROMPT for creating a new application. Create a COMPLETE, COMPREHENSIVE application with ALL features that would make this production-ready.
+
+MANDATORY HTML LAYOUT STRUCTURE:
+- Header with app name and navigation elements
+- Sidebar with main navigation menu
+- Main content area for primary features
+- Use CSS Grid layout with responsive design
+- Modern HTML5 semantic structure
+
+COMPREHENSIVE FEATURE REQUIREMENTS:
+Build ALL logical features for this application type. For example:
+- Fitness Tracker → Workout logging, exercise library, progress charts, goal tracking, calendar view, social features, data export
+- Task Manager → Task creation/editing, categories, priorities, search/filter, progress tracking, team collaboration, notifications
+- E-commerce → Product catalog, cart, checkout, user accounts, order history, reviews, wishlist, recommendations
+- Dashboard → Multiple widgets, data visualization, real-time updates, customization, dark mode, notifications
+` : `
+ENHANCEMENT MODE: Improve existing application while maintaining consistency.
+`}
+
+Context from previous interactions: ${this.getContextualHistory()}
+
+IMPORTANT: Return ONLY valid JSON in this exact format:
 {
   "plan": ["step 1", "step 2", "step 3"],
   "files": {
     "index.html": "file content here",
-    "styles.css": "css content here",
+    "styles.css": "css content here", 
     "script.js": "js content here"
   },
   "reasoning": "explanation of approach and decisions",
@@ -467,6 +495,16 @@ WHAT TO BUILD FOR INITIAL PROMPT:
 - Accessibility features
 - Performance optimizations
 
+MANDATORY UI LAYOUT STRUCTURE FOR ALL APPLICATIONS:
+- HEADER: Must include app name/title and navigation elements
+- SIDEBAR: Must include main navigation menu with organized sections
+- MAIN CONTENT AREA: Primary application content with proper spacing
+- Use modern HTML5 semantic elements (header, nav, main, aside, section, article)
+- Implement CSS Grid or Flexbox for responsive layout
+- Ensure sidebar can collapse/expand on mobile devices
+- Header should be fixed or sticky for better navigation
+- Modern design with consistent spacing, typography, and color scheme
+
 FEATURE INFERENCE EXAMPLES:
 - "Todo app" → Include categories, priorities, due dates, search, filters, bulk operations, data export
 - "Dashboard" → Include charts, widgets, customization, dark mode, notifications, user profile
@@ -511,6 +549,27 @@ TECHNICAL STANDARDS (2025):
 - Performance-first approach with lazy loading and code splitting
 - Modern CSS features (custom properties, logical properties, cascade layers)
 - Advanced JavaScript patterns (modules, workers, streaming)
+
+MANDATORY HTML5 LAYOUT STRUCTURE:
+All generated applications MUST follow this exact layout pattern:
+
+HTML STRUCTURE REQUIREMENTS:
+- Header with app name and navigation elements
+- Sidebar with main navigation menu
+- Main content area for primary application features
+- Use semantic HTML5 elements (header, nav, main, aside)
+- App container with proper CSS Grid layout
+- Mobile-responsive design with collapsible sidebar
+
+CSS LAYOUT REQUIREMENTS:
+- Use CSS Grid for main layout with header/sidebar/main areas
+- Sidebar must be collapsible on mobile (under 768px)
+- Header should be sticky or fixed position
+- Responsive design with mobile-first approach
+- Modern spacing and typography
+- Consistent color scheme and visual hierarchy
+- Smooth animations for interactive elements
+- Professional styling with proper visual hierarchy
 
 ARCHITECTURAL PRINCIPLES:
 - SOLID principles and clean architecture

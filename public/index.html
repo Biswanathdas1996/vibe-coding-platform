@@ -3,32 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Management App</title>
+    <title>Online Store</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Project Management</h1>
-    </header>
-    <main>
-        <section id="task-input">
-            <h2>Create Task</h2>
-            <form id="task-form">
-                <label for="task-name">Task Name:</label><input type="text" id="task-name" required><br>
-                <label for="task-description">Description:</label><textarea id="task-description"></textarea><br>
-                <label for="task-assignee">Assignee:</label><input type="text" id="task-assignee"><br>
-                <label for="task-due-date">Due Date:</label><input type="date" id="task-due-date"><br>
-                <button type="submit">Add Task</button>
-            </form>
-        </section>
-        <section id="task-list">
-            <h2>Tasks</h2>
-            <ul id="tasks"></ul>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2024 Project Management App</p>
-    </footer>
+    <div class="app-container">
+        <header>
+            <h1>Online Store</h1>
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">Products</a>
+                <a href="#" id="cart-icon">Cart (0)</a>
+            </nav>
+        </header>
+        <aside>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main>
+            <section id="product-list">
+                <!-- Product listings will go here -->
+            </section>
+            <section id="cart-display" style="display:none;">
+                <h2>Shopping Cart</h2>
+                <ul id="cart-items"></ul>
+                <p>Total: <span id="cart-total">$0.00</span></p>
+                <button id="checkout-button">Checkout</button>
+            </section>
+        </main>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
