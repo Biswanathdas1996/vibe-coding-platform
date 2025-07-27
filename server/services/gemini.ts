@@ -1590,31 +1590,21 @@ console.log('Enhanced ${appType} application fully initialized');`;
     existingFiles?: Record<string, string>
   ): Promise<CodeGenerationResponse> {
     try {
-      // Step 1: Analyze prompt and determine required pages
-      const { pages, appName } = this.analyzePromptForPages(prompt);
-      const appType = this.detectApplicationType(prompt);
-      const themeColors = this.getThemeColors(appType);
+      console.log(`🤖 AI Analyzing prompt: "${prompt}"`);
       
-      console.log(`🔍 Analyzed prompt - App: ${appName}, Type: ${appType}, Pages: ${pages.map(p => p.name).join(', ')}`);
+      // Generate everything using AI - no local templates
+      const aiGeneratedContent = await this.generateCompleteApplicationWithAI(prompt);
       
-      // Step 2: Generate HTML files for each page
-      const files: Record<string, string> = {};
+      console.log(`✅ AI generated complete application with ${Object.keys(aiGeneratedContent.files).length} files`);
       
-      // Generate each HTML page with tailored content
-      for (const page of pages) {
-        const filename = page.name === 'index' ? 'index.html' : `${page.name}.html`;
-        files[filename] = this.generateHTMLForPage(page, pages, appName, themeColors);
-        console.log(`📄 Generated ${filename} with sections: ${page.content.sections.map(s => s.type).join(', ')}`);
-      }
-      
-      // Step 3: Generate enhanced CSS with dynamic theming
-      files['styles.css'] = this.generateEnhancedCSS(appType, themeColors, pages);
-      
-      // Step 4: Generate JavaScript with interactivity for all pages
-      files['script.js'] = this.generateEnhancedJavaScript(pages, appType);
-      
-      // Step 5: Generate AI-driven implementation plan
-      const implementationPlan = await this.generateAIImplementationPlan(prompt);
+      // Store interaction in context for learning
+      this.context.previousInteractions.push({
+        prompt,
+        response: aiGeneratedContent,
+        timestamp: new Date()
+      });
+
+      return aiGeneratedContent;
       
       const result: CodeGenerationResponse = {
         plan: implementationPlan.plan,
@@ -1654,38 +1644,94 @@ console.log('Enhanced ${appType} application fully initialized');`;
     }
   }
 
+  // Complete AI-driven application generation based on user prompt
+  private async generateCompleteApplicationWithAI(prompt: string): Promise<CodeGenerationResponse> {
+    const systemPrompt = `You are an expert full-stack developer. Generate a complete web application based on the user's exact requirements.
+
+User Request: "${prompt}"
+
+Analyze the request carefully and create a professional, fully-functional application that matches EXACTLY what the user described. 
+
+Return a JSON response with this structure:
+{
+  "plan": [
+    {"step": 1, "action": "Specific action", "details": "Implementation details"},
+    {"step": 2, "action": "Next action", "details": "More details"}
+  ],
+  "files": {
+    "index.html": "Complete HTML file with actual content matching user's request",
+    "styles.css": "Complete CSS with styling specific to the application",
+    "script.js": "Complete JavaScript with functionality specific to the application",
+    "about.html": "Additional pages as needed",
+    "contact.html": "More pages if relevant to the request"
+  },
+  "reasoning": "Explanation of how this matches the user's request",
+  "architecture": "Technical approach used",
+  "nextSteps": ["Future improvements"],
+  "dependencies": ["Required technologies"],
+  "testingStrategy": "How to validate the application"
+}
+
+CRITICAL REQUIREMENTS:
+1. The application MUST match the user's specific request - not a generic template
+2. Include relevant features, content, and functionality mentioned in the prompt
+3. Use appropriate terminology, business context, and domain-specific content
+4. Create multiple pages only if the request implies them
+5. Make the design and content authentic to the request
+6. Use professional, production-ready code
+7. Include CSS Grid layout with header, sidebar, and main content
+8. Ensure all navigation links use /preview/ prefix
+
+Generate a complete, functional application that exactly fulfills the user's request.`;
+
+    try {
+      const response = await this.generateWithRetry({
+        model: "gemini-2.0-flash-lite",
+        contents: systemPrompt,
+        config: {
+          temperature: 0.4,
+          topP: 0.9,
+          topK: 50,
+          maxOutputTokens: 8192
+        }
+      });
+
+      let content = response.text || "";
+      content = this.cleanResponseContent(content);
+      
+      const result = JSON.parse(content);
+      
+      // Validate required fields
+      if (!result.plan || !Array.isArray(result.plan)) {
+        throw new Error("Invalid AI response: missing or invalid plan array");
+      }
+      
+      if (!result.files || typeof result.files !== 'object') {
+        throw new Error("Invalid AI response: missing or invalid files object");
+      }
+
+      return {
+        plan: result.plan,
+        files: result.files,
+        reasoning: result.reasoning || "AI-generated application matching user requirements",
+        architecture: result.architecture || "Modern web application architecture",
+        nextSteps: result.nextSteps || ["Add advanced features", "Optimize performance"],
+        dependencies: result.dependencies || ["HTML5", "CSS3", "JavaScript"],
+        testingStrategy: result.testingStrategy || "Manual testing and validation"
+      };
+      
+    } catch (error) {
+      console.error("AI application generation failed:", error);
+      throw new Error(`AI application generation failed: ${error.message}`);
+    }
+  }
+
   // AI recovery method with simplified parameters
   private async generateWithAIRecovery(prompt: string): Promise<CodeGenerationResponse> {
-    console.log("🔄 AI Recovery Mode: Generating implementation plan with optimized parameters");
+    console.log("🔄 AI Recovery Mode: Using complete AI generation with simplified parameters");
     
-    // Use AI to generate implementation plan entirely
-    const implementationPlan = await this.generateAIImplementationPlan(prompt);
-    
-    // Analyze prompt for pages and app type using local intelligence
-    const { pages, appName } = this.analyzePromptForPages(prompt);
-    const appType = this.detectApplicationType(prompt);
-    const themeColors = this.getThemeColors(appType);
-    
-    // Generate files using local methods
-    const files: Record<string, string> = {};
-    
-    for (const page of pages) {
-      const filename = page.name === 'index' ? 'index.html' : `${page.name}.html`;
-      files[filename] = this.generateHTMLForPage(page, pages, appName, themeColors);
-    }
-    
-    files['styles.css'] = this.generateEnhancedCSS(appType, themeColors, pages);
-    files['script.js'] = this.generateEnhancedJavaScript(pages, appType);
-    
-    return {
-      plan: implementationPlan.plan,
-      files,
-      reasoning: implementationPlan.reasoning,
-      architecture: implementationPlan.architecture,
-      nextSteps: implementationPlan.nextSteps,
-      dependencies: implementationPlan.dependencies,
-      testingStrategy: implementationPlan.testingStrategy
-    };
+    // Use the same AI-driven approach with reduced complexity
+    return await this.generateCompleteApplicationWithAI(prompt);
   }
 
   // Pure AI-driven implementation plan generator
