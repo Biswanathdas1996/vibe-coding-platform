@@ -172,9 +172,11 @@ export class AdvancedGeminiAgent {
     const isInitialPrompt = this.context.previousInteractions.length === 0;
     const appType = this.detectApplicationType(requirements);
     const coreFeatures = this.inferCoreFeatures(requirements, appType);
+    const themeColors = this.getThemeColors(appType);
     
     return {
       applicationType: appType,
+      themeColors: themeColors,
       coreFeatures: coreFeatures,
       layers: ['Presentation Layer', 'Business Logic Layer', 'Data Access Layer', 'Storage Layer'],
       patterns: this.recommendPatterns(requirements),
@@ -204,6 +206,23 @@ export class AdvancedGeminiAgent {
     if (req.includes('finance') || req.includes('budget') || req.includes('expense')) return 'Financial Management';
     if (req.includes('health') || req.includes('fitness') || req.includes('tracker')) return 'Health/Fitness';
     return 'Custom Application';
+  }
+
+  private getThemeColors(appType: string): {primary: string, secondary: string, accent: string} {
+    const themes: Record<string, {primary: string, secondary: string, accent: string}> = {
+      'Health/Fitness': { primary: '#4CAF50', secondary: '#2196F3', accent: '#81C784' },
+      'E-commerce': { primary: '#FF9800', secondary: '#9C27B0', accent: '#FFB74D' },
+      'Productivity': { primary: '#2196F3', secondary: '#3F51B5', accent: '#64B5F6' },
+      'Social Platform': { primary: '#E91E63', secondary: '#9C27B0', accent: '#F06292' },
+      'Financial Management': { primary: '#4CAF50', secondary: '#009688', accent: '#26A69A' },
+      'Portfolio/Gallery': { primary: '#9C27B0', secondary: '#E91E63', accent: '#BA68C8' },
+      'Educational Platform': { primary: '#2196F3', secondary: '#00BCD4', accent: '#4FC3F7' },
+      'Analytics Dashboard': { primary: '#3F51B5', secondary: '#2196F3', accent: '#7986CB' },
+      'Content Management': { primary: '#795548', secondary: '#FF7043', accent: '#A1887F' },
+      'Booking System': { primary: '#607D8B', secondary: '#2196F3', accent: '#90A4AE' }
+    };
+    
+    return themes[appType] || { primary: '#607D8B', secondary: '#2196F3', accent: '#90A4AE' };
   }
 
   private inferCoreFeatures(requirements: string, appType: string): string[] {
@@ -382,6 +401,27 @@ Build ALL logical features for this application type. For example:
 - Task Manager → Task creation/editing, categories, priorities, search/filter, progress tracking, team collaboration, notifications
 - E-commerce → Product catalog, cart, checkout, user accounts, order history, reviews, wishlist, recommendations
 - Dashboard → Multiple widgets, data visualization, real-time updates, customization, dark mode, notifications
+
+DYNAMIC THEME COLOR SYSTEM:
+Each application type must have a unique theme color scheme that reflects its purpose:
+- Fitness/Health Apps → Green/Blue theme (#4CAF50, #2196F3)
+- E-commerce Apps → Orange/Purple theme (#FF9800, #9C27B0)
+- Productivity Apps → Blue/Indigo theme (#2196F3, #3F51B5)
+- Social Apps → Pink/Purple theme (#E91E63, #9C27B0)
+- Finance Apps → Green/Teal theme (#4CAF50, #009688)
+- Creative Apps → Purple/Pink theme (#9C27B0, #E91E63)
+- Educational Apps → Blue/Cyan theme (#2196F3, #00BCD4)
+- Analytics Apps → Indigo/Blue theme (#3F51B5, #2196F3)
+- Default Apps → Gray/Blue theme (#607D8B, #2196F3)
+
+The theme colors should be applied to:
+- Header background and accent elements
+- Sidebar active states and highlights
+- Primary buttons and interactive elements
+- Progress bars and status indicators
+- Active navigation states
+- Form focus states and validation
+- Use CSS custom properties for easy theme switching
 ` : `
 ENHANCEMENT MODE: Improve existing application while maintaining consistency.
 `}

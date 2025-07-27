@@ -46,7 +46,10 @@ Preferred communication style: Simple, everyday language.
 - **Tool Integration**: Built-in code analysis, quality assessment, and architecture planning tools
 - **MCP Support**: Compatible with Model Context Protocol for external tool integration
 - **Framework Integration**: Supports LangChain, CrewAI, and AutoGen patterns
-- **Update (July 27, 2025)**: Major upgrade to advanced agentic AI architecture with MCP capabilities
+- **Layout Structure**: Mandatory HTML5 layout with header, sidebar, and main content using CSS Grid
+- **Dynamic Theming**: Automatic theme color assignment based on application type (10+ predefined themes)
+- **Comprehensive Apps**: Creates complete, production-ready applications from first prompts
+- **Update (July 27, 2025)**: Major upgrade to advanced agentic AI architecture with MCP capabilities and dynamic theming
 
 ### File Management System
 - **Directory Structure**: `/public` directory for generated static files
