@@ -1345,19 +1345,19 @@ body {
         <header class="app-header">
             <h1 class="app-title">${appName}</h1>
             <nav class="header-nav">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="features.html" class="nav-link">Features</a>
-                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="/preview/index.html" class="nav-link">Home</a>
+                <a href="/preview/features.html" class="nav-link">Features</a>
+                <a href="/preview/contact.html" class="nav-link">Contact</a>
             </nav>
         </header>
         <div class="app-layout">
             <aside class="sidebar">
                 <nav class="sidebar-nav">
                     <ul>
-                        <li><a href="index.html" class="nav-item">Dashboard</a></li>
-                        <li><a href="features.html" class="nav-item">Features</a></li>
-                        <li><a href="about.html" class="nav-item active">About</a></li>
-                        <li><a href="contact.html" class="nav-item">Contact</a></li>
+                        <li><a href="/preview/index.html" class="nav-item">Dashboard</a></li>
+                        <li><a href="/preview/features.html" class="nav-item">Features</a></li>
+                        <li><a href="/preview/about.html" class="nav-item active">About</a></li>
+                        <li><a href="/preview/contact.html" class="nav-item">Contact</a></li>
                     </ul>
                 </nav>
             </aside>
@@ -1402,19 +1402,19 @@ body {
         <header class="app-header">
             <h1 class="app-title">${appName}</h1>
             <nav class="header-nav">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="/preview/index.html" class="nav-link">Home</a>
+                <a href="/preview/about.html" class="nav-link">About</a>
+                <a href="/preview/contact.html" class="nav-link">Contact</a>
             </nav>
         </header>
         <div class="app-layout">
             <aside class="sidebar">
                 <nav class="sidebar-nav">
                     <ul>
-                        <li><a href="index.html" class="nav-item">Dashboard</a></li>
-                        <li><a href="features.html" class="nav-item active">Features</a></li>
-                        <li><a href="about.html" class="nav-item">About</a></li>
-                        <li><a href="contact.html" class="nav-item">Contact</a></li>
+                        <li><a href="/preview/index.html" class="nav-item">Dashboard</a></li>
+                        <li><a href="/preview/features.html" class="nav-item active">Features</a></li>
+                        <li><a href="/preview/about.html" class="nav-item">About</a></li>
+                        <li><a href="/preview/contact.html" class="nav-item">Contact</a></li>
                     </ul>
                 </nav>
             </aside>
@@ -1461,19 +1461,19 @@ body {
         <header class="app-header">
             <h1 class="app-title">${appName}</h1>
             <nav class="header-nav">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="features.html" class="nav-link">Features</a>
+                <a href="/preview/index.html" class="nav-link">Home</a>
+                <a href="/preview/about.html" class="nav-link">About</a>
+                <a href="/preview/features.html" class="nav-link">Features</a>
             </nav>
         </header>
         <div class="app-layout">
             <aside class="sidebar">
                 <nav class="sidebar-nav">
                     <ul>
-                        <li><a href="index.html" class="nav-item">Dashboard</a></li>
-                        <li><a href="features.html" class="nav-item">Features</a></li>
-                        <li><a href="about.html" class="nav-item">About</a></li>
-                        <li><a href="contact.html" class="nav-item active">Contact</a></li>
+                        <li><a href="/preview/index.html" class="nav-item">Dashboard</a></li>
+                        <li><a href="/preview/features.html" class="nav-item">Features</a></li>
+                        <li><a href="/preview/about.html" class="nav-item">About</a></li>
+                        <li><a href="/preview/contact.html" class="nav-item active">Contact</a></li>
                     </ul>
                 </nav>
             </aside>

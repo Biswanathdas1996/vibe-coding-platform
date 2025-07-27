@@ -3,68 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Commerce Store</title>
+    <title>Test Application</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <div class="app-name">E-Commerce Store</div>
-        <nav>
-            <ul>
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="#products">Products</a></li>
-                <li><a href="#cart">Cart</a></li>
-                <li><a href="#login">Login</a></li>
-            </ul>
-        </nav>
-    </header>
-
     <div class="app-container">
-        <aside class="sidebar">
-            <nav>
-                <ul>
-                    <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="#products">Products</a></li>
-                    <li><a href="#cart">Cart</a></li>
-                    <li><a href="#login">Login</a></li>
-                </ul>
+        <header class="app-header">
+            <h1 class="app-title">Test Application</h1>
+            <nav class="header-nav">
+                <a href="/preview/index.html" class="nav-link">Home</a>
+                <a href="/preview/features.html" class="nav-link">Features</a>
+                <a href="/preview/contact.html" class="nav-link">Contact</a>
             </nav>
-        </aside>
-
-        <main>
-            <section id="products">
-                <h2>Products</h2>
-                <div class="product-grid">
-                    <!-- Product cards will be dynamically added here -->
-                    <div class="product-card">
-                        <img src="placeholder-image.jpg" alt="Product Name">
-                        <h3>Product Name</h3>
-                        <p>Description of the product.</p>
-                        <p class="price">$99.99</p>
-                        <button>Add to Cart</button>
-                    </div>
-                    <div class="product-card">
-                        <img src="placeholder-image.jpg" alt="Product Name">
-                        <h3>Product Name</h3>
-                        <p>Description of the product.</p>
-                        <p class="price">$99.99</p>
-                        <button>Add to Cart</button>
-                    </div>
-                    <div class="product-card">
-                        <img src="placeholder-image.jpg" alt="Product Name">
-                        <h3>Product Name</h3>
-                        <p>Description of the product.</p>
-                        <p class="price">$99.99</p>
-                        <button>Add to Cart</button>
+        </header>
+        
+        <div class="app-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="/preview/index.html" class="nav-item active">Dashboard</a></li>
+                        <li><a href="/preview/features.html" class="nav-item">Features</a></li>
+                        <li><a href="/preview/about.html" class="nav-item">About</a></li>
+                        <li><a href="/preview/contact.html" class="nav-item">Contact</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            
+            <main class="main-content">
+                <div class="content-section">
+                    <h2>Welcome to Test Application</h2>
+                    <p>This is a multi-page application with fixed navigation. Click the links above to navigate between pages.</p>
+                    
+                    <div class="feature-showcase">
+                        <h3>Navigation Fixed</h3>
+                        <p>All navigation links now use the correct `/preview/` prefix for Live Preview functionality.</p>
+                        <div class="feature-status">✅ Active</div>
                     </div>
                 </div>
-            </section>
-        </main>
+            </main>
+        </div>
     </div>
-
-    <footer>
-        <p>&copy; 2024 E-Commerce Store</p>
-    </footer>
     <script src="script.js"></script>
 </body>
 </html>
