@@ -2,49 +2,44 @@ body {
     font-family: sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0;
+    background-color: #f4f4f4;
     color: #333;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-body.dark-mode {
-    background-color: #1e1e1e;
-    color: #f0f0f0;
 }
 
 header {
-    background-color: #fff;
-    padding: 1rem;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-#darkModeToggle {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    padding: 0.5rem 1rem;
     background-color: #333;
     color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 1em;
+    text-align: center;
 }
 
 main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
+    padding: 1em;
+    display: grid;
+    grid-template-columns: 1fr; /* Default: single column */
+    gap: 1em;
 }
 
-#taskList, #newTask {
-    width: 80%;
-    margin-bottom: 1rem;
-    padding: 1rem;
+@media (min-width: 768px) {
+    main {
+        grid-template-columns: 1fr 2fr; /* Two columns on larger screens */
+    }
+}
+
+#task-input, #task-list {
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1em;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#task-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#task-form label, #task-form input, #task-form textarea {
+    margin-bottom: 0.5em;
 }
 
 #tasks {
@@ -53,41 +48,15 @@ main {
 }
 
 #tasks li {
-    padding: 0.5rem;
-    border-bottom: 1px solid #eee;
+    padding: 1em;
+    border: 1px solid #ddd;
+    margin-bottom: 0.5em;
+    border-radius: 5px;
 }
 
-#taskInput {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-#addTask {
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* Dark Mode Styles */
-body.dark-mode header {
+footer {
+    text-align: center;
+    padding: 1em;
     background-color: #333;
-}
-
-body.dark-mode #taskList, body.dark-mode #newTask {
-    background-color: #2e2e2e;
-}
-
-body.dark-mode #tasks li {
-    border-bottom-color: #444;
-}
-
-body.dark-mode #darkModeToggle {
-    background-color: #fff;
-    color: #333;
+    color: #fff;
 }

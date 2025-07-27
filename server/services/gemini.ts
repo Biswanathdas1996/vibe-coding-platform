@@ -169,19 +169,153 @@ export class AdvancedGeminiAgent {
   }
 
   private generateArchitecture(requirements: string, constraints: string[]): object {
+    const isInitialPrompt = this.context.previousInteractions.length === 0;
+    const appType = this.detectApplicationType(requirements);
+    const coreFeatures = this.inferCoreFeatures(requirements, appType);
+    
     return {
-      layers: ['Presentation', 'Business Logic', 'Data Access'],
-      patterns: ['MVC', 'Observer', 'Factory'],
-      components: this.identifyComponents(requirements),
-      dataFlow: 'Unidirectional'
+      applicationType: appType,
+      coreFeatures: coreFeatures,
+      layers: ['Presentation Layer', 'Business Logic Layer', 'Data Access Layer', 'Storage Layer'],
+      patterns: this.recommendPatterns(requirements),
+      components: this.identifyComponents(requirements, coreFeatures),
+      dataFlow: 'Reactive with State Management',
+      uiSections: this.planUISections(requirements, coreFeatures),
+      dataModels: this.identifyDataModels(requirements, coreFeatures),
+      userFlows: this.planUserFlows(requirements, coreFeatures),
+      featureSet: isInitialPrompt ? 'Complete Application' : 'Incremental Enhancement',
+      scalabilityConsiderations: this.assessScalability(requirements),
+      performanceOptimizations: this.suggestPerformanceOptimizations(appType),
+      accessibilityFeatures: this.planAccessibilityFeatures(),
+      securityConsiderations: this.identifySecurityNeeds(requirements)
     };
   }
 
-  private identifyComponents(requirements: string): string[] {
-    const components = [];
-    if (requirements.includes('user')) components.push('User Management');
-    if (requirements.includes('data')) components.push('Data Layer');
-    if (requirements.includes('api')) components.push('API Layer');
+  private detectApplicationType(requirements: string): string {
+    const req = requirements.toLowerCase();
+    if (req.includes('todo') || req.includes('task') || req.includes('project management')) return 'Productivity';
+    if (req.includes('dashboard') || req.includes('analytics') || req.includes('chart')) return 'Analytics Dashboard';
+    if (req.includes('shop') || req.includes('store') || req.includes('commerce') || req.includes('cart')) return 'E-commerce';
+    if (req.includes('blog') || req.includes('cms') || req.includes('content')) return 'Content Management';
+    if (req.includes('portfolio') || req.includes('showcase') || req.includes('gallery')) return 'Portfolio/Gallery';
+    if (req.includes('social') || req.includes('chat') || req.includes('community')) return 'Social Platform';
+    if (req.includes('booking') || req.includes('reservation') || req.includes('appointment')) return 'Booking System';
+    if (req.includes('learning') || req.includes('course') || req.includes('quiz')) return 'Educational Platform';
+    if (req.includes('finance') || req.includes('budget') || req.includes('expense')) return 'Financial Management';
+    if (req.includes('health') || req.includes('fitness') || req.includes('tracker')) return 'Health/Fitness';
+    return 'Custom Application';
+  }
+
+  private inferCoreFeatures(requirements: string, appType: string): string[] {
+    const baseFeatures = ['Responsive Design', 'Data Persistence', 'User Interface', 'Error Handling'];
+    
+    const typeFeatures: Record<string, string[]> = {
+      'Productivity': ['Task Creation', 'Task Management', 'Categories', 'Priorities', 'Search & Filter', 'Progress Tracking', 'Data Export'],
+      'Analytics Dashboard': ['Data Visualization', 'Charts & Graphs', 'Real-time Updates', 'Customizable Widgets', 'Dark Mode', 'Notifications'],
+      'E-commerce': ['Product Catalog', 'Shopping Cart', 'Checkout Process', 'User Accounts', 'Order History', 'Product Reviews', 'Payment Integration'],
+      'Content Management': ['Content Creation', 'Categories & Tags', 'Comments System', 'Search Functionality', 'Author Profiles', 'Content Scheduling'],
+      'Portfolio/Gallery': ['Project Showcase', 'Image Gallery', 'Contact Form', 'Skills Section', 'Testimonials', 'Resume Download', 'Animations'],
+      'Social Platform': ['User Profiles', 'Posts & Comments', 'Like System', 'Friend Connections', 'Messaging', 'Activity Feed', 'Notifications'],
+      'Booking System': ['Calendar View', 'Appointment Scheduling', 'Availability Management', 'Confirmation System', 'Reminders', 'User Accounts'],
+      'Educational Platform': ['Course Catalog', 'Lesson Management', 'Quiz System', 'Progress Tracking', 'Certificates', 'User Profiles'],
+      'Financial Management': ['Expense Tracking', 'Budget Planning', 'Category Management', 'Reports & Analytics', 'Goal Setting', 'Data Export'],
+      'Health/Fitness': ['Activity Tracking', 'Goal Setting', 'Progress Visualization', 'Calendar Integration', 'Statistics', 'Personal Records']
+    };
+
+    return [...baseFeatures, ...(typeFeatures[appType] || ['Custom Features', 'Interactive UI', 'Data Management'])];
+  }
+
+  private planUISections(requirements: string, features: string[]): string[] {
+    const sections = ['Header/Navigation', 'Main Content Area', 'Footer'];
+    
+    if (features.includes('User Accounts') || features.includes('User Profiles')) {
+      sections.push('User Profile Section', 'Authentication Forms');
+    }
+    if (features.includes('Search')) sections.push('Search Interface');
+    if (features.includes('Categories')) sections.push('Category Navigation');
+    if (features.includes('Dashboard')) sections.push('Dashboard Widgets');
+    if (features.includes('Settings')) sections.push('Settings Panel');
+    if (features.includes('Notifications')) sections.push('Notification Center');
+    
+    return sections;
+  }
+
+  private identifyDataModels(requirements: string, features: string[]): string[] {
+    const models = [];
+    
+    if (features.some(f => f.includes('Task'))) models.push('Task', 'Category', 'Priority');
+    if (features.some(f => f.includes('User'))) models.push('User', 'UserPreferences');
+    if (features.some(f => f.includes('Product'))) models.push('Product', 'Order', 'Cart');
+    if (features.some(f => f.includes('Content') || f.includes('Post'))) models.push('Post', 'Comment', 'Tag');
+    if (features.some(f => f.includes('Project'))) models.push('Project', 'Skill', 'Testimonial');
+    if (features.some(f => f.includes('Booking'))) models.push('Appointment', 'TimeSlot', 'Service');
+    
+    return models.length > 0 ? models : ['DataModel', 'UserData', 'AppState'];
+  }
+
+  private planUserFlows(requirements: string, features: string[]): string[] {
+    const flows = ['Application Launch', 'Main Navigation'];
+    
+    if (features.includes('Task Creation')) flows.push('Create New Task', 'Edit Task', 'Complete Task');
+    if (features.includes('User Accounts')) flows.push('User Registration', 'User Login', 'Profile Management');
+    if (features.includes('Shopping Cart')) flows.push('Browse Products', 'Add to Cart', 'Checkout Process');
+    if (features.includes('Content Creation')) flows.push('Create Content', 'Edit Content', 'Publish Content');
+    if (features.includes('Search')) flows.push('Search and Filter', 'View Results');
+    
+    return flows;
+  }
+
+  private suggestPerformanceOptimizations(appType: string): string[] {
+    const baseOptimizations = ['Lazy Loading', 'Code Splitting', 'Image Optimization', 'Caching Strategy'];
+    
+    const typeOptimizations: Record<string, string[]> = {
+      'Analytics Dashboard': ['Chart Virtualization', 'Data Streaming', 'Background Updates'],
+      'E-commerce': ['Product Image Lazy Loading', 'Search Debouncing', 'Wishlist Caching'],
+      'Content Management': ['Content Pagination', 'Search Indexing', 'Media Optimization'],
+      'Portfolio/Gallery': ['Image Lazy Loading', 'Animation Optimization', 'Progressive Loading']
+    };
+
+    return [...baseOptimizations, ...(typeOptimizations[appType] || ['Component Optimization'])];
+  }
+
+  private planAccessibilityFeatures(): string[] {
+    return [
+      'ARIA Labels and Roles',
+      'Keyboard Navigation Support',
+      'Screen Reader Compatibility',
+      'High Contrast Support',
+      'Focus Management',
+      'Alt Text for Images',
+      'Semantic HTML Structure'
+    ];
+  }
+
+  private identifySecurityNeeds(requirements: string): string[] {
+    const security = ['Input Validation', 'XSS Prevention', 'CSRF Protection'];
+    
+    if (requirements.includes('user') || requirements.includes('login')) {
+      security.push('Authentication Security', 'Password Hashing', 'Session Management');
+    }
+    if (requirements.includes('payment') || requirements.includes('commerce')) {
+      security.push('Payment Security', 'PCI Compliance', 'Secure Transmission');
+    }
+    
+    return security;
+  }
+
+  private identifyComponents(requirements: string, features: string[]): string[] {
+    const components = ['App Container', 'Navigation Component', 'Main Layout'];
+    
+    if (features.includes('Task')) components.push('TaskList', 'TaskItem', 'TaskForm');
+    if (features.includes('User')) components.push('UserProfile', 'AuthenticationForm');
+    if (features.includes('Product')) components.push('ProductCard', 'ProductList', 'ShoppingCart');
+    if (features.includes('Chart')) components.push('ChartComponent', 'Dashboard', 'Widget');
+    if (features.includes('Form')) components.push('FormComponent', 'InputValidation');
+    if (features.includes('Modal')) components.push('ModalDialog', 'Confirmation');
+    if (features.includes('Search')) components.push('SearchBar', 'FilterPanel');
+    
+    components.push('LoadingState', 'ErrorBoundary', 'NotificationSystem');
+    
     return components;
   }
 
@@ -298,52 +432,133 @@ export class AdvancedGeminiAgent {
     fileAnalyses: any[], 
     architecturePlan: any
   ): string {
-    return `You are VibeCodingAgent 2.0, an advanced autonomous AI agent with sophisticated reasoning capabilities.
+    const isInitialPrompt = fileAnalyses.length === 0 && this.context.previousInteractions.length === 0;
+    
+    return `You are VibeCodingAgent 2.0, an advanced autonomous AI agent specialized in creating complete, production-ready web applications.
+
+${isInitialPrompt ? `
+🚀 INITIAL APPLICATION CREATION MODE:
+You are receiving the FIRST PROMPT for a new application. This is your opportunity to create a COMPLETE, FULLY-FUNCTIONAL application that exceeds expectations.
+
+COMPREHENSIVE APPLICATION STRATEGY:
+1. VISION ANALYSIS: Extract the complete application concept from the user's description
+2. FEATURE EXPANSION: Infer and implement ALL logical features that would make this a complete application
+3. ARCHITECTURE DESIGN: Create a robust, scalable application architecture
+4. COMPLETE IMPLEMENTATION: Build every component needed for a production-ready application
+5. USER EXPERIENCE: Ensure intuitive navigation, responsive design, and excellent UX
+6. FUTURE-PROOFING: Include extensibility points and modern best practices
+
+WHAT TO BUILD FOR INITIAL PROMPT:
+- Complete application with ALL core features (not just a basic example)
+- Multiple interconnected pages/sections if applicable
+- Full CRUD operations where relevant
+- Data persistence (localStorage, sessionStorage, or mock backend)
+- Responsive design that works on all devices
+- Modern UI with professional styling
+- Interactive features and smooth animations
+- Error handling and user feedback
+- Loading states and empty states
+- Search, filtering, sorting where applicable
+- User preferences and settings
+- Navigation system (menus, breadcrumbs, etc.)
+- Forms with validation
+- Modal dialogs and confirmations
+- Real-time features (where applicable)
+- Accessibility features
+- Performance optimizations
+
+FEATURE INFERENCE EXAMPLES:
+- "Todo app" → Include categories, priorities, due dates, search, filters, bulk operations, data export
+- "Dashboard" → Include charts, widgets, customization, dark mode, notifications, user profile
+- "E-commerce" → Include product catalog, cart, checkout, user accounts, order history, reviews
+- "Blog" → Include posts, categories, tags, comments, search, author profiles, related posts
+- "Portfolio" → Include projects, skills, contact form, testimonials, resume download, animations
+
+APPLICATION TYPES TO RECOGNIZE:
+- Business Applications: CRM, ERP, Project Management, Analytics
+- Consumer Applications: Social Media, E-commerce, Entertainment, Productivity
+- Educational: Learning Management, Courses, Quizzes, Progress Tracking
+- Creative: Portfolio, Gallery, Design Tools, Content Creation
+- Technical: Developer Tools, APIs, Documentation, Monitoring
+` : `
+🔧 ITERATIVE ENHANCEMENT MODE:
+You are enhancing an existing application. Focus on incremental improvements while maintaining consistency.
+`}
 
 CORE CAPABILITIES:
 - Deep architectural thinking and pattern recognition
+- Complete application development from single descriptions
 - Context-aware code generation with memory of previous interactions
 - Quality-first development with built-in best practices
-- Adaptive learning from user feedback and project evolution
+- Advanced feature inference and implementation
 - Tool-augmented reasoning for complex problem solving
 
 AGENTIC REASONING PROCESS:
-1. ANALYZE: Understand requirements deeply, considering context and constraints
-2. ARCHITECT: Design optimal solution structure and patterns
-3. PLAN: Create detailed implementation strategy with reasoning
-4. GENERATE: Produce high-quality, production-ready code
-5. VALIDATE: Self-assess output quality and suggest improvements
-6. LEARN: Incorporate feedback for future interactions
+1. ANALYZE: Understand the complete application vision and all implicit requirements
+2. ARCHITECT: Design optimal solution structure for the entire application
+3. EXPAND: Infer ALL logical features that would make this a complete, professional application
+4. PLAN: Create detailed implementation strategy covering all components
+5. GENERATE: Produce comprehensive, production-ready code for the full application
+6. VALIDATE: Self-assess completeness and suggest future enhancements
+7. LEARN: Incorporate patterns for future application development
 
 TECHNICAL STANDARDS (2025):
-- Modern ES2024+ JavaScript features
+- Modern ES2024+ JavaScript with advanced patterns
 - CSS Grid, Flexbox, Container Queries for responsive design
-- Web Components and Custom Elements when appropriate
+- Web Components and Custom Elements where beneficial
 - Progressive Enhancement and Core Web Vitals optimization
 - Accessibility (WCAG 2.2) and Security best practices
 - Performance-first approach with lazy loading and code splitting
+- Modern CSS features (custom properties, logical properties, cascade layers)
+- Advanced JavaScript patterns (modules, workers, streaming)
 
 ARCHITECTURAL PRINCIPLES:
 - SOLID principles and clean architecture
 - Component-based design with clear separation of concerns
-- Reactive programming patterns where beneficial
-- Test-driven development mindset
+- Reactive programming patterns and state management
+- Progressive Web App capabilities where applicable
+- Microinteractions and smooth user experience
 - Scalable and maintainable code structure
+- Data-driven development with proper state management
+
+APPLICATION COMPLETENESS CHECKLIST:
+✅ Multiple interconnected features
+✅ Full user interface with navigation
+✅ Data management (CRUD operations)
+✅ Responsive design for all screen sizes
+✅ Interactive elements and feedback
+✅ Error handling and validation
+✅ Loading states and empty states
+✅ Search and filtering capabilities
+✅ User preferences and customization
+✅ Modern styling with smooth animations
+✅ Accessibility features
+✅ Performance optimizations
+✅ Code organization and modularity
 
 EXISTING PROJECT ANALYSIS:
 ${fileAnalyses.length ? `Files analyzed: ${fileAnalyses.map(fa => fa.filename).join(', ')}
 Patterns detected: ${fileAnalyses.map(fa => fa.analysis?.patterns || []).flat().join(', ')}
-Dependencies found: ${fileAnalyses.map(fa => fa.analysis?.dependencies || []).flat().join(', ')}` : 'Starting fresh project'}
+Dependencies found: ${fileAnalyses.map(fa => fa.analysis?.dependencies || []).flat().join(', ')}` : 'Creating new comprehensive application from scratch'}
 
 ARCHITECTURAL PLAN:
-${architecturePlan ? JSON.stringify(architecturePlan, null, 2) : 'Will determine architecture based on requirements'}
+${architecturePlan ? JSON.stringify(architecturePlan, null, 2) : 'Will design complete application architecture based on requirements'}
+
+${isInitialPrompt ? `
+🎯 YOUR MISSION: Create a COMPLETE, PROFESSIONAL APPLICATION that demonstrates the full potential of the user's idea. Don't just build a basic example - build something that could be deployed and used in production. Think of yourself as a senior developer who has been given a project brief and needs to deliver a complete solution.
+
+REMEMBER: This is the user's first impression. Exceed their expectations by delivering more than they asked for while staying true to their core vision.
+` : `
+ENHANCEMENT FOCUS: Build upon the existing foundation while maintaining consistency and adding meaningful improvements.
+`}
 
 REASONING REQUIREMENTS:
-- Explain architectural decisions and trade-offs
-- Justify technology choices and patterns used
-- Identify potential improvements and next steps
+- Explain architectural decisions and trade-offs for the complete application
+- Justify technology choices and patterns used across all features
+- Identify potential improvements and logical next steps
 - Consider scalability, maintainability, and performance implications
-- Suggest testing strategies and quality assurance approaches`;
+- Suggest comprehensive testing strategies and quality assurance approaches
+- Document the complete feature set and how components work together`;
   }
 
   private getContextualHistory(): string {

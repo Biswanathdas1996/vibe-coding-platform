@@ -3,25 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Management Dashboard</title>
+    <title>Project Management App</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <h1>Task Management Dashboard</h1>
-        <button id="darkModeToggle">Dark Mode</button>
+        <h1>Project Management</h1>
     </header>
     <main>
-        <section id="taskList">
+        <section id="task-input">
+            <h2>Create Task</h2>
+            <form id="task-form">
+                <label for="task-name">Task Name:</label><input type="text" id="task-name" required><br>
+                <label for="task-description">Description:</label><textarea id="task-description"></textarea><br>
+                <label for="task-assignee">Assignee:</label><input type="text" id="task-assignee"><br>
+                <label for="task-due-date">Due Date:</label><input type="date" id="task-due-date"><br>
+                <button type="submit">Add Task</button>
+            </form>
+        </section>
+        <section id="task-list">
             <h2>Tasks</h2>
             <ul id="tasks"></ul>
         </section>
-        <section id="newTask">
-            <h2>Add Task</h2>
-            <input type="text" id="taskInput" placeholder="Enter task...">
-            <button id="addTask">Add</button>
-        </section>
     </main>
+    <footer>
+        <p>&copy; 2024 Project Management App</p>
+    </footer>
     <script src="script.js"></script>
 </body>
 </html>
