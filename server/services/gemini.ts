@@ -30,6 +30,27 @@ export interface ToolCapability {
   execute: (input: any) => Promise<any>;
 }
 
+export interface PageRequirement {
+  name: string;
+  title: string;
+  purpose: string;
+  content: PageContent;
+  features: string[];
+}
+
+export interface PageContent {
+  sections: ContentSection[];
+  components: string[];
+  interactivity: string[];
+}
+
+export interface ContentSection {
+  type: string;
+  title: string;
+  content: string;
+  priority: number;
+}
+
 // Advanced Agentic AI Architecture with MCP-like capabilities
 export class AdvancedGeminiAgent {
   private genAI: GoogleGenAI;
@@ -209,6 +230,1207 @@ export class AdvancedGeminiAgent {
     return 'Custom Application';
   }
 
+  // New intelligent page analysis system
+  private analyzePromptForPages(prompt: string): { pages: PageRequirement[], appName: string } {
+    const req = prompt.toLowerCase();
+    const appName = this.extractAppName(prompt);
+    const pages: PageRequirement[] = [];
+
+    // Always include home page
+    pages.push({
+      name: 'index',
+      title: 'Home',
+      purpose: 'Main landing page with overview and navigation',
+      content: this.generateHomeContent(prompt, appName),
+      features: ['navigation', 'hero-section', 'overview']
+    });
+
+    // Analyze prompt for specific page requirements
+    if (req.includes('about') || req.includes('company') || req.includes('team') || req.includes('story')) {
+      pages.push({
+        name: 'about',
+        title: 'About',
+        purpose: 'Information about the company, team, or project',
+        content: this.generateAboutContent(prompt, appName),
+        features: ['company-info', 'team-section', 'mission-vision']
+      });
+    }
+
+    if (req.includes('contact') || req.includes('support') || req.includes('reach')) {
+      pages.push({
+        name: 'contact',
+        title: 'Contact',
+        purpose: 'Contact information and communication forms',
+        content: this.generateContactContent(prompt, appName),
+        features: ['contact-form', 'contact-info', 'social-links']
+      });
+    }
+
+    if (req.includes('service') || req.includes('feature') || req.includes('offering')) {
+      pages.push({
+        name: 'services',
+        title: 'Services',
+        purpose: 'Detailed information about services or features offered',
+        content: this.generateServicesContent(prompt, appName),
+        features: ['service-cards', 'pricing', 'feature-comparison']
+      });
+    }
+
+    if (req.includes('product') || req.includes('item') || req.includes('catalog')) {
+      pages.push({
+        name: 'products',
+        title: 'Products',
+        purpose: 'Product catalog and detailed product information',
+        content: this.generateProductsContent(prompt, appName),
+        features: ['product-grid', 'filters', 'search', 'categories']
+      });
+    }
+
+    if (req.includes('blog') || req.includes('news') || req.includes('article') || req.includes('post')) {
+      pages.push({
+        name: 'blog',
+        title: 'Blog',
+        purpose: 'Blog posts, articles, and news updates',
+        content: this.generateBlogContent(prompt, appName),
+        features: ['article-list', 'categories', 'search', 'pagination']
+      });
+    }
+
+    if (req.includes('dashboard') || req.includes('admin') || req.includes('control')) {
+      pages.push({
+        name: 'dashboard',
+        title: 'Dashboard',
+        purpose: 'Administrative interface and control panel',
+        content: this.generateDashboardContent(prompt, appName),
+        features: ['metrics', 'charts', 'quick-actions', 'notifications']
+      });
+    }
+
+    if (req.includes('portfolio') || req.includes('gallery') || req.includes('showcase')) {
+      pages.push({
+        name: 'portfolio',
+        title: 'Portfolio',
+        purpose: 'Showcase of work, projects, or achievements',
+        content: this.generatePortfolioContent(prompt, appName),
+        features: ['project-grid', 'image-gallery', 'project-details']
+      });
+    }
+
+    if (req.includes('pricing') || req.includes('plan') || req.includes('subscription')) {
+      pages.push({
+        name: 'pricing',
+        title: 'Pricing',
+        purpose: 'Pricing plans and subscription options',
+        content: this.generatePricingContent(prompt, appName),
+        features: ['pricing-table', 'feature-comparison', 'cta-buttons']
+      });
+    }
+
+    // If no specific pages mentioned, add default essential pages
+    if (pages.length === 1) {
+      pages.push(
+        {
+          name: 'features',
+          title: 'Features',
+          purpose: 'Key features and capabilities',
+          content: this.generateFeaturesContent(prompt, appName),
+          features: ['feature-grid', 'benefits', 'demonstrations']
+        },
+        {
+          name: 'contact',
+          title: 'Contact',
+          purpose: 'Contact information and forms',
+          content: this.generateContactContent(prompt, appName),
+          features: ['contact-form', 'contact-info']
+        }
+      );
+    }
+
+    return { pages, appName };
+  }
+
+  private extractAppName(prompt: string): string {
+    // Extract application name from prompt
+    const patterns = [
+      /(?:create|build|make)(?:\s+a|\s+an)?\s+(.+?)(?:\s+(?:app|application|website|platform|system))/i,
+      /(?:^|\s)(.+?)(?:\s+(?:app|application|website|platform|system))/i,
+      /for\s+(.+?)(?:\s|$)/i
+    ];
+
+    for (const pattern of patterns) {
+      const match = prompt.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim().replace(/\b\w/g, l => l.toUpperCase());
+      }
+    }
+
+    return 'Application';
+  }
+
+  // Content generation methods for different page types
+  private generateHomeContent(prompt: string, appName: string): PageContent {
+    const appType = this.detectApplicationType(prompt);
+    return {
+      sections: [
+        {
+          type: 'hero',
+          title: `Welcome to ${appName}`,
+          content: this.generateHeroContent(prompt, appType),
+          priority: 1
+        },
+        {
+          type: 'features',
+          title: 'Key Features',
+          content: this.generateFeatureOverview(prompt, appType),
+          priority: 2
+        },
+        {
+          type: 'cta',
+          title: 'Get Started',
+          content: this.generateCallToAction(appType),
+          priority: 3
+        }
+      ],
+      components: ['hero-banner', 'feature-cards', 'navigation', 'footer'],
+      interactivity: ['smooth-scroll', 'hover-effects', 'button-animations']
+    };
+  }
+
+  private generateAboutContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'intro',
+          title: `About ${appName}`,
+          content: `Learn more about ${appName} and our mission to provide exceptional solutions.`,
+          priority: 1
+        },
+        {
+          type: 'story',
+          title: 'Our Story',
+          content: 'Founded with a vision to innovate and create meaningful impact in the industry.',
+          priority: 2
+        },
+        {
+          type: 'team',
+          title: 'Our Team',
+          content: 'Meet the dedicated professionals behind our success.',
+          priority: 3
+        }
+      ],
+      components: ['intro-section', 'story-timeline', 'team-grid'],
+      interactivity: ['parallax-scroll', 'team-member-cards', 'animated-counters']
+    };
+  }
+
+  private generateContactContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'header',
+          title: 'Contact Us',
+          content: `Get in touch with the ${appName} team. We'd love to hear from you.`,
+          priority: 1
+        },
+        {
+          type: 'form',
+          title: 'Send a Message',
+          content: 'Fill out the form below and we\'ll get back to you as soon as possible.',
+          priority: 2
+        },
+        {
+          type: 'info',
+          title: 'Contact Information',
+          content: 'Find alternative ways to reach us.',
+          priority: 3
+        }
+      ],
+      components: ['contact-form', 'contact-info', 'map-embed'],
+      interactivity: ['form-validation', 'success-messages', 'interactive-map']
+    };
+  }
+
+  private generateServicesContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'overview',
+          title: 'Our Services',
+          content: `Discover the comprehensive range of services offered by ${appName}.`,
+          priority: 1
+        },
+        {
+          type: 'service-list',
+          title: 'What We Offer',
+          content: 'Professional services tailored to meet your specific needs.',
+          priority: 2
+        },
+        {
+          type: 'benefits',
+          title: 'Why Choose Us',
+          content: 'The advantages of working with our experienced team.',
+          priority: 3
+        }
+      ],
+      components: ['service-cards', 'pricing-table', 'testimonials'],
+      interactivity: ['service-tabs', 'pricing-calculator', 'testimonial-carousel']
+    };
+  }
+
+  private generateProductsContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'catalog',
+          title: 'Product Catalog',
+          content: `Browse our extensive collection of products from ${appName}.`,
+          priority: 1
+        },
+        {
+          type: 'categories',
+          title: 'Categories',
+          content: 'Find products organized by category for easy browsing.',
+          priority: 2
+        },
+        {
+          type: 'featured',
+          title: 'Featured Products',
+          content: 'Check out our most popular and recommended items.',
+          priority: 3
+        }
+      ],
+      components: ['product-grid', 'category-filters', 'search-bar', 'product-cards'],
+      interactivity: ['filter-system', 'product-search', 'quick-view', 'shopping-cart']
+    };
+  }
+
+  private generateBlogContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'latest',
+          title: 'Latest Posts',
+          content: `Stay updated with the latest news and insights from ${appName}.`,
+          priority: 1
+        },
+        {
+          type: 'categories',
+          title: 'Post Categories',
+          content: 'Explore content organized by topic and interest.',
+          priority: 2
+        },
+        {
+          type: 'featured',
+          title: 'Featured Articles',
+          content: 'Don\'t miss our most popular and trending articles.',
+          priority: 3
+        }
+      ],
+      components: ['article-grid', 'category-tags', 'search-functionality'],
+      interactivity: ['infinite-scroll', 'tag-filtering', 'social-sharing']
+    };
+  }
+
+  private generateDashboardContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'metrics',
+          title: 'Key Metrics',
+          content: 'Monitor important performance indicators and statistics.',
+          priority: 1
+        },
+        {
+          type: 'charts',
+          title: 'Analytics',
+          content: 'Visualize data trends and patterns with interactive charts.',
+          priority: 2
+        },
+        {
+          type: 'actions',
+          title: 'Quick Actions',
+          content: 'Access frequently used functions and tools.',
+          priority: 3
+        }
+      ],
+      components: ['metric-cards', 'chart-widgets', 'action-buttons', 'data-tables'],
+      interactivity: ['real-time-updates', 'interactive-charts', 'data-filtering']
+    };
+  }
+
+  private generatePortfolioContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'showcase',
+          title: 'Portfolio Showcase',
+          content: `Explore the creative work and projects from ${appName}.`,
+          priority: 1
+        },
+        {
+          type: 'projects',
+          title: 'Featured Projects',
+          content: 'Highlighting our most successful and innovative projects.',
+          priority: 2
+        },
+        {
+          type: 'skills',
+          title: 'Skills & Expertise',
+          content: 'The technologies and methodologies we specialize in.',
+          priority: 3
+        }
+      ],
+      components: ['project-gallery', 'skill-bars', 'project-details'],
+      interactivity: ['image-lightbox', 'project-filters', 'skill-animations']
+    };
+  }
+
+  private generatePricingContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'plans',
+          title: 'Pricing Plans',
+          content: `Choose the perfect plan for your needs with ${appName}.`,
+          priority: 1
+        },
+        {
+          type: 'comparison',
+          title: 'Feature Comparison',
+          content: 'Compare features across different pricing tiers.',
+          priority: 2
+        },
+        {
+          type: 'faq',
+          title: 'Pricing FAQ',
+          content: 'Common questions about our pricing and billing.',
+          priority: 3
+        }
+      ],
+      components: ['pricing-table', 'feature-matrix', 'faq-accordion'],
+      interactivity: ['plan-toggle', 'calculator', 'expandable-faq']
+    };
+  }
+
+  private generateFeaturesContent(prompt: string, appName: string): PageContent {
+    return {
+      sections: [
+        {
+          type: 'overview',
+          title: 'Feature Overview',
+          content: `Discover all the powerful features that make ${appName} exceptional.`,
+          priority: 1
+        },
+        {
+          type: 'detailed',
+          title: 'Detailed Features',
+          content: 'In-depth look at each feature and its benefits.',
+          priority: 2
+        },
+        {
+          type: 'benefits',
+          title: 'Benefits',
+          content: 'How these features translate to real value for you.',
+          priority: 3
+        }
+      ],
+      components: ['feature-grid', 'benefit-cards', 'demo-videos'],
+      interactivity: ['feature-tabs', 'demo-modals', 'benefit-animations']
+    };
+  }
+
+  private generateHeroContent(prompt: string, appType: string): string {
+    const typeMessages: Record<string, string> = {
+      'E-commerce': 'Shop with confidence and discover amazing products at unbeatable prices.',
+      'Productivity': 'Boost your productivity and achieve more with our powerful tools.',
+      'Portfolio/Gallery': 'Showcase your creativity and share your amazing work with the world.',
+      'Social Platform': 'Connect, share, and engage with a vibrant community.',
+      'Educational Platform': 'Learn, grow, and achieve your educational goals.',
+      'Health/Fitness': 'Transform your health and fitness journey with expert guidance.',
+      'Financial Management': 'Take control of your finances and build a secure future.',
+      'Analytics Dashboard': 'Make data-driven decisions with powerful analytics.',
+      'Content Management': 'Create, manage, and publish content with ease.',
+      'Booking System': 'Schedule appointments and manage bookings effortlessly.'
+    };
+    return typeMessages[appType] || 'Welcome to our innovative platform designed to meet your needs.';
+  }
+
+  private generateFeatureOverview(prompt: string, appType: string): string {
+    const features: Record<string, string[]> = {
+      'E-commerce': ['Secure Payment Processing', 'Product Catalog Management', 'Order Tracking', 'Customer Reviews'],
+      'Productivity': ['Task Management', 'Team Collaboration', 'Time Tracking', 'Progress Analytics'],
+      'Portfolio/Gallery': ['Image Gallery', 'Project Showcase', 'Client Testimonials', 'Contact Integration'],
+      'Social Platform': ['User Profiles', 'Content Sharing', 'Real-time Chat', 'Community Groups'],
+      'Educational Platform': ['Course Creation', 'Progress Tracking', 'Interactive Quizzes', 'Certificate Generation'],
+      'Health/Fitness': ['Workout Plans', 'Progress Tracking', 'Nutrition Guides', 'Goal Setting'],
+      'Financial Management': ['Expense Tracking', 'Budget Planning', 'Investment Monitoring', 'Financial Reports'],
+      'Analytics Dashboard': ['Real-time Charts', 'Data Visualization', 'Custom Reports', 'Performance Metrics'],
+      'Content Management': ['Content Editor', 'Media Library', 'SEO Optimization', 'Publishing Workflow'],
+      'Booking System': ['Calendar Integration', 'Automated Reminders', 'Payment Processing', 'Customer Management']
+    };
+    
+    const appFeatures = features[appType] || ['User-Friendly Interface', 'Secure Data Handling', 'Mobile Responsive', 'Customer Support'];
+    return appFeatures.join(' • ');
+  }
+
+  private generateCallToAction(appType: string): string {
+    const ctas: Record<string, string> = {
+      'E-commerce': 'Start Shopping Now',
+      'Productivity': 'Boost Your Productivity',
+      'Portfolio/Gallery': 'View Portfolio',
+      'Social Platform': 'Join the Community',
+      'Educational Platform': 'Start Learning',
+      'Health/Fitness': 'Begin Your Journey',
+      'Financial Management': 'Take Control of Your Finances',
+      'Analytics Dashboard': 'View Analytics',
+      'Content Management': 'Create Content',
+      'Booking System': 'Book Now'
+    };
+    return ctas[appType] || 'Get Started Today';
+  }
+
+  // New intelligent HTML generation system
+  private generateHTMLForPage(page: PageRequirement, allPages: PageRequirement[], appName: string, themeColors: any): string {
+    const navigation = this.generateNavigation(allPages);
+    const sidebar = this.generateSidebar(allPages, page.name);
+    const mainContent = this.generateMainContent(page);
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${page.title} - ${appName}</title>
+    <meta name="description" content="${page.purpose}">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">${appName}</h1>
+            ${navigation}
+        </header>
+        
+        <div class="app-layout">
+            ${sidebar}
+            
+            <main class="main-content">
+                ${mainContent}
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
+  }
+
+  private generateNavigation(pages: PageRequirement[]): string {
+    const navLinks = pages.slice(0, 4).map(page => {
+      const filename = page.name === 'index' ? 'index.html' : `${page.name}.html`;
+      return `<a href="/preview/${filename}" class="nav-link">${page.title}</a>`;
+    }).join('\n                ');
+
+    return `<nav class="header-nav">
+                ${navLinks}
+            </nav>`;
+  }
+
+  private generateSidebar(pages: PageRequirement[], currentPage: string): string {
+    const sidebarItems = pages.map(page => {
+      const filename = page.name === 'index' ? 'index.html' : `${page.name}.html`;
+      const activeClass = page.name === currentPage ? ' active' : '';
+      const displayName = page.name === 'index' ? 'Dashboard' : page.title;
+      return `                        <li><a href="/preview/${filename}" class="nav-item${activeClass}">${displayName}</a></li>`;
+    }).join('\n');
+
+    return `<aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+${sidebarItems}
+                    </ul>
+                </nav>
+            </aside>`;
+  }
+
+  private generateMainContent(page: PageRequirement): string {
+    const sections = page.content.sections
+      .sort((a, b) => a.priority - b.priority)
+      .map(section => this.generateContentSection(section, page))
+      .join('\n');
+
+    return `<div class="content-section">
+                    <h2>${page.title}</h2>
+                    <p class="page-description">${page.purpose}</p>
+                    
+${sections}
+                </div>`;
+  }
+
+  private generateContentSection(section: ContentSection, page: PageRequirement): string {
+    switch (section.type) {
+      case 'hero':
+        return `                    <div class="hero-section">
+                        <h3>${section.title}</h3>
+                        <p class="hero-text">${section.content}</p>
+                        <button class="cta-button">Get Started</button>
+                    </div>`;
+      
+      case 'features':
+      case 'overview':
+        return `                    <div class="features-section">
+                        <h3>${section.title}</h3>
+                        <div class="features-grid">
+                            ${this.generateFeatureCards(section.content)}
+                        </div>
+                    </div>`;
+      
+      case 'form':
+        return `                    <div class="form-section">
+                        <h3>${section.title}</h3>
+                        <p>${section.content}</p>
+                        <form class="contact-form">
+                            <input type="text" placeholder="Your Name" required>
+                            <input type="email" placeholder="Your Email" required>
+                            <textarea placeholder="Your Message" required></textarea>
+                            <button type="submit">Send Message</button>
+                        </form>
+                    </div>`;
+      
+      case 'catalog':
+      case 'products':
+        return `                    <div class="catalog-section">
+                        <h3>${section.title}</h3>
+                        <p>${section.content}</p>
+                        <div class="product-grid">
+                            ${this.generateProductCards()}
+                        </div>
+                    </div>`;
+      
+      case 'metrics':
+        return `                    <div class="metrics-section">
+                        <h3>${section.title}</h3>
+                        <div class="metrics-grid">
+                            ${this.generateMetricCards()}
+                        </div>
+                    </div>`;
+      
+      case 'charts':
+        return `                    <div class="charts-section">
+                        <h3>${section.title}</h3>
+                        <p>${section.content}</p>
+                        <div class="chart-container">
+                            <canvas id="chart-${section.type}" width="400" height="200"></canvas>
+                        </div>
+                    </div>`;
+      
+      default:
+        return `                    <div class="content-block">
+                        <h3>${section.title}</h3>
+                        <p>${section.content}</p>
+                    </div>`;
+    }
+  }
+
+  private generateFeatureCards(featuresText: string): string {
+    const features = featuresText.split(' • ');
+    return features.map(feature => `
+                            <div class="feature-card">
+                                <h4>${feature}</h4>
+                                <p>High-quality implementation with modern standards.</p>
+                                <div class="feature-status">✅ Available</div>
+                            </div>`).join('');
+  }
+
+  private generateProductCards(): string {
+    const products = [
+      { name: 'Premium Product', price: '$99', description: 'Top-quality product with excellent features.' },
+      { name: 'Standard Product', price: '$59', description: 'Great value product for everyday use.' },
+      { name: 'Basic Product', price: '$29', description: 'Essential features at an affordable price.' }
+    ];
+
+    return products.map(product => `
+                            <div class="product-card">
+                                <h4>${product.name}</h4>
+                                <p class="price">${product.price}</p>
+                                <p>${product.description}</p>
+                                <button class="product-btn">Add to Cart</button>
+                            </div>`).join('');
+  }
+
+  private generateMetricCards(): string {
+    const metrics = [
+      { label: 'Total Users', value: '12,456', trend: '+15%' },
+      { label: 'Revenue', value: '$89,432', trend: '+8%' },
+      { label: 'Active Sessions', value: '1,234', trend: '+23%' },
+      { label: 'Conversion Rate', value: '3.2%', trend: '+5%' }
+    ];
+
+    return metrics.map(metric => `
+                            <div class="metric-card">
+                                <h4>${metric.label}</h4>
+                                <div class="metric-value">${metric.value}</div>
+                                <div class="metric-trend">${metric.trend}</div>
+                            </div>`).join('');
+  }
+
+  // Enhanced CSS generation with dynamic theming
+  private generateEnhancedCSS(appType: string, themeColors: any, pages: PageRequirement[]): string {
+    return `/* Enhanced CSS with Dynamic Theming for ${appType} */
+:root {
+    --primary-color: ${themeColors.primary};
+    --secondary-color: ${themeColors.secondary};
+    --accent-color: ${themeColors.accent};
+    --background-color: hsl(0, 0%, 98%);
+    --surface-color: hsl(0, 0%, 100%);
+    --text-color: hsl(0, 0%, 10%);
+    --text-secondary: hsl(0, 0%, 40%);
+    --border-color: hsl(0, 0%, 90%);
+    --shadow: 0 2px 10px hsla(0, 0%, 0%, 0.1);
+    --shadow-hover: 0 4px 20px hsla(0, 0%, 0%, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.app-container {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.app-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.app-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.header-nav {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.app-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 80px);
+}
+
+.sidebar {
+    background: var(--surface-color);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 0;
+    box-shadow: 2px 0 10px hsla(0, 0%, 0%, 0.05);
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+.nav-item {
+    display: block;
+    padding: 0.75rem 2rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+    background: var(--background-color);
+    color: var(--primary-color);
+    border-left-color: var(--accent-color);
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-left-color: var(--accent-color);
+    font-weight: 600;
+}
+
+.main-content {
+    padding: 2rem;
+    overflow-y: auto;
+    background: var(--background-color);
+}
+
+.content-section {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.content-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+}
+
+.page-description {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.hero-section h3 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero-text {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.cta-button {
+    background: var(--accent-color);
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.features-section {
+    margin-bottom: 2rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.feature-card {
+    background: var(--surface-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+
+.feature-card h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.feature-status {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    color: white;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+    font-size: 0.9rem;
+}
+
+.form-section {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.contact-form {
+    display: grid;
+    gap: 1rem;
+    max-width: 500px;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.contact-form button {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.product-card {
+    background: var(--surface-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.product-card .price {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0.5rem 0;
+}
+
+.product-btn {
+    background: var(--accent-color);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.metric-card {
+    background: var(--surface-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--accent-color);
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0.5rem 0;
+}
+
+.metric-trend {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        order: 2;
+        border-right: none;
+        border-top: 1px solid var(--border-color);
+        padding: 1rem 0;
+    }
+    
+    .header-nav {
+        gap: 1rem;
+    }
+    
+    .nav-link {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .features-grid,
+    .product-grid,
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-section h3 {
+        font-size: 2rem;
+    }
+}`;
+  }
+
+  // Enhanced JavaScript generation with interactivity for all pages
+  private generateEnhancedJavaScript(pages: PageRequirement[], appType: string): string {
+    return `// Enhanced JavaScript for ${appType} Application
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Multi-page ${appType} application loaded successfully');
+    
+    // Initialize application
+    initializeApp();
+    updateActiveNavigation();
+    addPageTransitions();
+    addInteractiveFeatures();
+});
+
+function initializeApp() {
+    setupGlobalEvents();
+    initializePageFeatures();
+}
+
+function initializePageFeatures() {
+    const currentPage = getCurrentPage();
+    
+    // Page-specific initialization
+    switch(currentPage) {
+        case 'index':
+            initializeHomePage();
+            break;
+        case 'contact':
+            initializeContactPage();
+            break;
+        case 'products':
+            initializeProductsPage();
+            break;
+        case 'dashboard':
+            initializeDashboardPage();
+            break;
+        default:
+            console.log('Default page initialization');
+    }
+}
+
+function getCurrentPage() {
+    const path = window.location.pathname;
+    if (path.includes('contact.html')) return 'contact';
+    if (path.includes('products.html')) return 'products';
+    if (path.includes('dashboard.html')) return 'dashboard';
+    return 'index';
+}
+
+function initializeHomePage() {
+    setupFeatureCards();
+    setupCTAButtons();
+}
+
+function initializeContactPage() {
+    setupContactForm();
+}
+
+function initializeProductsPage() {
+    setupProductGrid();
+}
+
+function initializeDashboardPage() {
+    animateMetrics();
+}
+
+function setupFeatureCards() {
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+}
+
+function setupContactForm() {
+    const contactForm = document.querySelector('.contact-form');
+    if (!contactForm) return;
+    
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        showNotification('Message sent successfully!', 'success');
+        this.reset();
+    });
+}
+
+function setupProductGrid() {
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach(card => {
+        const button = card.querySelector('.product-btn');
+        if (button) {
+            button.addEventListener('click', function() {
+                showNotification('Added to cart!', 'info');
+            });
+        }
+    });
+}
+
+function animateMetrics() {
+    const metricValues = document.querySelectorAll('.metric-value');
+    metricValues.forEach(metric => {
+        const finalValue = metric.textContent;
+        const numericValue = parseFloat(finalValue.replace(/[^0-9.]/g, ''));
+        
+        if (!isNaN(numericValue)) {
+            animateCounter(metric, 0, numericValue, finalValue);
+        }
+    });
+}
+
+function animateCounter(element, start, end, finalText) {
+    const duration = 2000;
+    const increment = (end - start) / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+            element.textContent = finalText;
+            clearInterval(timer);
+        } else {
+            const prefix = finalText.match(/[^0-9.]/g)?.[0] || '';
+            element.textContent = prefix + Math.floor(current);
+        }
+    }, 16);
+}
+
+function updateActiveNavigation() {
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.nav-item, .nav-link');
+    
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        item.classList.remove('active');
+        
+        if (href && currentPath.includes(href.replace('/preview/', ''))) {
+            item.classList.add('active');
+        }
+    });
+}
+
+function addPageTransitions() {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        mainContent.style.opacity = '0';
+        mainContent.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            mainContent.style.transition = 'all 0.3s ease';
+            mainContent.style.opacity = '1';
+            mainContent.style.transform = 'translateY(0)';
+        }, 100);
+    }
+}
+
+function addInteractiveFeatures() {
+    setupCTAButtons();
+    setupNavigation();
+}
+
+function setupCTAButtons() {
+    const ctaButtons = document.querySelectorAll('.cta-button');
+    ctaButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            showNotification('Action initiated!', 'success');
+        });
+    });
+}
+
+function setupNavigation() {
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.nav-item, .nav-link')) {
+            e.target.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                e.target.style.transform = 'scale(1)';
+            }, 150);
+        }
+    });
+}
+
+function setupGlobalEvents() {
+    console.log('Global events initialized');
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = \`
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 2rem;
+        border-radius: 4px;
+        color: white;
+        z-index: 1000;
+        background: \${type === 'success' ? '#4CAF50' : '#2196F3'};
+    \`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+console.log('Enhanced ${appType} application fully initialized');`;
+  }
+
   private getThemeColors(appType: string): {primary: string, secondary: string, accent: string} {
     const themes: Record<string, {primary: string, secondary: string, accent: string}> = {
       'Health/Fitness': { primary: '#4CAF50', secondary: '#2196F3', accent: '#81C784' },
@@ -368,119 +1590,52 @@ export class AdvancedGeminiAgent {
     existingFiles?: Record<string, string>
   ): Promise<CodeGenerationResponse> {
     try {
-      // Analyze existing files using tools
-      const fileAnalyses = await this.analyzeExistingFiles(existingFiles);
+      // Step 1: Analyze prompt and determine required pages
+      const { pages, appName } = this.analyzePromptForPages(prompt);
+      const appType = this.detectApplicationType(prompt);
+      const themeColors = this.getThemeColors(appType);
       
-      // Plan architecture using AI agent approach
-      const architecturePlan = await this.tools.get("planArchitecture")?.execute({
-        requirements: prompt,
-        constraints: this.context.constraints
-      });
-
-      // Enhanced system prompt with agentic reasoning
-      const systemPrompt = this.buildAdvancedSystemPrompt(prompt, fileAnalyses, architecturePlan);
-
-      const isInitialPrompt = fileAnalyses.length === 0 && this.context.previousInteractions.length === 0;
+      console.log(`🔍 Analyzed prompt - App: ${appName}, Type: ${appType}, Pages: ${pages.map(p => p.name).join(', ')}`);
       
-      const fullPrompt = `${systemPrompt}
-
-User request: ${prompt}
-
-${isInitialPrompt ? `
-🚀 CRITICAL: This is the FIRST PROMPT for creating a new application. Create a COMPLETE, COMPREHENSIVE application with ALL features that would make this production-ready.
-
-MANDATORY HTML LAYOUT STRUCTURE:
-- Header with app name and navigation elements
-- Sidebar with main navigation menu
-- Main content area for primary features
-- Use CSS Grid layout with responsive design
-- Modern HTML5 semantic structure
-
-COMPREHENSIVE FEATURE REQUIREMENTS:
-Build ALL logical features for this application type. For example:
-- Fitness Tracker → Workout logging, exercise library, progress charts, goal tracking, calendar view, social features, data export
-- Task Manager → Task creation/editing, categories, priorities, search/filter, progress tracking, team collaboration, notifications
-- E-commerce → Product catalog, cart, checkout, user accounts, order history, reviews, wishlist, recommendations
-- Dashboard → Multiple widgets, data visualization, real-time updates, customization, dark mode, notifications
-
-DYNAMIC THEME COLOR SYSTEM:
-Each application type must have a unique theme color scheme that reflects its purpose:
-- Fitness/Health Apps → Green/Blue theme (#4CAF50, #2196F3)
-- E-commerce Apps → Orange/Purple theme (#FF9800, #9C27B0)
-- Productivity Apps → Blue/Indigo theme (#2196F3, #3F51B5)
-- Social Apps → Pink/Purple theme (#E91E63, #9C27B0)
-- Finance Apps → Green/Teal theme (#4CAF50, #009688)
-- Creative Apps → Purple/Pink theme (#9C27B0, #E91E63)
-- Educational Apps → Blue/Cyan theme (#2196F3, #00BCD4)
-- Analytics Apps → Indigo/Blue theme (#3F51B5, #2196F3)
-- Default Apps → Gray/Blue theme (#607D8B, #2196F3)
-
-The theme colors should be applied to:
-- Header background and accent elements
-- Sidebar active states and highlights
-- Primary buttons and interactive elements
-- Progress bars and status indicators
-- Active navigation states
-- Form focus states and validation
-- Use CSS custom properties for easy theme switching
-` : `
-ENHANCEMENT MODE: Improve existing application while maintaining consistency.
-`}
-
-Context from previous interactions: ${this.getContextualHistory()}
-
-IMPORTANT: Return ONLY valid JSON in this exact format:
-{
-  "plan": ["step 1", "step 2", "step 3"],
-  "files": {
-    "index.html": "main page content here",
-    "about.html": "about page content here",
-    "features.html": "features page content here", 
-    "contact.html": "contact page content here",
-    "styles.css": "css content here", 
-    "script.js": "js content with navigation handling here"
-  },
-  "reasoning": "explanation of approach and decisions",
-  "architecture": "architectural decisions and patterns used",
-  "nextSteps": ["future improvements", "next features to add"],
-  "dependencies": ["required packages or libraries"],
-  "testingStrategy": "approach for testing the generated code"
-}`;
-
-      const response = await this.generateWithRetry({
-        model: "gemini-2.0-flash-lite",
-        contents: fullPrompt,
-        config: {
-          temperature: 0.2,
-          topP: 0.9,
-          topK: 40,
-          maxOutputTokens: 8192
-        }
-      });
-
-      let content = response.text || "";
-      if (!content) {
-        throw new Error("No response content from Gemini");
-      }
-
-      // Enhanced content parsing with proper error handling
-      try {
-        content = this.cleanResponseContent(content);
-      } catch (contentError) {
-        console.warn("Content cleaning failed, using raw content:", contentError);
-        content = String(content || "");
+      // Step 2: Generate HTML files for each page
+      const files: Record<string, string> = {};
+      
+      // Generate each HTML page with tailored content
+      for (const page of pages) {
+        const filename = page.name === 'index' ? 'index.html' : `${page.name}.html`;
+        files[filename] = this.generateHTMLForPage(page, pages, appName, themeColors);
+        console.log(`📄 Generated ${filename} with sections: ${page.content.sections.map(s => s.type).join(', ')}`);
       }
       
-      let result: CodeGenerationResponse;
-      try {
-        result = JSON.parse(content) as CodeGenerationResponse;
-      } catch (parseError) {
-        console.log("JSON parsing failed, generating fallback response");
-        return this.generateFallbackResponse(prompt);
-      }
-
-      // Validate and enhance response
-      this.validateResponse(result);
+      // Step 3: Generate enhanced CSS with dynamic theming
+      files['styles.css'] = this.generateEnhancedCSS(appType, themeColors, pages);
+      
+      // Step 4: Generate JavaScript with interactivity for all pages
+      files['script.js'] = this.generateEnhancedJavaScript(pages, appType);
+      
+      // Step 5: Create comprehensive plan
+      const plan = [
+        `🎯 Analyzed prompt and identified ${pages.length} required pages: ${pages.map(p => p.title).join(', ')}`,
+        `🏗️ Generated ${appType} application with ${appName} branding and dynamic theme colors`,
+        `📱 Created responsive multi-page architecture with modern HTML5 layout using CSS Grid`,
+        `✨ Implemented interactive features and smooth navigation between all pages`,
+        `🎨 Applied context-aware content generation based on application type and user requirements`
+      ];
+      
+      const result: CodeGenerationResponse = {
+        plan,
+        files,
+        reasoning: `Intelligent page analysis system detected the need for ${pages.length} pages based on prompt keywords and application type. Each page was generated with tailored content, components, and interactivity specific to its purpose. The ${appType} theme colors (${themeColors.primary}, ${themeColors.secondary}, ${themeColors.accent}) were automatically applied for visual consistency.`,
+        architecture: `Multi-page application architecture with: HTML5 semantic structure, CSS Grid layout system, dynamic theming based on app type, page-specific content generation, responsive design patterns, and interactive JavaScript features for enhanced user experience.`,
+        nextSteps: [
+          'Add server-side functionality for form submissions and data persistence',
+          'Implement user authentication and session management',
+          'Add advanced features like search, filtering, and sorting',
+          'Optimize performance with lazy loading and caching strategies'
+        ],
+        dependencies: ['No external dependencies - pure HTML, CSS, and JavaScript implementation'],
+        testingStrategy: 'Manual testing of all page navigation, responsive design validation, form functionality verification, and cross-browser compatibility checks'
+      };
       
       // Store interaction in context for learning
       this.context.previousInteractions.push({
