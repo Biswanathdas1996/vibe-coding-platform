@@ -43,7 +43,9 @@ export function MessageComponent({ message }: MessageProps) {
                 {message.plan.map((step, index) => (
                   <li key={index} className="flex items-center">
                     <CheckCircle className="h-3 w-3 text-emerald-400 mr-2 flex-shrink-0" />
-                    {step}
+                    {typeof step === 'string' ? step : 
+                     (step as any)?.action ? `${(step as any).step ? `${(step as any).step}. ` : ''}${(step as any).action}${(step as any).details ? ` - ${(step as any).details}` : ''}` :
+                     JSON.stringify(step)}
                   </li>
                 ))}
               </ul>
