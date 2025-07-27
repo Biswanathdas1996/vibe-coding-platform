@@ -59,7 +59,7 @@ export class AdvancedGeminiAgent {
   private memory: Map<string, any>;
 
   constructor(apiKey: string) {
-    this.genAI = new GoogleGenAI({ apiKey });
+    this.genAI = new GoogleGenAI(apiKey);
     this.context = {
       previousInteractions: [],
       projectGoals: [],
