@@ -1,20 +1,53 @@
-// Welcome to your blank canvas!
-console.log('🎨 Welcome to your new project!');
+document.addEventListener('DOMContentLoaded', () => {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const taskInput = document.getElementById('taskInput');
+    const addTaskButton = document.getElementById('addTask');
+    const tasksList = document.getElementById('tasks');
 
-// Add some sparkle to the page
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('✨ Page loaded and ready for your creativity!');
-    
-    // Add a subtle animation to the container
-    const container = document.querySelector('.container');
-    if (container) {
-        container.style.opacity = '0';
-        container.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            container.style.transition = 'all 0.8s ease-out';
-            container.style.opacity = '1';
-            container.style.transform = 'translateY(0)';
-        }, 100);
+    // Dark Mode Toggle
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    });
+
+    // Load tasks from local storage (placeholder)
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    renderTasks();
+
+    // Add Task
+    addTaskButton.addEventListener('click', () => {
+        const taskText = taskInput.value.trim();
+        if (taskText) {
+            tasks.push({ text: taskText, completed: false });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+            taskInput.value = '';
+        }
+    });
+
+    // Render Tasks
+    function renderTasks() {
+        tasksList.innerHTML = '';
+        tasks.forEach((task, index) => {
+            const li = document.createElement('li');
+            li.textContent = task.text;
+            // Add a delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => {
+                tasks.splice(index, 1);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+            });
+            li.appendChild(deleteButton);
+            tasksList.appendChild(li);
+        });
     }
+
+    // Placeholder for WebSocket connection (replace with actual implementation)
+    // const socket = new WebSocket('ws://your-websocket-server');
+    // socket.onmessage = (event) => {
+    //     // Handle real-time updates
+    //     console.log('Received:', event.data);
+    //     // Update the task list based on the received data
+    // };
 });

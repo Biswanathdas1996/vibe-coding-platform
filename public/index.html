@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Project</title>
+    <title>Task Management Dashboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Your Blank Canvas</h1>
-        <p>This is a clean slate ready for your ideas. Start describing what you'd like to build!</p>
-        <div class="getting-started">
-            <h2>Getting Started</h2>
-            <ul>
-                <li>Describe your vision in the chat</li>
-                <li>I'll help you build it step by step</li>
-                <li>Modify, iterate, and perfect your creation</li>
-            </ul>
-        </div>
-    </div>
-    
+    <header>
+        <h1>Task Management Dashboard</h1>
+        <button id="darkModeToggle">Dark Mode</button>
+    </header>
+    <main>
+        <section id="taskList">
+            <h2>Tasks</h2>
+            <ul id="tasks"></ul>
+        </section>
+        <section id="newTask">
+            <h2>Add Task</h2>
+            <input type="text" id="taskInput" placeholder="Enter task...">
+            <button id="addTask">Add</button>
+        </section>
+    </main>
     <script src="script.js"></script>
 </body>
 </html>

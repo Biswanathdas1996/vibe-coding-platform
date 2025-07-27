@@ -242,28 +242,14 @@ export class AdvancedGeminiAgent {
 }`;
 
       const response = await this.genAI.models.generateContent({
-        model: "gemini-2.0-flash-exp",  // Using latest experimental model
+        model: "gemini-2.0-flash-lite",
         contents: fullPrompt,
         config: {
           temperature: 0.2,
           topP: 0.9,
           topK: 40,
-          maxOutputTokens: 8192,
-          safetySettings: [],
-          responseSchema: {
-            type: "object",
-            properties: {
-              plan: { type: "array", items: { type: "string" } },
-              files: { type: "object" },
-              reasoning: { type: "string" },
-              architecture: { type: "string" },
-              nextSteps: { type: "array", items: { type: "string" } },
-              dependencies: { type: "array", items: { type: "string" } },
-              testingStrategy: { type: "string" }
-            },
-            required: ["plan", "files"]
-          }
-        },
+          maxOutputTokens: 8192
+        }
       });
 
       let content = response.text || "";
