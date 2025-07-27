@@ -1,0 +1,124 @@
+Here’s a comprehensive, ready‑to‑paste “super‑prompt” you can drop into a new Replit Node.js project (or the Chat pane) to spin up your full Vibe Coding Platform. It covers every tech feature, flow step, file layout and iteration mechanism needed to go from “Give me a prompt” to “Live preview”:
+
+---
+
+**System** (set once, as your agent’s “mission statement”):
+
+> You are **VibeCodingAgent**, an autonomous coding assistant. When given a natural‑language feature request, your job is to:
+>
+> 1. ▶️ **Plan**: Decompose requirements into a step‑by‑step implementation plan.
+> 2. 💾 **Generate**: Produce three source files—`index.html`, `styles.css`, `script.js`—plus any extra assets (images, JSON, etc.) needed.
+> 3. 🛠️ **Bundle**: Write these files into a `/public` folder and serve them, live‑reload style, via an Express.js server.
+> 4. 🔄 **Iterate**: On follow‑up prompts, compute diffs against existing files, output only necessary patches, apply them, and update the preview.
+
+---
+
+**1. Project Scaffolding**
+Prompt the agent to create:
+
+* **`package.json`** with dependencies:
+
+  ```json
+  {
+    "name": "vibe-coding-platform",
+    "version": "0.1.0",
+    "type": "module",
+    "scripts": { "start": "node server.js" },
+    "dependencies": {
+      "express": "^4.x",
+      "openai": "^4.x",
+      "chokidar": "^3.x"        // for file‑watch & live reload
+    }
+  }
+  ```
+
+* **`server.js`**:
+
+  * Imports `express`, `path`, `chokidar`, `openai`.
+  * Serves `/public` as static.
+  * Exposes `POST /api/prompt` for incoming user prompts.
+  * On each prompt:
+
+    1. Calls OpenAI’s chat completion with a system+user message.
+    2. Parses a JSON response with `{ plan: string[], files: { [filename]: content } }`.
+    3. Writes/updates files in `/public`.
+    4. Returns `{ plan, previewUrl }` (e.g. `http://localhost:3000`).
+
+* **Live‑Reload**:
+
+  * Use `chokidar` to watch `/public`; on change, emit a WebSocket or SSE event to refresh the browser iframe.
+
+---
+
+**2. Agent–Model Interaction**
+In your `/lib/agent.js` (or inline in `server.js`):
+
+1. **System Prompt**: Embed the above mission statement + a JSON schema for responses.
+2. **User Prompt**: Forward the raw user text.
+3. **Parsing**: Validate that the model’s reply strictly follows the JSON schema (plan + files).
+4. **Diff Logic**: On subsequent calls, pass the existing `{ files }` as context and instruct the model to output only changed files or patch hunks.
+
+---
+
+**3. Front‑end Chat UI**
+In `/public`:
+
+* **`chat.html`**:
+
+  * A simple page with:
+
+    * A `<textarea>` for user input.
+    * A “Send” button.
+    * A `<div>` for displaying the returned **plan** as bullet points.
+    * An `<iframe>` pointing to `/` (the live preview).
+* **`chat.js`**:
+
+  * Listens for form submits.
+  * POSTs JSON `{ prompt }` to `/api/prompt`.
+  * Renders the returned plan.
+  * On SSE/WebSocket “reload” events, reloads the iframe.
+
+---
+
+**4. File Structure**
+
+```
+/
+├─ server.js
+├─ package.json
+├─ /lib
+│   └─ agent.js
+└─ /public
+    ├─ index.html
+    ├─ styles.css
+    ├─ script.js
+    ├─ chat.html
+    └─ chat.js
+```
+
+---
+
+**5. Sample Conversation**
+*User*: “Build a landing page with header, three feature cards, and footer.”
+*VibeCodingAgent* replies with:
+
+```json
+{
+  "plan": [
+    "Create a responsive header with logo and nav links",
+    "Design three feature cards in a flex container",
+    "Add a footer with copyright and social icons"
+  ],
+  "files": {
+    "index.html": "<!DOCTYPE html>…</html>",
+    "styles.css": "body {…} .cards {…}",
+    "script.js": "// no JS needed for static layout"
+  }
+}
+```
+
+Your server writes those into `/public`, returns the plan, and you see it instantly in the preview iframe.
+
+---
+
+**Paste this entire prompt** into Replit (in the Chat pane or startup script) and hit “Run.” You’ll get a fully operational Vibe Coding Platform—just start typing feature requests!
