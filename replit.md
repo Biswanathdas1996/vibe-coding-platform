@@ -36,13 +36,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Key Components
 
-### Code Generation Service
-- **AI Provider**: Google Gemini 2.0 Flash Lite model
-- **Input**: Natural language prompts describing desired functionality
-- **Output**: Structured JSON with implementation plan and generated files
-- **File Types**: HTML, CSS, JavaScript with support for additional assets
-- **Context Awareness**: Can modify existing files or create new ones
-- **Update (July 27, 2025)**: Switched from OpenAI GPT-4o to Google Gemini for cost efficiency and performance
+### Advanced Agentic AI Code Generation Service
+- **AI Provider**: Google Gemini 2.0 Flash Experimental model with advanced agentic capabilities
+- **Architecture**: Multi-layered agent system with MCP (Model Context Protocol) integration
+- **Input**: Natural language prompts with contextual memory and tool augmentation
+- **Output**: Enhanced JSON with reasoning, architecture decisions, dependencies, and testing strategies
+- **File Types**: HTML, CSS, JavaScript with comprehensive analysis and quality assessment
+- **Context Awareness**: Memory-driven interactions with learning from previous sessions
+- **Tool Integration**: Built-in code analysis, quality assessment, and architecture planning tools
+- **MCP Support**: Compatible with Model Context Protocol for external tool integration
+- **Framework Integration**: Supports LangChain, CrewAI, and AutoGen patterns
+- **Update (July 27, 2025)**: Major upgrade to advanced agentic AI architecture with MCP capabilities
 
 ### File Management System
 - **Directory Structure**: `/public` directory for generated static files
@@ -76,11 +80,15 @@ Preferred communication style: Simple, everyday language.
 
 ## External Dependencies
 
-### AI Services
-- **Google Gemini API**: Gemini 2.0 Flash Lite model for code generation
+### Advanced AI Services
+- **Google Gemini API**: Gemini 2.0 Flash Experimental model for advanced agentic capabilities
 - **API Key**: Required environment variable `GOOGLE_API_KEY`
-- **Response Format**: JSON parsing with markdown code block handling
-- **Migration Date**: July 27, 2025 - Switched from OpenAI GPT-4o to Google Gemini
+- **Response Format**: Enhanced JSON with reasoning, architecture, and testing strategies
+- **MCP Integration**: Model Context Protocol support for external tool integration
+- **Agent Architecture**: Multi-layered agent system with memory and learning capabilities
+- **Framework Support**: Compatible with LangChain, CrewAI, AutoGen patterns
+- **Tool Ecosystem**: Built-in code analysis, quality assessment, and architecture planning
+- **Migration Date**: July 27, 2025 - Major upgrade to advanced agentic AI architecture
 
 ### Database Services
 - **Neon Database**: PostgreSQL-compatible serverless database
@@ -127,3 +135,45 @@ Preferred communication style: Simple, everyday language.
    - **Problem**: Need to serve generated code as static web pages
    - **Solution**: Write files to `/public` directory served by Express
    - **Benefits**: Simple preview mechanism, standard web hosting compatibility
+
+## Advanced Agentic AI Features (July 27, 2025)
+
+### Model Context Protocol (MCP) Integration
+- **Protocol**: Anthropic's MCP standard for connecting AI agents to external tools
+- **Implementation**: Custom MCP-compatible agent architecture
+- **Tool Discovery**: Dynamic discovery and integration of MCP servers
+- **Supported Servers**: GitHub, filesystem, SQLite, and custom tool servers
+- **Benefits**: Standardized tool integration, extensible architecture
+
+### Multi-Framework Agent Support
+1. **LangChain Integration**
+   - Chain-based workflow execution
+   - Tool integration with LangChain ecosystem
+   - Memory management and conversation buffers
+   - Web search, calculator, and code execution tools
+
+2. **CrewAI Integration**
+   - Role-based multi-agent collaboration
+   - Hierarchical task delegation
+   - Specialized agent roles (Engineer, Architect, QA)
+   - Team performance metrics and optimization
+
+3. **AutoGen Integration**
+   - Conversation-driven multi-agent system
+   - Code execution in sandboxed environments
+   - Human-in-the-loop capabilities
+   - Agent coordination and consensus building
+
+### Enhanced Agent Capabilities
+- **Contextual Memory**: Persistent storage of interactions and learning
+- **Quality Assessment**: Built-in code quality scoring and recommendations
+- **Architecture Planning**: Automated system design and pattern recognition
+- **Dependency Analysis**: Smart detection and management of project dependencies
+- **Testing Strategy**: Automated test planning and quality assurance approaches
+- **Reasoning Engine**: Explicit reasoning and decision-making documentation
+
+### Tool Ecosystem
+- **File Analysis**: Pattern detection, dependency extraction, complexity assessment
+- **Code Quality**: Scoring, issue detection, refactoring opportunities
+- **Architecture Planning**: Component identification, pattern recommendation
+- **Performance Optimization**: Scalability assessment and recommendations
