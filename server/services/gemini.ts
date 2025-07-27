@@ -2012,14 +2012,23 @@ REASONING REQUIREMENTS:
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const genModel = this.genAI.getGenerativeModel({
+        // Use the correct Google GenAI API structure
+        const result = await this.genAI.models.generateContent({
           model: options.model,
-          generationConfig: options.config
+          contents: [{ role: 'user', parts: [{ text: options.contents }] }],
+          generationConfig: {
+            temperature: options.config.temperature,
+            topP: options.config.topP,
+            topK: options.config.topK,
+            maxOutputTokens: options.config.maxOutputTokens
+          }
         });
         
-        const result = await genModel.generateContent(options.contents);
-        const response = await result.response;
-        const text = response.text();
+        if (!result || !result.candidates || result.candidates.length === 0) {
+          throw new Error("No candidates in AI response");
+        }
+        
+        const text = result.candidates[0].content.parts[0].text;
         
         if (!text || text.trim().length === 0) {
           throw new Error("Empty response from AI service");
