@@ -443,7 +443,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format:
   "testingStrategy": "approach for testing the generated code"
 }`;
 
-      const response = await this.genAI.models.generateContent({
+      const response = await this.generateWithRetry({
         model: "gemini-2.0-flash-lite",
         contents: fullPrompt,
         config: {
@@ -459,8 +459,13 @@ IMPORTANT: Return ONLY valid JSON in this exact format:
         throw new Error("No response content from Gemini");
       }
 
-      // Enhanced content parsing
-      content = this.cleanResponseContent(content);
+      // Enhanced content parsing with proper error handling
+      try {
+        content = this.cleanResponseContent(content);
+      } catch (contentError) {
+        console.warn("Content cleaning failed, using raw content:", contentError);
+        content = String(content || "");
+      }
       const result = JSON.parse(content) as CodeGenerationResponse;
 
       // Validate and enhance response
@@ -476,6 +481,19 @@ IMPORTANT: Return ONLY valid JSON in this exact format:
       return result;
     } catch (error) {
       console.error("Advanced Gemini agent error:", error);
+      
+      // Check for overload errors and generate inline fallback
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isOverloadError = errorMessage.includes('503') || 
+                             errorMessage.includes('overloaded') || 
+                             errorMessage.includes('UNAVAILABLE') ||
+                             (error as any)?.status === 503;
+      
+      if (isOverloadError) {
+        console.log("All retries failed, generating inline fallback response");
+        return this.generateFallbackResponse(prompt);
+      }
+      
       throw new Error(
         `Advanced agent failed: ${
           error instanceof Error ? error.message : "Unknown error"
@@ -667,7 +685,12 @@ REASONING REQUIREMENTS:
     ).join('\n');
   }
 
-  private cleanResponseContent(content: string): string {
+  private cleanResponseContent(content: any): string {
+    // Ensure we have a string to work with
+    if (typeof content !== 'string') {
+      content = String(content || '');
+    }
+    
     content = content.trim();
     
     // Remove various markdown code block formats
@@ -684,6 +707,426 @@ REASONING REQUIREMENTS:
     }
     
     return content.trim();
+  }
+
+  private generateFallbackResponse(prompt: string): CodeGenerationResponse {
+    const appName = this.extractAppName(prompt);
+    
+    return {
+      plan: [
+        "AI service temporarily unavailable - fallback template generated",
+        "Complete application architecture with header, sidebar, and main content",
+        "Responsive design with modern CSS Grid layout",
+        "Basic interactivity with retry functionality",
+        "Professional styling with dynamic theme colors"
+      ],
+      files: {
+        "index.html": this.generateFallbackHTML(prompt, appName),
+        "styles.css": this.generateFallbackCSS(),
+        "script.js": this.generateFallbackJS()
+      },
+      reasoning: "Generated fallback template due to AI service overload. Maintains consistent architecture with proper layout structure.",
+      architecture: "Uses CSS Grid for layout with semantic HTML5 structure. Responsive design with mobile-first approach.",
+      nextSteps: ["Retry when service is available", "Customize content and features", "Add specific functionality"],
+      dependencies: ["No external dependencies required"],
+      testingStrategy: "Manual testing of responsive layout and basic interactivity"
+    };
+  }
+
+  private extractAppName(prompt: string): string {
+    const words = prompt.toLowerCase().split(' ');
+    
+    if (words.includes('fitness') || words.includes('health')) return 'Fitness Tracker';
+    if (words.includes('todo') || words.includes('task')) return 'Task Manager';
+    if (words.includes('shop') || words.includes('store') || words.includes('commerce')) return 'Online Store';
+    if (words.includes('social') || words.includes('chat')) return 'Social Platform';
+    if (words.includes('blog') || words.includes('cms')) return 'Content Manager';
+    if (words.includes('portfolio') || words.includes('showcase')) return 'Portfolio';
+    if (words.includes('dashboard') || words.includes('analytics')) return 'Dashboard';
+    if (words.includes('finance') || words.includes('budget') || words.includes('expense')) return 'Finance Manager';
+    if (words.includes('learning') || words.includes('course')) return 'Learning Platform';
+    if (words.includes('booking') || words.includes('appointment')) return 'Booking System';
+    
+    return 'Application';
+  }
+
+  private generateFallbackHTML(prompt: string, appName: string): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${appName}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">${appName}</h1>
+            <nav class="header-nav">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Features</a>
+                <a href="#" class="nav-link">Settings</a>
+            </nav>
+        </header>
+        
+        <div class="app-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="#" class="nav-item active">Dashboard</a></li>
+                        <li><a href="#" class="nav-item">Features</a></li>
+                        <li><a href="#" class="nav-item">Data</a></li>
+                        <li><a href="#" class="nav-item">Settings</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            
+            <main class="main-content">
+                <div class="content-section">
+                    <h2>Welcome to ${appName}</h2>
+                    <p class="intro-text">Request: "${prompt}"</p>
+                    <div class="status-card">
+                        <h3>⚠️ Service Status</h3>
+                        <p>The AI service is temporarily overloaded. This fallback template maintains the proper application structure while you wait.</p>
+                        <button class="retry-btn" onclick="window.location.reload()">Retry Generation</button>
+                    </div>
+                    
+                    <div class="feature-preview">
+                        <h3>Application Preview</h3>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <h4>Professional Layout</h4>
+                                <p>Modern CSS Grid with header, sidebar, and main content areas</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4>Responsive Design</h4>
+                                <p>Mobile-first approach with adaptive layouts</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4>Interactive Elements</h4>
+                                <p>Basic navigation and interactive components</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
+  }
+
+  private generateFallbackCSS(): string {
+    return `:root {
+  --primary-color: #3B82F6;
+  --secondary-color: #1E40AF;
+  --accent-color: #60A5FA;
+  --bg-color: #F8FAFC;
+  --text-color: #1E293B;
+  --border-color: #E2E8F0;
+  --warning-color: #F59E0B;
+  --success-color: #10B981;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+
+.app-container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 
+    "header"
+    "layout";
+  min-height: 100vh;
+}
+
+.app-header {
+  grid-area: header;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255,255,255,0.15);
+}
+
+.app-layout {
+  grid-area: layout;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-areas: "sidebar main";
+}
+
+.sidebar {
+  grid-area: sidebar;
+  background: white;
+  border-right: 1px solid var(--border-color);
+  padding: 1rem 0;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+}
+
+.sidebar-nav ul {
+  list-style: none;
+}
+
+.nav-item {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: var(--accent-color);
+  color: white;
+  border-left-color: var(--primary-color);
+}
+
+.main-content {
+  grid-area: main;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.content-section h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  font-size: 2rem;
+}
+
+.intro-text {
+  font-style: italic;
+  color: #666;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f0f4f8;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.status-card {
+  background: linear-gradient(135deg, var(--warning-color), #F97316);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.status-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.retry-btn {
+  background: white;
+  color: var(--warning-color);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.2s;
+}
+
+.retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.feature-preview h3 {
+  color: var(--primary-color);
+  margin: 2rem 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-left: 4px solid var(--primary-color);
+  transition: transform 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+}
+
+.feature-card h4 {
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.feature-card p {
+  color: #666;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "main";
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .app-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}`;
+  }
+
+  private generateFallbackJS(): string {
+    return `document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔄 Fallback mode activated - Application structure loaded');
+  
+  // Add enhanced navigation interactivity
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all items
+      navItems.forEach(nav => nav.classList.remove('active'));
+      
+      // Add active class to clicked item
+      this.classList.add('active');
+      
+      // Visual feedback
+      this.style.transform = 'scale(0.98)';
+      setTimeout(() => {
+        this.style.transform = '';
+      }, 150);
+      
+      console.log('📍 Navigation:', this.textContent);
+    });
+  });
+  
+  // Add floating retry notification
+  function showRetryNotification() {
+    const notification = document.createElement('div');
+    notification.innerHTML = \`
+      <div style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        z-index: 1000;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      ">
+        🔄 Click to retry AI generation
+      </div>
+    \`;
+    
+    const retryBtn = notification.firstElementChild;
+    retryBtn.addEventListener('click', () => {
+      window.location.reload();
+    });
+    
+    retryBtn.addEventListener('mouseenter', () => {
+      retryBtn.style.transform = 'translateY(-2px)';
+      retryBtn.style.boxShadow = '0 12px 35px rgba(0,0,0,0.2)';
+    });
+    
+    retryBtn.addEventListener('mouseleave', () => {
+      retryBtn.style.transform = '';
+      retryBtn.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+    });
+    
+    document.body.appendChild(notification);
+    
+    // Auto-hide after 10 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 10000);
+  }
+  
+  // Show retry notification after 2 seconds
+  setTimeout(showRetryNotification, 2000);
+  
+  // Add pulse animation to retry button
+  const retryBtn = document.querySelector('.retry-btn');
+  if (retryBtn) {
+    setInterval(() => {
+      retryBtn.style.transform = 'scale(1.05)';
+      setTimeout(() => {
+        retryBtn.style.transform = '';
+      }, 200);
+    }, 3000);
+  }
+  
+  console.log('✅ Fallback template ready - Enhanced UI with retry capabilities');
+  console.log('💡 This template demonstrates the complete application structure');
+});`;
   }
 
   private validateResponse(result: CodeGenerationResponse): void {
@@ -721,6 +1164,315 @@ REASONING REQUIREMENTS:
 
   public setMemory(key: string, value: any): void {
     this.memory.set(key, value);
+  }
+
+  private async generateWithRetry(requestParams: any, maxRetries: number = 3): Promise<any> {
+    let lastError: Error;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Gemini API attempt ${attempt}/${maxRetries}`);
+        return await this.genAI.models.generateContent(requestParams);
+      } catch (error: any) {
+        lastError = error;
+        
+        // Check if it's a rate limit or overload error
+        const isRetryableError = error.status === 503 || error.status === 429 || 
+                                (error.message && error.message.includes('overloaded')) ||
+                                (error.error && error.error.code === 503) ||
+                                (error.error && error.error.message && error.error.message.includes('overloaded'));
+        
+        if (isRetryableError) {
+          
+          if (attempt < maxRetries) {
+            const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s
+            console.log(`API overloaded, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+        }
+        
+        // For non-retryable errors, throw immediately
+        if (!isRetryableError) {
+          throw error;
+        }
+      }
+    }
+    
+    // If all retries failed, return a fallback response
+    console.warn(`All ${maxRetries} attempts failed, generating fallback response`);
+    return this.generateFallbackResponse();
+  }
+
+  private generateFallbackResponse(): any {
+    return {
+      text: () => JSON.stringify({
+        plan: [
+          "The AI service is temporarily unavailable",
+          "Please try again in a few moments",
+          "A basic template will be generated as fallback"
+        ],
+        files: {
+          "index.html": this.generateFallbackHTML(),
+          "styles.css": this.generateFallbackCSS(),
+          "script.js": this.generateFallbackJS()
+        },
+        reasoning: "Generated fallback response due to API unavailability",
+        architecture: "Basic HTML5 structure with modern layout",
+        nextSteps: ["Retry when API service is restored"],
+        dependencies: [],
+        testingStrategy: "Manual testing recommended"
+      })
+    };
+  }
+
+  private generateFallbackHTML(): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">Your Application</h1>
+            <nav class="header-nav">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Features</a>
+                <a href="#" class="nav-link">Settings</a>
+            </nav>
+        </header>
+        
+        <div class="app-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="#" class="nav-item active">Dashboard</a></li>
+                        <li><a href="#" class="nav-item">Features</a></li>
+                        <li><a href="#" class="nav-item">Data</a></li>
+                        <li><a href="#" class="nav-item">Settings</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            
+            <main class="main-content">
+                <div class="content-section">
+                    <h2>Welcome to Your Application</h2>
+                    <p>The AI service is temporarily unavailable. This is a basic template.</p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Feature 1</h3>
+                            <p>Your main application features will appear here.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Feature 2</h3>
+                            <p>Try again in a few moments for full functionality.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
+  }
+
+  private generateFallbackCSS(): string {
+    return `:root {
+  --primary-color: #2196F3;
+  --secondary-color: #1976D2;
+  --accent-color: #64B5F6;
+  --bg-color: #f5f5f5;
+  --text-color: #333;
+  --border-color: #ddd;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+
+.app-container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 
+    "header"
+    "layout";
+  min-height: 100vh;
+}
+
+.app-header {
+  grid-area: header;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.app-layout {
+  grid-area: layout;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-areas: "sidebar main";
+}
+
+.sidebar {
+  grid-area: sidebar;
+  background: white;
+  border-right: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+}
+
+.nav-item {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.main-content {
+  grid-area: main;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.content-section h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-left: 4px solid var(--primary-color);
+}
+
+.feature-card h3 {
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "main";
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .app-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}`;
+  }
+
+  private generateFallbackJS(): string {
+    return `document.addEventListener('DOMContentLoaded', function() {
+  console.log('Application loaded - Fallback mode');
+  
+  // Add basic interactivity to navigation
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all items
+      navItems.forEach(nav => nav.classList.remove('active'));
+      
+      // Add active class to clicked item
+      this.classList.add('active');
+      
+      console.log('Navigation clicked:', this.textContent);
+    });
+  });
+  
+  // Add retry mechanism notification
+  const retryNotification = document.createElement('div');
+  retryNotification.style.cssText = \`
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #FFA726;
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-width: 300px;
+  \`;
+  retryNotification.innerHTML = \`
+    <strong>Service Notice</strong><br>
+    The AI service is temporarily unavailable. Please try again in a few moments for full functionality.
+  \`;
+  
+  document.body.appendChild(retryNotification);
+  
+  // Auto-hide notification after 8 seconds
+  setTimeout(() => {
+    retryNotification.style.opacity = '0';
+    retryNotification.style.transition = 'opacity 0.5s';
+    setTimeout(() => retryNotification.remove(), 500);
+  }, 8000);
+});`;
   }
 }
 

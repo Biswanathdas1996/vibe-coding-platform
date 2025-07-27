@@ -9,6 +9,290 @@ import { fileManager } from "./services/fileManager";
 import { getTemplate } from "./services/templates";
 import { promptRequestSchema } from "@shared/schema";
 
+// Fallback helper functions for when AI service is unavailable
+function generateFallbackHTML(prompt: string): string {
+  const appName = extractAppName(prompt);
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${appName}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">${appName}</h1>
+            <nav class="header-nav">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Features</a>
+                <a href="#" class="nav-link">Settings</a>
+            </nav>
+        </header>
+        
+        <div class="app-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="#" class="nav-item active">Dashboard</a></li>
+                        <li><a href="#" class="nav-item">Features</a></li>
+                        <li><a href="#" class="nav-item">Data</a></li>
+                        <li><a href="#" class="nav-item">Settings</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            
+            <main class="main-content">
+                <div class="content-section">
+                    <h2>Welcome to ${appName}</h2>
+                    <p>The AI service is temporarily unavailable. This is a basic template for your application.</p>
+                    <div class="notice-card">
+                        <h3>Service Notice</h3>
+                        <p>Please try again in a few moments for full functionality. This fallback template provides the basic structure.</p>
+                    </div>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Main Features</h3>
+                            <p>Your application features will appear here once the service is restored.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Coming Soon</h3>
+                            <p>Full functionality will be available when you retry.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
+}
+
+function generateFallbackCSS(): string {
+  return `:root {
+  --primary-color: #607D8B;
+  --secondary-color: #2196F3;
+  --accent-color: #90A4AE;
+  --bg-color: #f5f5f5;
+  --text-color: #333;
+  --border-color: #ddd;
+  --warning-color: #FFA726;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+
+.app-container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 
+    "header"
+    "layout";
+  min-height: 100vh;
+}
+
+.app-header {
+  grid-area: header;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.app-layout {
+  grid-area: layout;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-areas: "sidebar main";
+}
+
+.sidebar {
+  grid-area: sidebar;
+  background: white;
+  border-right: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+}
+
+.nav-item {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.main-content {
+  grid-area: main;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.content-section h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.notice-card {
+  background: var(--warning-color);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.notice-card h3 {
+  margin-bottom: 0.5rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-left: 4px solid var(--primary-color);
+}
+
+.feature-card h3 {
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "main";
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .app-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}`;
+}
+
+function generateFallbackJS(): string {
+  return `document.addEventListener('DOMContentLoaded', function() {
+  console.log('Fallback mode - Application loaded');
+  
+  // Add basic interactivity to navigation
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all items
+      navItems.forEach(nav => nav.classList.remove('active'));
+      
+      // Add active class to clicked item
+      this.classList.add('active');
+      
+      console.log('Navigation clicked:', this.textContent);
+    });
+  });
+  
+  // Add retry suggestion
+  const retryButton = document.createElement('button');
+  retryButton.textContent = 'Retry Generation';
+  retryButton.style.cssText = \`
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+  \`;
+  
+  retryButton.addEventListener('click', () => {
+    window.location.reload();
+  });
+  
+  document.body.appendChild(retryButton);
+  
+  console.log('Fallback template ready - Please retry when service is available');
+});`;
+}
+
+function extractAppName(prompt: string): string {
+  const words = prompt.toLowerCase().split(' ');
+  
+  // Look for app type keywords
+  if (words.includes('fitness') || words.includes('health')) return 'Fitness Tracker';
+  if (words.includes('todo') || words.includes('task')) return 'Task Manager';
+  if (words.includes('shop') || words.includes('store') || words.includes('commerce')) return 'Online Store';
+  if (words.includes('social') || words.includes('chat')) return 'Social Platform';
+  if (words.includes('blog') || words.includes('cms')) return 'Content Manager';
+  if (words.includes('portfolio') || words.includes('showcase')) return 'Portfolio';
+  if (words.includes('dashboard') || words.includes('analytics')) return 'Dashboard';
+  if (words.includes('finance') || words.includes('budget') || words.includes('expense')) return 'Finance Manager';
+  if (words.includes('learning') || words.includes('course')) return 'Learning Platform';
+  if (words.includes('booking') || words.includes('appointment')) return 'Booking System';
+  
+  return 'Application';
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
@@ -95,9 +379,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error('Prompt processing error:', error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : 'Failed to process prompt' 
-      });
+      
+      // Check if it's an API overload error and provide fallback
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isOverloadError = errorMessage.includes('503') || 
+                             errorMessage.includes('overloaded') || 
+                             errorMessage.includes('UNAVAILABLE') ||
+                             errorMessage.includes('model is overloaded');
+      
+      if (isOverloadError) {
+        console.log('Providing fallback response due to API overload');
+        
+        const fallbackResult = {
+          plan: [
+            "AI service temporarily unavailable - generating fallback template",
+            "Please try again in a few moments for full functionality", 
+            "Basic application structure provided as starting point"
+          ],
+          files: {
+            "index.html": generateFallbackHTML(prompt),
+            "styles.css": generateFallbackCSS(),
+            "script.js": generateFallbackJS()
+          }
+        };
+        
+        await fileManager.writeFiles(fallbackResult.files);
+        
+        // Create project with fallback content
+        const project = await storage.createProject({
+          name: `Fallback Project ${Date.now()}`,
+          description: `${prompt.substring(0, 80)} (Fallback)`,
+          files: fallbackResult.files
+        });
+
+        await storage.createMessage({
+          projectId: project?.id,
+          role: 'user',
+          content: prompt
+        });
+
+        await storage.createMessage({
+          projectId: project?.id,
+          role: 'assistant',
+          content: 'Fallback template generated due to service unavailability',
+          plan: fallbackResult.plan,
+          files: fallbackResult.files
+        });
+        
+        res.json({
+          plan: fallbackResult.plan,
+          files: fallbackResult.files,
+          previewUrl: '/preview/index.html',
+          projectId: project?.id
+        });
+      } else {
+        res.status(500).json({ 
+          error: error instanceof Error ? error.message : 'Failed to process prompt' 
+        });
+      }
     }
   });
 
