@@ -3,23 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Project</title>
+    <title>E-Commerce Store</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Your Blank Canvas</h1>
-        <p>This is a clean slate ready for your ideas. Start describing what you'd like to build!</p>
-        <div class="getting-started">
-            <h2>Getting Started</h2>
+    <header>
+        <div class="app-name">E-Commerce Store</div>
+        <nav>
             <ul>
-                <li>Describe your vision in the chat</li>
-                <li>I'll help you build it step by step</li>
-                <li>Modify, iterate, and perfect your creation</li>
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#cart">Cart</a></li>
+                <li><a href="#login">Login</a></li>
             </ul>
-        </div>
+        </nav>
+    </header>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#cart">Cart</a></li>
+                    <li><a href="#login">Login</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main>
+            <section id="products">
+                <h2>Products</h2>
+                <div class="product-grid">
+                    <!-- Product cards will be dynamically added here -->
+                    <div class="product-card">
+                        <img src="placeholder-image.jpg" alt="Product Name">
+                        <h3>Product Name</h3>
+                        <p>Description of the product.</p>
+                        <p class="price">$99.99</p>
+                        <button>Add to Cart</button>
+                    </div>
+                    <div class="product-card">
+                        <img src="placeholder-image.jpg" alt="Product Name">
+                        <h3>Product Name</h3>
+                        <p>Description of the product.</p>
+                        <p class="price">$99.99</p>
+                        <button>Add to Cart</button>
+                    </div>
+                    <div class="product-card">
+                        <img src="placeholder-image.jpg" alt="Product Name">
+                        <h3>Product Name</h3>
+                        <p>Description of the product.</p>
+                        <p class="price">$99.99</p>
+                        <button>Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    
+
+    <footer>
+        <p>&copy; 2024 E-Commerce Store</p>
+    </footer>
     <script src="script.js"></script>
 </body>
 </html>

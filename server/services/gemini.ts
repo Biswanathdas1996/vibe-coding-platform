@@ -737,8 +737,9 @@ REASONING REQUIREMENTS:
 
   private generateFallbackResponse(prompt: string): CodeGenerationResponse {
     const appName = this.extractAppName(prompt);
+    console.log(`Generating fallback response for app: ${appName}`);
     
-    return {
+    const response = {
       plan: [
         "AI service temporarily unavailable - fallback template generated",
         "Complete application architecture with header, sidebar, and main content",
@@ -748,9 +749,9 @@ REASONING REQUIREMENTS:
       ],
       files: {
         "index.html": this.generateFallbackHTML(prompt, appName),
-        "about.html": generateFallbackAboutHTML(appName),
-        "features.html": generateFallbackFeaturesHTML(appName),
-        "contact.html": generateFallbackContactHTML(appName),
+        "about.html": this.generateSimpleAboutHTML(appName),
+        "features.html": this.generateSimpleFeaturesHTML(appName),
+        "contact.html": this.generateSimpleContactHTML(appName),
         "styles.css": this.generateFallbackCSS(),
         "script.js": this.generateFallbackJS()
       },
@@ -760,6 +761,9 @@ REASONING REQUIREMENTS:
       dependencies: ["No external dependencies required"],
       testingStrategy: "Manual testing of responsive layout and basic interactivity"
     };
+    
+    console.log('Fallback response files:', Object.keys(response.files));
+    return response;
   }
 
   private extractAppName(prompt: string): string {
@@ -1325,6 +1329,184 @@ body {
 
   public setMemory(key: string, value: any): void {
     this.memory.set(key, value);
+  }
+
+  private generateSimpleAboutHTML(appName: string): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - ${appName}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">${appName}</h1>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="features.html" class="nav-link">Features</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+            </nav>
+        </header>
+        <div class="app-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="index.html" class="nav-item">Dashboard</a></li>
+                        <li><a href="features.html" class="nav-item">Features</a></li>
+                        <li><a href="about.html" class="nav-item active">About</a></li>
+                        <li><a href="contact.html" class="nav-item">Contact</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            <main class="main-content">
+                <div class="content-section">
+                    <h2>About ${appName}</h2>
+                    <div class="about-content">
+                        <div class="about-card">
+                            <h3>Application Overview</h3>
+                            <p>This is a comprehensive multi-page application built with modern web technologies.</p>
+                        </div>
+                        <div class="about-card">
+                            <h3>Key Features</h3>
+                            <ul>
+                                <li>Multi-page application structure</li>
+                                <li>Responsive design with CSS Grid</li>
+                                <li>Modern UI/UX patterns</li>
+                                <li>Professional styling system</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
+  }
+
+  private generateSimpleFeaturesHTML(appName: string): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - ${appName}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">${appName}</h1>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+            </nav>
+        </header>
+        <div class="app-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="index.html" class="nav-item">Dashboard</a></li>
+                        <li><a href="features.html" class="nav-item active">Features</a></li>
+                        <li><a href="about.html" class="nav-item">About</a></li>
+                        <li><a href="contact.html" class="nav-item">Contact</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            <main class="main-content">
+                <div class="content-section">
+                    <h2>Application Features</h2>
+                    <div class="features-grid">
+                        <div class="feature-showcase">
+                            <h3>Multi-Page Architecture</h3>
+                            <p>Complete application with multiple interconnected pages and smooth navigation.</p>
+                            <div class="feature-status">✅ Active</div>
+                        </div>
+                        <div class="feature-showcase">
+                            <h3>Responsive Design</h3>
+                            <p>Mobile-first approach ensuring perfect display across all device sizes.</p>
+                            <div class="feature-status">✅ Active</div>
+                        </div>
+                        <div class="feature-showcase">
+                            <h3>Navigation System</h3>
+                            <p>Intuitive navigation with active states and breadcrumb support.</p>
+                            <div class="feature-status">✅ Active</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
+  }
+
+  private generateSimpleContactHTML(appName: string): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - ${appName}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">${appName}</h1>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="features.html" class="nav-link">Features</a>
+            </nav>
+        </header>
+        <div class="app-layout">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="index.html" class="nav-item">Dashboard</a></li>
+                        <li><a href="features.html" class="nav-item">Features</a></li>
+                        <li><a href="about.html" class="nav-item">About</a></li>
+                        <li><a href="contact.html" class="nav-item active">Contact</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            <main class="main-content">
+                <div class="content-section">
+                    <h2>Contact Information</h2>
+                    <div class="contact-content">
+                        <div class="contact-form-section">
+                            <h3>Get in Touch</h3>
+                            <form class="contact-form">
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message">Message</label>
+                                    <textarea id="message" name="message" rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="submit-btn">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>`;
   }
 
   private async generateWithRetry(requestParams: any, maxRetries: number = 3): Promise<any> {

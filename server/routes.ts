@@ -332,8 +332,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Generate code using OpenAI
+      // Generate code using enhanced AI agent
       const result = await generateCode(prompt, existingFiles);
+      
+      // Ensure files object exists before writing
+      if (!result || !result.files || typeof result.files !== 'object') {
+        throw new Error('Invalid response structure from code generation');
+      }
       
       // Write files to public directory
       await fileManager.writeFiles(result.files);
