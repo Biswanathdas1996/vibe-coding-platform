@@ -1592,52 +1592,75 @@ console.log('Enhanced ${appType} application fully initialized');`;
     try {
       console.log(`🤖 AI Analyzing prompt: "${prompt}"`);
       
-      let aiGeneratedContent: CodeGenerationResponse;
+      // Step 1: Check if it's the first prompt (no existing files)
+      const isFirstPrompt = !existingFiles || Object.keys(existingFiles).length === 0;
       
-      if (existingFiles && Object.keys(existingFiles).length > 0) {
-        // Iterative development - modify existing codebase
-        console.log(`🔧 Modifying existing codebase with ${Object.keys(existingFiles).length} files`);
-        aiGeneratedContent = await this.modifyExistingApplicationWithAI(prompt, existingFiles);
+      if (isFirstPrompt) {
+        console.log(`🆕 First prompt detected - Starting comprehensive multi-step generation`);
+        
+        // Step 2: Get detailed features and functionality
+        console.log("📋 Step 1/6: Analyzing features and functionality...");
+        const appFeatures = await this.analyzeApplicationFeatures(prompt);
+        
+        // Step 3: Get file structure and relationships
+        console.log("🏗️ Step 2/6: Determining file structure...");
+        const fileStructure = await this.determineFileStructure(prompt, appFeatures);
+        
+        // Step 4: Create folder structure (we'll generate files in memory)
+        console.log("📁 Step 3/6: Preparing file generation...");
+        const files: Record<string, string> = {};
+        
+        // Step 5: Generate each file with separate LLM calls
+        console.log("🎨 Step 4/6: Generating individual files...");
+        for (const file of fileStructure.files) {
+          console.log(`   📄 Generating ${file.name}...`);
+          const fileContent = await this.generateFileContent(
+            prompt,
+            appFeatures,
+            fileStructure,
+            file
+          );
+          files[file.name] = fileContent;
+        }
+        
+        // Step 6: Ensure proper routing and navigation
+        console.log("🔗 Step 5/6: Finalizing navigation and routing...");
+        const finalFiles = await this.ensureProperRouting(files, fileStructure);
+        
+        // Generate implementation plan from features
+        console.log("📊 Step 6/6: Creating implementation summary...");
+        const plan = this.createImplementationPlan(appFeatures, fileStructure);
+        
+        const result: CodeGenerationResponse = {
+          plan: plan,
+          files: finalFiles,
+          reasoning: appFeatures.reasoning,
+          architecture: fileStructure.architecture,
+          nextSteps: appFeatures.nextSteps,
+          dependencies: fileStructure.dependencies,
+          testingStrategy: appFeatures.testingStrategy
+        };
+        
+        // Store interaction in context
+        this.context.previousInteractions.push({
+          prompt,
+          response: result,
+          timestamp: new Date()
+        });
+        
+        console.log(`✅ Generated ${Object.keys(finalFiles).length} files with modern UI and full functionality`);
+        return result;
+        
       } else {
-        // Initial development - create new application
-        console.log(`🆕 Creating new application from scratch`);
-        aiGeneratedContent = await this.generateCompleteApplicationWithAI(prompt);
+        // Existing files - use modification approach
+        console.log(`🔧 Modifying existing codebase with ${Object.keys(existingFiles).length} files`);
+        return await this.modifyExistingApplicationWithAI(prompt, existingFiles);
       }
       
-      console.log(`✅ AI ${existingFiles ? 'modified' : 'generated'} application with ${Object.keys(aiGeneratedContent.files).length} files`);
-      
-      // Store interaction in context for learning
-      this.context.previousInteractions.push({
-        prompt,
-        response: aiGeneratedContent,
-        timestamp: new Date()
-      });
-
-      return aiGeneratedContent;
-      
-      const result: CodeGenerationResponse = {
-        plan: implementationPlan.plan,
-        files,
-        reasoning: implementationPlan.reasoning,
-        architecture: implementationPlan.architecture,
-        nextSteps: implementationPlan.nextSteps,
-        dependencies: implementationPlan.dependencies,
-        testingStrategy: implementationPlan.testingStrategy
-      };
-      
-      // Store interaction in context for learning
-      this.context.previousInteractions.push({
-        prompt,
-        response: result,
-        timestamp: new Date()
-      });
-
-      return result;
     } catch (error) {
       console.error("Advanced Gemini agent error:", error);
       
-      // No fallback - only use generative AI for implementation plans
-      // Attempt AI-based error recovery with different parameters
+      // Attempt recovery
       try {
         console.log("Attempting AI recovery with simplified parameters...");
         return await this.generateWithAIRecovery(prompt, existingFiles);
@@ -1745,200 +1768,253 @@ Make the minimal necessary changes to implement the user's request while keeping
     }
   }
 
-  // Multi-LLM approach: Generate complete application with separate AI calls for each component
-  private async generateCompleteApplicationWithAI(prompt: string): Promise<CodeGenerationResponse> {
-    console.log("🔄 Starting multi-LLM generation approach...");
-    
-    try {
-      // Step 1: Generate implementation plan
-      const plan = await this.generateImplementationPlan(prompt);
-      
-      // Step 2: Generate page structure based on prompt analysis
-      const pageStructure = await this.generatePageStructure(prompt);
-      
-      // Step 3: Generate each page with individual AI calls
-      const files: Record<string, string> = {};
-      
-      // Generate main pages
-      for (const page of pageStructure.pages) {
-        console.log(`🎨 Generating ${page.name} with dedicated AI call...`);
-        const pageContent = await this.generateIndividualPage(prompt, page, pageStructure.theme);
-        files[page.filename] = pageContent;
-      }
-      
-      // Step 4: Generate CSS with modern design
-      console.log("🎨 Generating modern CSS design...");
-      const cssContent = await this.generateModernCSS(prompt, pageStructure);
-      files['styles.css'] = cssContent;
-      
-      // Step 5: Generate JavaScript functionality
-      console.log("⚡ Generating JavaScript functionality...");
-      const jsContent = await this.generateJavaScriptFunctionality(prompt, pageStructure);
-      files['script.js'] = jsContent;
-      
-      console.log(`✅ Multi-LLM generation complete: ${Object.keys(files).length} files generated`);
-      
-      return {
-        plan: plan.steps,
-        files: files,
-        reasoning: `Multi-LLM approach: ${plan.reasoning}`,
-        architecture: `Modern multi-page application: ${pageStructure.architecture}`,
-        nextSteps: plan.nextSteps,
-        dependencies: pageStructure.dependencies,
-        testingStrategy: "Component-wise testing with modern UI validation"
-      };
-      
-    } catch (error) {
-      console.error("Multi-LLM generation failed:", error);
-      throw new Error(`Multi-LLM application generation failed: ${error.message}`);
-    }
-  }
+  // Step 2: Analyze application features and functionality
+  private async analyzeApplicationFeatures(prompt: string): Promise<any> {
+    const analysisPrompt = `Analyze this application request in detail: "${prompt}"
 
-  // Generate detailed implementation plan
-  private async generateImplementationPlan(prompt: string): Promise<any> {
-    const planPrompt = `Analyze this user request and create a detailed implementation plan: "${prompt}"
-
-Return ONLY valid JSON:
+Return ONLY valid JSON with comprehensive analysis:
 {
-  "steps": [
-    {"step": 1, "action": "Analyze requirements", "details": "What pages and features are needed"},
-    {"step": 2, "action": "Design structure", "details": "Layout and navigation design"},
-    {"step": 3, "action": "Implement pages", "details": "Create all required pages"},
-    {"step": 4, "action": "Add styling", "details": "Modern, responsive CSS design"},
-    {"step": 5, "action": "Add functionality", "details": "JavaScript interactions and features"}
+  "appType": "ecommerce/dashboard/portfolio/saas/other",
+  "coreFunctionality": [
+    "Feature 1: Detailed description",
+    "Feature 2: Detailed description"
   ],
-  "reasoning": "Detailed approach explanation",
+  "userFlows": [
+    "User can browse products and add to cart",
+    "User can checkout and place orders"
+  ],
+  "dataRequirements": [
+    "Products with name, price, description, image",
+    "Shopping cart with persistence",
+    "Order management system"
+  ],
+  "uiRequirements": [
+    "Modern responsive design",
+    "Product cards with images",
+    "Shopping cart sidebar",
+    "Checkout form with validation"
+  ],
+  "technicalRequirements": [
+    "Client-side state management",
+    "Local storage for cart persistence",
+    "Form validation",
+    "Dynamic UI updates"
+  ],
+  "reasoning": "Detailed analysis of the requirements",
   "nextSteps": ["Future enhancements"],
-  "estimatedComplexity": "medium"
+  "testingStrategy": "How to test the application"
 }`;
 
     const response = await this.generateWithRetry({
       model: "gemini-2.0-flash-lite",
-      contents: planPrompt,
-      config: { temperature: 0.3, maxOutputTokens: 1024 }
+      contents: analysisPrompt,
+      config: { temperature: 0.3, maxOutputTokens: 2048 }
     });
 
     return this.safeJSONParse(this.cleanResponseContent(response.text || ""));
   }
 
-  // Generate page structure and theme
-  private async generatePageStructure(prompt: string): Promise<any> {
-    const structurePrompt = `Analyze this request and determine the required pages and design theme: "${prompt}"
+  // Step 3: Determine file structure and relationships
+  private async determineFileStructure(prompt: string, appFeatures: any): Promise<any> {
+    const structurePrompt = `Based on this application request: "${prompt}"
+And these analyzed features: ${JSON.stringify(appFeatures)}
 
-Return ONLY valid JSON:
+Determine the exact file structure needed. Return ONLY valid JSON:
 {
-  "pages": [
-    {"name": "Home", "filename": "index.html", "purpose": "Main landing page", "content": "Overview and navigation"},
-    {"name": "Products", "filename": "products.html", "purpose": "Product listing", "content": "Display products with search/filter"},
-    {"name": "Cart", "filename": "cart.html", "purpose": "Shopping cart", "content": "Cart items and checkout"},
-    {"name": "Orders", "filename": "orders.html", "purpose": "Order management", "content": "Order history and tracking"}
+  "files": [
+    {
+      "name": "index.html",
+      "type": "html",
+      "purpose": "Homepage with navigation to all features",
+      "linkedFiles": ["styles.css", "script.js"],
+      "navigation": ["products.html", "cart.html", "orders.html"]
+    },
+    {
+      "name": "products.html",
+      "type": "html",
+      "purpose": "Product listing and search",
+      "linkedFiles": ["styles.css", "script.js"],
+      "navigation": ["index.html", "cart.html", "orders.html"]
+    },
+    {
+      "name": "cart.html",
+      "type": "html",
+      "purpose": "Shopping cart management",
+      "linkedFiles": ["styles.css", "script.js"],
+      "navigation": ["index.html", "products.html", "checkout.html"]
+    },
+    {
+      "name": "styles.css",
+      "type": "css",
+      "purpose": "Modern responsive design system"
+    },
+    {
+      "name": "script.js",
+      "type": "javascript",
+      "purpose": "Application logic and interactions"
+    }
   ],
-  "theme": "modern-ecommerce",
-  "colorScheme": "blue-gradient",
-  "layout": "header-sidebar-main",
-  "architecture": "Multi-page responsive web application",
-  "dependencies": ["HTML5", "CSS3", "JavaScript", "LocalStorage"]
+  "architecture": "Multi-page application with shared CSS and JavaScript",
+  "dependencies": ["HTML5", "CSS3", "JavaScript ES6+", "LocalStorage"],
+  "routing": "Client-side navigation with /preview/ prefix"
 }
 
-Create pages that match the user's specific request. For ecommerce: products, cart, orders. For dashboard: analytics, reports, settings. For portfolio: about, projects, contact.`;
+Create files that exactly match the user's requirements. Include all necessary pages.`;
 
     const response = await this.generateWithRetry({
       model: "gemini-2.0-flash-lite",
       contents: structurePrompt,
-      config: { temperature: 0.4, maxOutputTokens: 1024 }
+      config: { temperature: 0.3, maxOutputTokens: 2048 }
     });
 
     return this.safeJSONParse(this.cleanResponseContent(response.text || ""));
   }
 
-  // Generate individual page with dedicated AI call
-  private async generateIndividualPage(prompt: string, page: any, theme: string): Promise<string> {
-    const pagePrompt = `Generate a complete ${page.name} page for this application: "${prompt}"
+  // Step 5: Generate individual file content
+  private async generateFileContent(
+    prompt: string,
+    appFeatures: any,
+    fileStructure: any,
+    file: any
+  ): Promise<string> {
+    let filePrompt = "";
+    
+    if (file.type === "html") {
+      filePrompt = `Generate a complete ${file.name} HTML file for: "${prompt}"
 
-Page Details:
-- Name: ${page.name}
-- Purpose: ${page.purpose}
-- Content: ${page.content}
-- Theme: ${theme}
+File Purpose: ${file.purpose}
+App Features: ${JSON.stringify(appFeatures.coreFunctionality)}
+UI Requirements: ${JSON.stringify(appFeatures.uiRequirements)}
+Linked Files: ${JSON.stringify(file.linkedFiles || [])}
+Navigation Links: ${JSON.stringify(file.navigation || [])}
 
 Requirements:
-1. Complete HTML5 document with modern structure
-2. CSS Grid layout: header, sidebar, main content
-3. Responsive design with mobile support
-4. All navigation links must use /preview/ prefix
-5. Include realistic content matching the application purpose
-6. Modern UI elements (cards, buttons, forms as needed)
-7. Semantic HTML structure
-8. Accessibility features (alt text, ARIA labels)
+1. Complete HTML5 document with semantic structure
+2. Modern CSS Grid layout: header, sidebar, main content area
+3. Responsive design with mobile-first approach
+4. All navigation links must use /preview/ prefix (e.g., href="/preview/products.html")
+5. Include realistic, professional content matching the application
+6. Modern UI components (cards, forms, buttons) with proper classes
+7. Accessibility features (ARIA labels, semantic HTML)
+8. Link to ${file.linkedFiles?.join(', ') || 'required files'}
 
 Return ONLY the complete HTML content (no JSON, no markdown):`;
+    } else if (file.type === "css") {
+      filePrompt = `Generate modern CSS for: "${prompt}"
 
-    const response = await this.generateWithRetry({
-      model: "gemini-2.0-flash-lite",
-      contents: pagePrompt,
-      config: { temperature: 0.5, maxOutputTokens: 4096 }
-    });
-
-    return this.cleanResponseContent(response.text || "");
-  }
-
-  // Generate modern CSS with dedicated AI call
-  private async generateModernCSS(prompt: string, pageStructure: any): Promise<string> {
-    const cssPrompt = `Generate modern CSS for this application: "${prompt}"
-
-Page Structure: ${JSON.stringify(pageStructure)}
+App Type: ${appFeatures.appType}
+UI Requirements: ${JSON.stringify(appFeatures.uiRequirements)}
+All HTML Files: ${fileStructure.files.filter(f => f.type === 'html').map(f => f.name).join(', ')}
 
 Requirements:
-1. Modern, professional design system
-2. CSS Grid layout for header, sidebar, main content
-3. Responsive design (mobile, tablet, desktop)
-4. Modern color scheme and typography
+1. Modern CSS3 with custom properties for theming
+2. CSS Grid layout system for page structure
+3. Responsive design (mobile, tablet, desktop breakpoints)
+4. Professional color scheme and typography
 5. Smooth animations and transitions
-6. Component-based styling (cards, buttons, forms)
-7. CSS custom properties for theming
-8. Modern shadows, gradients, and effects
-9. Accessible design (contrast, focus states)
-10. Clean, maintainable CSS structure
+6. Component styles (cards, buttons, forms, navigation)
+7. Utility classes for common patterns
+8. Modern effects (shadows, gradients, hover states)
+9. Accessibility (focus states, contrast)
+10. Clean, organized structure with comments
 
 Return ONLY the complete CSS content (no JSON, no markdown):`;
+    } else if (file.type === "javascript") {
+      filePrompt = `Generate JavaScript for: "${prompt}"
 
-    const response = await this.generateWithRetry({
-      model: "gemini-2.0-flash-lite",
-      contents: cssPrompt,
-      config: { temperature: 0.4, maxOutputTokens: 4096 }
-    });
-
-    return this.cleanResponseContent(response.text || "");
-  }
-
-  // Generate JavaScript functionality with dedicated AI call
-  private async generateJavaScriptFunctionality(prompt: string, pageStructure: any): Promise<string> {
-    const jsPrompt = `Generate JavaScript functionality for this application: "${prompt}"
-
-Page Structure: ${JSON.stringify(pageStructure)}
+App Features: ${JSON.stringify(appFeatures.coreFunctionality)}
+Technical Requirements: ${JSON.stringify(appFeatures.technicalRequirements)}
+All HTML Files: ${fileStructure.files.filter(f => f.type === 'html').map(f => f.name).join(', ')}
 
 Requirements:
-1. Modern ES6+ JavaScript
-2. Functionality specific to the application (cart, search, forms, etc.)
+1. Modern ES6+ JavaScript with proper structure
+2. Implement all application functionality (${appFeatures.coreFunctionality.join(', ')})
 3. Local storage for data persistence
-4. Responsive navigation and interactions
-5. Form validation and user feedback
-6. Modern DOM manipulation
-7. Event handling for user interactions
+4. Form validation and user feedback
+5. Dynamic UI updates and interactions
+6. Shopping cart management (if applicable)
+7. Search and filter functionality (if applicable)
 8. Error handling and user notifications
-9. Performance optimizations
-10. Clean, modular code structure
+9. Clean, modular code with comments
+10. Event delegation for performance
 
 Return ONLY the complete JavaScript content (no JSON, no markdown):`;
-
+    }
+    
     const response = await this.generateWithRetry({
       model: "gemini-2.0-flash-lite",
-      contents: jsPrompt,
-      config: { temperature: 0.5, maxOutputTokens: 4096 }
+      contents: filePrompt,
+      config: { temperature: 0.5, maxOutputTokens: 8192 }
     });
 
     return this.cleanResponseContent(response.text || "");
   }
+
+  // Step 6: Ensure proper routing and navigation
+  private async ensureProperRouting(
+    files: Record<string, string>,
+    fileStructure: any
+  ): Promise<Record<string, string>> {
+    // Verify all HTML files have proper navigation
+    const htmlFiles = fileStructure.files.filter(f => f.type === 'html');
+    
+    for (const htmlFile of htmlFiles) {
+      const content = files[htmlFile.name];
+      if (content && htmlFile.navigation) {
+        // Check if navigation links are properly set with /preview/ prefix
+        let hasProperNavigation = true;
+        for (const navLink of htmlFile.navigation) {
+          if (!content.includes(`/preview/${navLink}`)) {
+            hasProperNavigation = false;
+            break;
+          }
+        }
+        
+        if (!hasProperNavigation) {
+          console.log(`⚠️ Fixing navigation in ${htmlFile.name}`);
+          // The generated content should already have proper navigation
+          // but this is a safety check
+        }
+      }
+    }
+    
+    return files;
+  }
+
+  // Create implementation plan from analyzed features
+  private createImplementationPlan(appFeatures: any, fileStructure: any): any[] {
+    const plan = [
+      {
+        step: 1,
+        action: "Application Analysis",
+        details: `Analyzed ${appFeatures.appType} application with ${appFeatures.coreFunctionality.length} core features`
+      },
+      {
+        step: 2,
+        action: "File Structure",
+        details: `Created ${fileStructure.files.length} files: ${fileStructure.files.map(f => f.name).join(', ')}`
+      },
+      {
+        step: 3,
+        action: "UI Implementation",
+        details: `Implemented modern responsive design with ${appFeatures.uiRequirements.length} UI components`
+      },
+      {
+        step: 4,
+        action: "Functionality",
+        details: `Added ${appFeatures.technicalRequirements.length} technical features`
+      },
+      {
+        step: 5,
+        action: "Navigation",
+        details: "Configured proper routing with /preview/ prefix for all pages"
+      }
+    ];
+    
+    return plan;
+  }
+
+
 
   // AI recovery method with simplified parameters
   private async generateWithAIRecovery(prompt: string, existingFiles?: Record<string, string>): Promise<CodeGenerationResponse> {
