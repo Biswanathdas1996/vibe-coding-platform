@@ -1714,7 +1714,7 @@ Make the minimal necessary changes to implement the user's request while keeping
       let content = response.text || "";
       content = this.cleanResponseContent(content);
       
-      const result = JSON.parse(content);
+      const result = this.safeJSONParse(content);
       
       // Validate required fields
       if (!result.plan || !Array.isArray(result.plan)) {
@@ -1800,7 +1800,7 @@ Generate a complete, functional application that exactly fulfills the user's req
       let content = response.text || "";
       content = this.cleanResponseContent(content);
       
-      const result = JSON.parse(content);
+      const result = this.safeJSONParse(content);
       
       // Validate required fields
       if (!result.plan || !Array.isArray(result.plan)) {
@@ -1886,7 +1886,7 @@ Generate a professional, production-ready implementation plan.`;
       let content = response.text || "";
       content = this.cleanResponseContent(content);
       
-      const result = JSON.parse(content);
+      const result = this.safeJSONParse(content);
       
       // Validate required fields
       if (!result.plan || !Array.isArray(result.plan)) {
@@ -2125,7 +2125,98 @@ REASONING REQUIREMENTS:
       content = content.replace(pattern, '');
     }
     
-    return content.trim();
+    content = content.trim();
+    
+    // Fix common JSON escaping issues
+    content = this.fixJSONEscaping(content);
+    
+    return content;
+  }
+
+  private fixJSONEscaping(content: string): string {
+    try {
+      // Fix common JSON escaping issues that cause parsing errors
+      
+      // Fix unescaped backslashes in strings
+      content = content.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
+      
+      // Fix unescaped quotes in HTML content
+      content = content.replace(/"([^"]*)"([^,}\]]*)"([^,}\]]*)"([^,}\]]*)"/g, (match, p1, p2, p3, p4) => {
+        if (p2.includes('<') && p4.includes('>')) {
+          // This looks like HTML content with quotes, escape inner quotes
+          return `"${p1}\\"${p2}\\"${p3}\\"${p4}"`;
+        }
+        return match;
+      });
+      
+      // Fix newlines in JSON strings
+      content = content.replace(/\n(?=\s*[^"}])/g, '\\n');
+      
+      // Fix tab characters in JSON strings
+      content = content.replace(/\t/g, '\\t');
+      
+      // Try to extract JSON from the content if it's wrapped in other text
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        content = jsonMatch[0];
+      }
+      
+      return content;
+    } catch (error) {
+      console.warn('Error fixing JSON escaping:', error);
+      return content;
+    }
+  }
+
+  private safeJSONParse(content: string): any {
+    try {
+      // First attempt: direct parse
+      return JSON.parse(content);
+    } catch (error) {
+      console.warn('Initial JSON parse failed, attempting fixes...');
+      
+      try {
+        // Second attempt: more aggressive fixing
+        let fixed = content;
+        
+        // Remove any non-printable characters
+        fixed = fixed.replace(/[\x00-\x1F\x7F]/g, '');
+        
+        // Fix common HTML attribute escaping issues
+        fixed = fixed.replace(/\\"/g, '\\"');
+        fixed = fixed.replace(/"/g, '"');
+        fixed = fixed.replace(/"/g, '"');
+        
+        // Fix line breaks in JSON strings
+        fixed = fixed.replace(/\n/g, '\\n');
+        fixed = fixed.replace(/\r/g, '\\r');
+        fixed = fixed.replace(/\t/g, '\\t');
+        
+        // Try to find and extract the main JSON object
+        const jsonStart = fixed.indexOf('{');
+        const jsonEnd = fixed.lastIndexOf('}') + 1;
+        
+        if (jsonStart !== -1 && jsonEnd > jsonStart) {
+          fixed = fixed.substring(jsonStart, jsonEnd);
+        }
+        
+        return JSON.parse(fixed);
+      } catch (secondError) {
+        console.error('JSON parsing failed completely:', error.message);
+        console.error('Content preview:', content.substring(0, 200));
+        
+        // Return a basic structure to prevent complete failure
+        return {
+          plan: [{ step: 1, action: "Parse Error", details: "AI response could not be parsed" }],
+          files: { "error.txt": "JSON parsing failed" },
+          reasoning: "Response parsing failed",
+          architecture: "Error state",
+          nextSteps: ["Retry with different parameters"],
+          dependencies: [],
+          testingStrategy: "Manual retry required"
+        };
+      }
+    }
   }
 
   // All fallback methods removed - only AI-generated implementation plans supported
