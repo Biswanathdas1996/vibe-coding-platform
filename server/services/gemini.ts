@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { generateFallbackAboutHTML, generateFallbackFeaturesHTML, generateFallbackContactHTML } from './multipage-fallback';
+// Fallback imports removed - only AI-generated implementation plans supported
 
 // Enhanced interfaces for advanced agentic capabilities
 export interface CodeGenerationResponse {
@@ -1613,28 +1613,17 @@ console.log('Enhanced ${appType} application fully initialized');`;
       // Step 4: Generate JavaScript with interactivity for all pages
       files['script.js'] = this.generateEnhancedJavaScript(pages, appType);
       
-      // Step 5: Create comprehensive plan
-      const plan = [
-        `🎯 Analyzed prompt and identified ${pages.length} required pages: ${pages.map(p => p.title).join(', ')}`,
-        `🏗️ Generated ${appType} application with ${appName} branding and dynamic theme colors`,
-        `📱 Created responsive multi-page architecture with modern HTML5 layout using CSS Grid`,
-        `✨ Implemented interactive features and smooth navigation between all pages`,
-        `🎨 Applied context-aware content generation based on application type and user requirements`
-      ];
+      // Step 5: Generate AI-driven implementation plan
+      const implementationPlan = await this.generateAIImplementationPlan(prompt);
       
       const result: CodeGenerationResponse = {
-        plan,
+        plan: implementationPlan.plan,
         files,
-        reasoning: `Intelligent page analysis system detected the need for ${pages.length} pages based on prompt keywords and application type. Each page was generated with tailored content, components, and interactivity specific to its purpose. The ${appType} theme colors (${themeColors.primary}, ${themeColors.secondary}, ${themeColors.accent}) were automatically applied for visual consistency.`,
-        architecture: `Multi-page application architecture with: HTML5 semantic structure, CSS Grid layout system, dynamic theming based on app type, page-specific content generation, responsive design patterns, and interactive JavaScript features for enhanced user experience.`,
-        nextSteps: [
-          'Add server-side functionality for form submissions and data persistence',
-          'Implement user authentication and session management',
-          'Add advanced features like search, filtering, and sorting',
-          'Optimize performance with lazy loading and caching strategies'
-        ],
-        dependencies: ['No external dependencies - pure HTML, CSS, and JavaScript implementation'],
-        testingStrategy: 'Manual testing of all page navigation, responsive design validation, form functionality verification, and cross-browser compatibility checks'
+        reasoning: implementationPlan.reasoning,
+        architecture: implementationPlan.architecture,
+        nextSteps: implementationPlan.nextSteps,
+        dependencies: implementationPlan.dependencies,
+        testingStrategy: implementationPlan.testingStrategy
       };
       
       // Store interaction in context for learning
@@ -1648,29 +1637,128 @@ console.log('Enhanced ${appType} application fully initialized');`;
     } catch (error) {
       console.error("Advanced Gemini agent error:", error);
       
-      // Check for overload errors and generate inline fallback
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const isOverloadError = errorMessage.includes('503') || 
-                             errorMessage.includes('overloaded') || 
-                             errorMessage.includes('UNAVAILABLE') ||
-                             (error as any)?.status === 503;
+      // No fallback - only use generative AI for implementation plans
+      // Attempt AI-based error recovery with different parameters
+      try {
+        console.log("Attempting AI recovery with simplified parameters...");
+        return await this.generateWithAIRecovery(prompt);
+      } catch (recoveryError) {
+        throw new Error(
+          `AI service unavailable. Original error: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }. Recovery failed: ${
+            recoveryError instanceof Error ? recoveryError.message : "Unknown recovery error"
+          }`
+        );
+      }
+    }
+  }
+
+  // AI recovery method with simplified parameters
+  private async generateWithAIRecovery(prompt: string): Promise<CodeGenerationResponse> {
+    console.log("🔄 AI Recovery Mode: Generating implementation plan with optimized parameters");
+    
+    // Use AI to generate implementation plan entirely
+    const implementationPlan = await this.generateAIImplementationPlan(prompt);
+    
+    // Analyze prompt for pages and app type using local intelligence
+    const { pages, appName } = this.analyzePromptForPages(prompt);
+    const appType = this.detectApplicationType(prompt);
+    const themeColors = this.getThemeColors(appType);
+    
+    // Generate files using local methods
+    const files: Record<string, string> = {};
+    
+    for (const page of pages) {
+      const filename = page.name === 'index' ? 'index.html' : `${page.name}.html`;
+      files[filename] = this.generateHTMLForPage(page, pages, appName, themeColors);
+    }
+    
+    files['styles.css'] = this.generateEnhancedCSS(appType, themeColors, pages);
+    files['script.js'] = this.generateEnhancedJavaScript(pages, appType);
+    
+    return {
+      plan: implementationPlan.plan,
+      files,
+      reasoning: implementationPlan.reasoning,
+      architecture: implementationPlan.architecture,
+      nextSteps: implementationPlan.nextSteps,
+      dependencies: implementationPlan.dependencies,
+      testingStrategy: implementationPlan.testingStrategy
+    };
+  }
+
+  // Pure AI-driven implementation plan generator
+  private async generateAIImplementationPlan(prompt: string): Promise<{
+    plan: string[];
+    reasoning: string;
+    architecture: string;
+    nextSteps: string[];
+    dependencies: string[];
+    testingStrategy: string;
+  }> {
+    const systemPrompt = `You are an expert implementation planning agent. Generate a comprehensive implementation plan based on the user's request.
+
+User Request: ${prompt}
+
+Analyze the request and provide a detailed implementation plan in JSON format:
+
+{
+  "plan": ["Step 1: specific action", "Step 2: specific action", "Step 3: specific action", ...],
+  "reasoning": "Detailed explanation of the approach and decisions made",
+  "architecture": "Technical architecture and design patterns used",
+  "nextSteps": ["Future improvement 1", "Future improvement 2", ...],
+  "dependencies": ["Required technology 1", "Required technology 2", ...],
+  "testingStrategy": "Comprehensive testing approach and validation methods"
+}
+
+Focus on:
+1. Specific, actionable implementation steps
+2. Technical architecture decisions
+3. User experience considerations
+4. Performance and scalability planning
+5. Future extensibility
+
+Generate a professional, production-ready implementation plan.`;
+
+    try {
+      const response = await this.generateWithRetry({
+        model: "gemini-2.0-flash-lite",
+        contents: systemPrompt,
+        config: {
+          temperature: 0.3,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 2048
+        }
+      });
+
+      let content = response.text || "";
+      content = this.cleanResponseContent(content);
       
-      if (isOverloadError) {
-        console.log("All retries failed, generating inline fallback response");
-        return this.generateFallbackResponse(prompt);
+      const result = JSON.parse(content);
+      
+      // Validate required fields
+      if (!result.plan || !Array.isArray(result.plan)) {
+        throw new Error("Invalid AI response: missing or invalid plan array");
       }
       
-      // Also generate fallback for JSON parsing errors  
-      if (errorMessage.includes('JSON') || errorMessage.includes('parse')) {
-        console.log("JSON parsing error, generating fallback response");
-        return this.generateFallbackResponse(prompt);
-      }
+      return {
+        plan: result.plan,
+        reasoning: result.reasoning || "AI-generated implementation approach",
+        architecture: result.architecture || "Modern web application architecture",
+        nextSteps: result.nextSteps || ["Add advanced features", "Optimize performance"],
+        dependencies: result.dependencies || ["HTML5", "CSS3", "JavaScript"],
+        testingStrategy: result.testingStrategy || "Manual testing and validation"
+      };
       
-      throw new Error(
-        `Advanced agent failed: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+    } catch (error) {
+      console.error("AI implementation plan generation failed:", error);
+      
+      // If AI fails completely, throw error instead of fallback
+      throw new Error(`AI implementation plan generation failed: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`);
     }
   }
 
@@ -1890,36 +1978,7 @@ REASONING REQUIREMENTS:
     return content.trim();
   }
 
-  private generateFallbackResponse(prompt: string): CodeGenerationResponse {
-    const appName = this.extractAppName(prompt);
-    console.log(`Generating fallback response for app: ${appName}`);
-    
-    const response = {
-      plan: [
-        "AI service temporarily unavailable - fallback template generated",
-        "Complete application architecture with header, sidebar, and main content",
-        "Responsive design with modern CSS Grid layout",
-        "Basic interactivity with retry functionality",
-        "Professional styling with dynamic theme colors"
-      ],
-      files: {
-        "index.html": this.generateFallbackHTML(prompt, appName),
-        "about.html": this.generateSimpleAboutHTML(appName),
-        "features.html": this.generateSimpleFeaturesHTML(appName),
-        "contact.html": this.generateSimpleContactHTML(appName),
-        "styles.css": this.generateFallbackCSS(),
-        "script.js": this.generateFallbackJS()
-      },
-      reasoning: "Generated fallback template due to AI service overload. Maintains consistent architecture with proper layout structure.",
-      architecture: "Uses CSS Grid for layout with semantic HTML5 structure. Responsive design with mobile-first approach.",
-      nextSteps: ["Retry when service is available", "Customize content and features", "Add specific functionality"],
-      dependencies: ["No external dependencies required"],
-      testingStrategy: "Manual testing of responsive layout and basic interactivity"
-    };
-    
-    console.log('Fallback response files:', Object.keys(response.files));
-    return response;
-  }
+  // All fallback methods removed - only AI-generated implementation plans supported
 
   private extractAppName(prompt: string): string {
     const words = prompt.toLowerCase().split(' ');
@@ -1938,1040 +1997,7 @@ REASONING REQUIREMENTS:
     return 'Application';
   }
 
-  private generateFallbackHTML(prompt: string, appName: string): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${appName}</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="app-container">
-        <header class="app-header">
-            <h1 class="app-title">${appName}</h1>
-            <nav class="header-nav">
-                <a href="#" class="nav-link">Home</a>
-                <a href="#" class="nav-link">Features</a>
-                <a href="#" class="nav-link">Settings</a>
-            </nav>
-        </header>
-        
-        <div class="app-layout">
-            <aside class="sidebar">
-                <nav class="sidebar-nav">
-                    <ul>
-                        <li><a href="#" class="nav-item active">Dashboard</a></li>
-                        <li><a href="#" class="nav-item">Features</a></li>
-                        <li><a href="#" class="nav-item">Data</a></li>
-                        <li><a href="#" class="nav-item">Settings</a></li>
-                    </ul>
-                </nav>
-            </aside>
-            
-            <main class="main-content">
-                <div class="content-section">
-                    <h2>Welcome to ${appName}</h2>
-                    <p class="intro-text">Request: "${prompt}"</p>
-                    <div class="status-card">
-                        <h3>⚠️ Service Status</h3>
-                        <p>The AI service is temporarily overloaded. This fallback template maintains the proper application structure while you wait.</p>
-                        <button class="retry-btn" onclick="window.location.reload()">Retry Generation</button>
-                    </div>
-                    
-                    <div class="feature-preview">
-                        <h3>Application Preview</h3>
-                        <div class="feature-grid">
-                            <div class="feature-card">
-                                <h4>Professional Layout</h4>
-                                <p>Modern CSS Grid with header, sidebar, and main content areas</p>
-                            </div>
-                            <div class="feature-card">
-                                <h4>Responsive Design</h4>
-                                <p>Mobile-first approach with adaptive layouts</p>
-                            </div>
-                            <div class="feature-card">
-                                <h4>Interactive Elements</h4>
-                                <p>Basic navigation and interactive components</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>`;
-  }
-
-  private generateFallbackCSS(): string {
-    return `:root {
-  --primary-color: #3B82F6;
-  --secondary-color: #1E40AF;
-  --accent-color: #60A5FA;
-  --bg-color: #F8FAFC;
-  --text-color: #1E293B;
-  --border-color: #E2E8F0;
-  --warning-color: #F59E0B;
-  --success-color: #10B981;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: var(--bg-color);
-}
-
-.app-container {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  grid-template-areas: 
-    "header"
-    "layout";
-  min-height: 100vh;
-}
-
-.app-header {
-  grid-area: header;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.app-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.header-nav {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
-.nav-link:hover {
-  background-color: rgba(255,255,255,0.15);
-}
-
-.app-layout {
-  grid-area: layout;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  grid-template-areas: "sidebar main";
-}
-
-.sidebar {
-  grid-area: sidebar;
-  background: white;
-  border-right: 1px solid var(--border-color);
-  padding: 1rem 0;
-  box-shadow: 2px 0 4px rgba(0,0,0,0.05);
-}
-
-.sidebar-nav ul {
-  list-style: none;
-}
-
-.nav-item {
-  display: block;
-  padding: 0.75rem 1.5rem;
-  color: var(--text-color);
-  text-decoration: none;
-  transition: all 0.2s;
-  border-left: 3px solid transparent;
-}
-
-.nav-item:hover, .nav-item.active {
-  background-color: var(--accent-color);
-  color: white;
-  border-left-color: var(--primary-color);
-}
-
-.main-content {
-  grid-area: main;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-.content-section h2 {
-  margin-bottom: 1rem;
-  color: var(--primary-color);
-  font-size: 2rem;
-}
-
-.intro-text {
-  font-style: italic;
-  color: #666;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: #f0f4f8;
-  border-radius: 8px;
-  border-left: 4px solid var(--primary-color);
-}
-
-.status-card {
-  background: linear-gradient(135deg, var(--warning-color), #F97316);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  margin: 1.5rem 0;
-  text-align: center;
-}
-
-.status-card h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.25rem;
-}
-
-.retry-btn {
-  background: white;
-  color: var(--warning-color);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: all 0.2s;
-}
-
-.retry-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.feature-preview h3 {
-  color: var(--primary-color);
-  margin: 2rem 0 1rem 0;
-  font-size: 1.5rem;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.feature-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border-left: 4px solid var(--primary-color);
-  transition: transform 0.2s;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-}
-
-.feature-card h4 {
-  margin-bottom: 0.5rem;
-  color: var(--primary-color);
-  font-size: 1.1rem;
-}
-
-.feature-card p {
-  color: #666;
-  line-height: 1.5;
-}
-
-@media (max-width: 768px) {
-  .app-layout {
-    grid-template-columns: 1fr;
-    grid-template-areas: "main";
-  }
-  
-  .sidebar {
-    display: none;
-  }
-  
-  .app-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-  
-  .main-content {
-    padding: 1rem;
-  }
-  
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.about-content {
-  display: grid;
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.about-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border-left: 4px solid var(--primary-color);
-}
-
-.about-card h3 {
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-.about-card ul {
-  list-style-position: inside;
-  color: #666;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.feature-showcase {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border-left: 4px solid var(--primary-color);
-  position: relative;
-}
-
-.feature-showcase h3 {
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-.feature-status {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: var(--success-color);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.contact-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 1rem;
-}
-
-.contact-form {
-  display: grid;
-  gap: 1rem;
-}
-
-.form-group {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.form-group label {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-.submit-btn {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.submit-btn:hover {
-  transform: translateY(-2px);
-}
-
-.contact-info-section {
-  display: grid;
-  gap: 1rem;
-}
-
-.info-card {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid var(--primary-color);
-}
-
-.info-card h4 {
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-@media (max-width: 768px) {
-  .contact-content {
-    grid-template-columns: 1fr;
-  }
-}`;
-  }
-
-  private generateFallbackJS(): string {
-    return `document.addEventListener('DOMContentLoaded', function() {
-  console.log('🔄 Fallback mode activated - Application structure loaded');
-  
-  // Add enhanced navigation interactivity
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(item => {
-    item.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Remove active class from all items
-      navItems.forEach(nav => nav.classList.remove('active'));
-      
-      // Add active class to clicked item
-      this.classList.add('active');
-      
-      // Visual feedback
-      this.style.transform = 'scale(0.98)';
-      setTimeout(() => {
-        this.style.transform = '';
-      }, 150);
-      
-      console.log('📍 Navigation:', this.textContent);
-    });
-  });
-  
-  // Add floating retry notification
-  function showRetryNotification() {
-    const notification = document.createElement('div');
-    notification.innerHTML = \`
-      <div style="
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #10B981, #059669);
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        z-index: 1000;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      ">
-        🔄 Click to retry AI generation
-      </div>
-    \`;
-    
-    const retryBtn = notification.firstElementChild;
-    retryBtn.addEventListener('click', () => {
-      window.location.reload();
-    });
-    
-    retryBtn.addEventListener('mouseenter', () => {
-      retryBtn.style.transform = 'translateY(-2px)';
-      retryBtn.style.boxShadow = '0 12px 35px rgba(0,0,0,0.2)';
-    });
-    
-    retryBtn.addEventListener('mouseleave', () => {
-      retryBtn.style.transform = '';
-      retryBtn.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
-    });
-    
-    document.body.appendChild(notification);
-    
-    // Auto-hide after 10 seconds
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => notification.remove(), 300);
-      }
-    }, 10000);
-  }
-  
-  // Show retry notification after 2 seconds
-  setTimeout(showRetryNotification, 2000);
-  
-  // Add pulse animation to retry button
-  const retryBtn = document.querySelector('.retry-btn');
-  if (retryBtn) {
-    setInterval(() => {
-      retryBtn.style.transform = 'scale(1.05)';
-      setTimeout(() => {
-        retryBtn.style.transform = '';
-      }, 200);
-    }, 3000);
-  }
-  
-  console.log('✅ Fallback template ready - Enhanced UI with retry capabilities');
-  console.log('💡 This template demonstrates the complete application structure');
-});`;
-  }
-
-  private validateResponse(result: CodeGenerationResponse): void {
-    if (!result.plan || !Array.isArray(result.plan)) {
-      throw new Error("Invalid response: missing or invalid plan array");
-    }
-
-    if (!result.files || typeof result.files !== "object") {
-      throw new Error("Invalid response: missing or invalid files object");
-    }
-
-    // Enhanced validation for new fields
-    if (result.reasoning && typeof result.reasoning !== "string") {
-      console.warn("Invalid reasoning field, removing");
-      delete result.reasoning;
-    }
-
-    if (result.nextSteps && !Array.isArray(result.nextSteps)) {
-      console.warn("Invalid nextSteps field, removing");
-      delete result.nextSteps;
-    }
-  }
-
-  public updateContext(updates: Partial<AgentContext>): void {
-    this.context = { ...this.context, ...updates };
-  }
-
-  public addTool(tool: ToolCapability): void {
-    this.tools.set(tool.name, tool);
-  }
-
-  public getMemory(key: string): any {
-    return this.memory.get(key);
-  }
-
-  public setMemory(key: string, value: any): void {
-    this.memory.set(key, value);
-  }
-
-  private generateSimpleAboutHTML(appName: string): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - ${appName}</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="app-container">
-        <header class="app-header">
-            <h1 class="app-title">${appName}</h1>
-            <nav class="header-nav">
-                <a href="/preview/index.html" class="nav-link">Home</a>
-                <a href="/preview/features.html" class="nav-link">Features</a>
-                <a href="/preview/contact.html" class="nav-link">Contact</a>
-            </nav>
-        </header>
-        <div class="app-layout">
-            <aside class="sidebar">
-                <nav class="sidebar-nav">
-                    <ul>
-                        <li><a href="/preview/index.html" class="nav-item">Dashboard</a></li>
-                        <li><a href="/preview/features.html" class="nav-item">Features</a></li>
-                        <li><a href="/preview/about.html" class="nav-item active">About</a></li>
-                        <li><a href="/preview/contact.html" class="nav-item">Contact</a></li>
-                    </ul>
-                </nav>
-            </aside>
-            <main class="main-content">
-                <div class="content-section">
-                    <h2>About ${appName}</h2>
-                    <div class="about-content">
-                        <div class="about-card">
-                            <h3>Application Overview</h3>
-                            <p>This is a comprehensive multi-page application built with modern web technologies.</p>
-                        </div>
-                        <div class="about-card">
-                            <h3>Key Features</h3>
-                            <ul>
-                                <li>Multi-page application structure</li>
-                                <li>Responsive design with CSS Grid</li>
-                                <li>Modern UI/UX patterns</li>
-                                <li>Professional styling system</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>`;
-  }
-
-  private generateSimpleFeaturesHTML(appName: string): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Features - ${appName}</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="app-container">
-        <header class="app-header">
-            <h1 class="app-title">${appName}</h1>
-            <nav class="header-nav">
-                <a href="/preview/index.html" class="nav-link">Home</a>
-                <a href="/preview/about.html" class="nav-link">About</a>
-                <a href="/preview/contact.html" class="nav-link">Contact</a>
-            </nav>
-        </header>
-        <div class="app-layout">
-            <aside class="sidebar">
-                <nav class="sidebar-nav">
-                    <ul>
-                        <li><a href="/preview/index.html" class="nav-item">Dashboard</a></li>
-                        <li><a href="/preview/features.html" class="nav-item active">Features</a></li>
-                        <li><a href="/preview/about.html" class="nav-item">About</a></li>
-                        <li><a href="/preview/contact.html" class="nav-item">Contact</a></li>
-                    </ul>
-                </nav>
-            </aside>
-            <main class="main-content">
-                <div class="content-section">
-                    <h2>Application Features</h2>
-                    <div class="features-grid">
-                        <div class="feature-showcase">
-                            <h3>Multi-Page Architecture</h3>
-                            <p>Complete application with multiple interconnected pages and smooth navigation.</p>
-                            <div class="feature-status">✅ Active</div>
-                        </div>
-                        <div class="feature-showcase">
-                            <h3>Responsive Design</h3>
-                            <p>Mobile-first approach ensuring perfect display across all device sizes.</p>
-                            <div class="feature-status">✅ Active</div>
-                        </div>
-                        <div class="feature-showcase">
-                            <h3>Navigation System</h3>
-                            <p>Intuitive navigation with active states and breadcrumb support.</p>
-                            <div class="feature-status">✅ Active</div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>`;
-  }
-
-  private generateSimpleContactHTML(appName: string): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - ${appName}</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="app-container">
-        <header class="app-header">
-            <h1 class="app-title">${appName}</h1>
-            <nav class="header-nav">
-                <a href="/preview/index.html" class="nav-link">Home</a>
-                <a href="/preview/about.html" class="nav-link">About</a>
-                <a href="/preview/features.html" class="nav-link">Features</a>
-            </nav>
-        </header>
-        <div class="app-layout">
-            <aside class="sidebar">
-                <nav class="sidebar-nav">
-                    <ul>
-                        <li><a href="/preview/index.html" class="nav-item">Dashboard</a></li>
-                        <li><a href="/preview/features.html" class="nav-item">Features</a></li>
-                        <li><a href="/preview/about.html" class="nav-item">About</a></li>
-                        <li><a href="/preview/contact.html" class="nav-item active">Contact</a></li>
-                    </ul>
-                </nav>
-            </aside>
-            <main class="main-content">
-                <div class="content-section">
-                    <h2>Contact Information</h2>
-                    <div class="contact-content">
-                        <div class="contact-form-section">
-                            <h3>Get in Touch</h3>
-                            <form class="contact-form">
-                                <div class="form-group">
-                                    <label for="name">Name</label>
-                                    <input type="text" id="name" name="name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" id="email" name="email" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="message">Message</label>
-                                    <textarea id="message" name="message" rows="5" required></textarea>
-                                </div>
-                                <button type="submit" class="submit-btn">Send Message</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>`;
-  }
-
-  private async generateWithRetry(requestParams: any, maxRetries: number = 3): Promise<any> {
-    let lastError: Error;
-    
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log(`Gemini API attempt ${attempt}/${maxRetries}`);
-        return await this.genAI.models.generateContent(requestParams);
-      } catch (error: any) {
-        lastError = error;
-        
-        // Check if it's a rate limit or overload error
-        const isRetryableError = error.status === 503 || error.status === 429 || 
-                                (error.message && error.message.includes('overloaded')) ||
-                                (error.error && error.error.code === 503) ||
-                                (error.error && error.error.message && error.error.message.includes('overloaded'));
-        
-        if (isRetryableError) {
-          
-          if (attempt < maxRetries) {
-            const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s
-            console.log(`API overloaded, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            continue;
-          }
-        }
-        
-        // For non-retryable errors, throw immediately
-        if (!isRetryableError) {
-          throw error;
-        }
-      }
-    }
-    
-    // If all retries failed, return a fallback response
-    console.warn(`All ${maxRetries} attempts failed, generating fallback response`);
-    return this.generateFallbackResponse();
-  }
-
-  private generateFallbackResponse(): any {
-    return {
-      text: () => JSON.stringify({
-        plan: [
-          "The AI service is temporarily unavailable",
-          "Please try again in a few moments",
-          "A basic template will be generated as fallback"
-        ],
-        files: {
-          "index.html": this.generateFallbackHTML(),
-          "styles.css": this.generateFallbackCSS(),
-          "script.js": this.generateFallbackJS()
-        },
-        reasoning: "Generated fallback response due to API unavailability",
-        architecture: "Basic HTML5 structure with modern layout",
-        nextSteps: ["Retry when API service is restored"],
-        dependencies: [],
-        testingStrategy: "Manual testing recommended"
-      })
-    };
-  }
-
-  private generateFallbackHTML(): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="app-container">
-        <header class="app-header">
-            <h1 class="app-title">Your Application</h1>
-            <nav class="header-nav">
-                <a href="#" class="nav-link">Home</a>
-                <a href="#" class="nav-link">Features</a>
-                <a href="#" class="nav-link">Settings</a>
-            </nav>
-        </header>
-        
-        <div class="app-layout">
-            <aside class="sidebar">
-                <nav class="sidebar-nav">
-                    <ul>
-                        <li><a href="#" class="nav-item active">Dashboard</a></li>
-                        <li><a href="#" class="nav-item">Features</a></li>
-                        <li><a href="#" class="nav-item">Data</a></li>
-                        <li><a href="#" class="nav-item">Settings</a></li>
-                    </ul>
-                </nav>
-            </aside>
-            
-            <main class="main-content">
-                <div class="content-section">
-                    <h2>Welcome to Your Application</h2>
-                    <p>The AI service is temporarily unavailable. This is a basic template.</p>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>Feature 1</h3>
-                            <p>Your main application features will appear here.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>Feature 2</h3>
-                            <p>Try again in a few moments for full functionality.</p>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>`;
-  }
-
-  private generateFallbackCSS(): string {
-    return `:root {
-  --primary-color: #2196F3;
-  --secondary-color: #1976D2;
-  --accent-color: #64B5F6;
-  --bg-color: #f5f5f5;
-  --text-color: #333;
-  --border-color: #ddd;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: var(--bg-color);
-}
-
-.app-container {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  grid-template-areas: 
-    "header"
-    "layout";
-  min-height: 100vh;
-}
-
-.app-header {
-  grid-area: header;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.app-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.header-nav {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.nav-link:hover {
-  background-color: rgba(255,255,255,0.1);
-}
-
-.app-layout {
-  grid-area: layout;
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  grid-template-areas: "sidebar main";
-}
-
-.sidebar {
-  grid-area: sidebar;
-  background: white;
-  border-right: 1px solid var(--border-color);
-  padding: 1rem 0;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-}
-
-.nav-item {
-  display: block;
-  padding: 0.75rem 1.5rem;
-  color: var(--text-color);
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.nav-item:hover, .nav-item.active {
-  background-color: var(--accent-color);
-  color: white;
-}
-
-.main-content {
-  grid-area: main;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-.content-section h2 {
-  margin-bottom: 1rem;
-  color: var(--primary-color);
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.feature-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border-left: 4px solid var(--primary-color);
-}
-
-.feature-card h3 {
-  margin-bottom: 0.5rem;
-  color: var(--primary-color);
-}
-
-@media (max-width: 768px) {
-  .app-layout {
-    grid-template-columns: 1fr;
-    grid-template-areas: "main";
-  }
-  
-  .sidebar {
-    display: none;
-  }
-  
-  .app-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}`;
-  }
-
-  private generateFallbackJS(): string {
-    return `document.addEventListener('DOMContentLoaded', function() {
-  console.log('Application loaded - Fallback mode');
-  
-  // Add basic interactivity to navigation
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(item => {
-    item.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Remove active class from all items
-      navItems.forEach(nav => nav.classList.remove('active'));
-      
-      // Add active class to clicked item
-      this.classList.add('active');
-      
-      console.log('Navigation clicked:', this.textContent);
-    });
-  });
-  
-  // Add retry mechanism notification
-  const retryNotification = document.createElement('div');
-  retryNotification.style.cssText = \`
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #FFA726;
-    color: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    max-width: 300px;
-  \`;
-  retryNotification.innerHTML = \`
-    <strong>Service Notice</strong><br>
-    The AI service is temporarily unavailable. Please try again in a few moments for full functionality.
-  \`;
-  
-  document.body.appendChild(retryNotification);
-  
-  // Auto-hide notification after 8 seconds
-  setTimeout(() => {
-    retryNotification.style.opacity = '0';
-    retryNotification.style.transition = 'opacity 0.5s';
-    setTimeout(() => retryNotification.remove(), 500);
-  }, 8000);
-});`;
-  }
+  // End of class - all fallback methods removed to ensure only AI-generated implementation plans
 }
 
 // Global singleton instance
@@ -2995,4 +2021,4 @@ export async function generateCode(
   return globalGeminiAgent.generateCode(prompt, existingFiles);
 }
 
-// Advanced Gemini Agent class is exported by default above
+// All fallback methods removed to ensure only AI-generated implementation plans
