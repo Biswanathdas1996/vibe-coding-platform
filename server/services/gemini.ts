@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { generateFallbackAboutHTML, generateFallbackFeaturesHTML, generateFallbackContactHTML } from './multipage-fallback';
 
 // Enhanced interfaces for advanced agentic capabilities
 export interface CodeGenerationResponse {
@@ -432,9 +433,12 @@ IMPORTANT: Return ONLY valid JSON in this exact format:
 {
   "plan": ["step 1", "step 2", "step 3"],
   "files": {
-    "index.html": "file content here",
+    "index.html": "main page content here",
+    "about.html": "about page content here",
+    "features.html": "features page content here", 
+    "contact.html": "contact page content here",
     "styles.css": "css content here", 
-    "script.js": "js content here"
+    "script.js": "js content with navigation handling here"
   },
   "reasoning": "explanation of approach and decisions",
   "architecture": "architectural decisions and patterns used",
@@ -466,7 +470,14 @@ IMPORTANT: Return ONLY valid JSON in this exact format:
         console.warn("Content cleaning failed, using raw content:", contentError);
         content = String(content || "");
       }
-      const result = JSON.parse(content) as CodeGenerationResponse;
+      
+      let result: CodeGenerationResponse;
+      try {
+        result = JSON.parse(content) as CodeGenerationResponse;
+      } catch (parseError) {
+        console.log("JSON parsing failed, generating fallback response");
+        return this.generateFallbackResponse(prompt);
+      }
 
       // Validate and enhance response
       this.validateResponse(result);
@@ -491,6 +502,12 @@ IMPORTANT: Return ONLY valid JSON in this exact format:
       
       if (isOverloadError) {
         console.log("All retries failed, generating inline fallback response");
+        return this.generateFallbackResponse(prompt);
+      }
+      
+      // Also generate fallback for JSON parsing errors  
+      if (errorMessage.includes('JSON') || errorMessage.includes('parse')) {
+        console.log("JSON parsing error, generating fallback response");
         return this.generateFallbackResponse(prompt);
       }
       
@@ -662,7 +679,16 @@ ARCHITECTURAL PLAN:
 ${architecturePlan ? JSON.stringify(architecturePlan, null, 2) : 'Will design complete application architecture based on requirements'}
 
 ${isInitialPrompt ? `
-🎯 YOUR MISSION: Create a COMPLETE, PROFESSIONAL APPLICATION that demonstrates the full potential of the user's idea. Don't just build a basic example - build something that could be deployed and used in production. Think of yourself as a senior developer who has been given a project brief and needs to deliver a complete solution.
+🎯 YOUR MISSION: Create a COMPLETE, PROFESSIONAL MULTI-PAGE APPLICATION that demonstrates the full potential of the user's idea. Don't just build a basic example - build something that could be deployed and used in production. Think of yourself as a senior developer who has been given a project brief and needs to deliver a complete solution.
+
+MULTI-PAGE REQUIREMENTS:
+- Create multiple HTML pages (minimum 3-5 pages) that represent different sections of the application
+- Include a main index.html as the homepage/dashboard
+- Add logical pages like: about.html, features.html, settings.html, contact.html, etc. based on the application type
+- Each page should maintain the same header/sidebar/main layout structure
+- Add proper navigation between pages using relative links
+- Include page-specific content and functionality for each page
+- Ensure consistent styling and theme across all pages
 
 REMEMBER: This is the user's first impression. Exceed their expectations by delivering more than they asked for while staying true to their core vision.
 ` : `
@@ -722,6 +748,9 @@ REASONING REQUIREMENTS:
       ],
       files: {
         "index.html": this.generateFallbackHTML(prompt, appName),
+        "about.html": generateFallbackAboutHTML(appName),
+        "features.html": generateFallbackFeaturesHTML(appName),
+        "contact.html": generateFallbackContactHTML(appName),
         "styles.css": this.generateFallbackCSS(),
         "script.js": this.generateFallbackJS()
       },
@@ -1030,6 +1059,138 @@ body {
   }
   
   .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.about-content {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.about-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-left: 4px solid var(--primary-color);
+}
+
+.about-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.about-card ul {
+  list-style-position: inside;
+  color: #666;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.feature-showcase {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-left: 4px solid var(--primary-color);
+  position: relative;
+}
+
+.feature-showcase h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.feature-status {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--success-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.contact-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.contact-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+}
+
+.contact-info-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.info-card {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.info-card h4 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .contact-content {
     grid-template-columns: 1fr;
   }
 }`;
