@@ -2373,21 +2373,49 @@ REASONING REQUIREMENTS:
         fixed = fixed.replace(/^```\s*/gm, '');
         fixed = fixed.replace(/\s*```$/gm, '');
         
-        // CRITICAL FIX: Handle the case where JSON starts with {\n (literal newline after opening brace)
-        // This is the specific issue causing "Expected property name or '}' in JSON at position 1"
-        if (fixed.startsWith('{\n')) {
-          console.log('Detected {\n pattern, applying newline fix...');
-          // Replace all actual newlines with spaces, preserving the JSON structure
-          fixed = fixed.replace(/\n/g, ' ');
-          // Clean up extra whitespace
-          fixed = fixed.replace(/\s+/g, ' ');
-          // Ensure proper JSON formatting
+        // CRITICAL FIX: Handle the case where JSON has newlines causing parse errors
+        // The AI is returning JSON with actual newline characters that break parsing
+        console.log('Checking for problematic patterns...');
+        console.log('First 50 chars:', fixed.substring(0, 50));
+        
+        // Always apply newline fixes for AI responses
+        if (fixed.includes('\n')) {
+          console.log('Detected newlines in JSON, applying comprehensive fix...');
+          
+          // Step 1: Preserve newlines that are part of string content by temporarily replacing them
+          let processed = fixed;
+          let inString = false;
+          let result = '';
+          
+          for (let i = 0; i < processed.length; i++) {
+            const char = processed[i];
+            const prevChar = i > 0 ? processed[i-1] : '';
+            
+            if (char === '"' && prevChar !== '\\') {
+              inString = !inString;
+              result += char;
+            } else if (char === '\n') {
+              if (inString) {
+                result += '\\n'; // Escape newlines inside strings
+              } else {
+                result += ' '; // Replace newlines outside strings with spaces
+              }
+            } else {
+              result += char;
+            }
+          }
+          
+          fixed = result;
+          
+          // Step 2: Clean up formatting
+          fixed = fixed.replace(/\s+/g, ' '); // Collapse multiple spaces
           fixed = fixed.replace(/{\s+/g, '{');
           fixed = fixed.replace(/\s+}/g, '}');
           fixed = fixed.replace(/\[\s+/g, '[');
           fixed = fixed.replace(/\s+\]/g, ']');
           fixed = fixed.replace(/,\s+/g, ',');
           fixed = fixed.replace(/:\s+/g, ':');
+          fixed = fixed.replace(/\s+,/g, ',');
         }
         
         // Extract the main JSON object
