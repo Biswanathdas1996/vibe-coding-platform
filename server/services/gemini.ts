@@ -2174,88 +2174,93 @@ REASONING REQUIREMENTS:
       console.warn('Initial JSON parse failed, attempting advanced fixes...');
       
       try {
-        // More advanced JSON fixing approach
+        // Handle the specific case where content starts with {\n
         let fixed = content.trim();
         
-        // Step 1: Extract JSON from markdown or wrapped content
-        const jsonMatches = fixed.match(/\{[\s\S]*\}/);
-        if (jsonMatches) {
-          fixed = jsonMatches[0];
+        // Remove any markdown code blocks
+        fixed = fixed.replace(/^```json\s*/gm, '');
+        fixed = fixed.replace(/^```\s*/gm, '');
+        fixed = fixed.replace(/\s*```$/gm, '');
+        
+        // CRITICAL FIX: Handle the case where JSON starts with {\n (literal newline after opening brace)
+        // This is the specific issue causing "Expected property name or '}' in JSON at position 1"
+        if (fixed.startsWith('{\n')) {
+          console.log('Detected {\n pattern, applying newline fix...');
+          // Replace all actual newlines with spaces, preserving the JSON structure
+          fixed = fixed.replace(/\n/g, ' ');
+          // Clean up extra whitespace
+          fixed = fixed.replace(/\s+/g, ' ');
+          // Ensure proper JSON formatting
+          fixed = fixed.replace(/{\s+/g, '{');
+          fixed = fixed.replace(/\s+}/g, '}');
+          fixed = fixed.replace(/\[\s+/g, '[');
+          fixed = fixed.replace(/\s+\]/g, ']');
+          fixed = fixed.replace(/,\s+/g, ',');
+          fixed = fixed.replace(/:\s+/g, ':');
         }
         
-        // Step 2: Fix common JSON escaping issues systematically
+        // Extract the main JSON object
+        const jsonStart = fixed.indexOf('{');
+        const jsonEnd = fixed.lastIndexOf('}') + 1;
         
-        // Replace smart quotes with regular quotes
-        fixed = fixed.replace(/[""]/g, '"');
-        fixed = fixed.replace(/['']/g, "'");
+        if (jsonStart !== -1 && jsonEnd > jsonStart) {
+          fixed = fixed.substring(jsonStart, jsonEnd);
+        }
         
-        // Handle newlines inside JSON strings properly
-        fixed = fixed.replace(/\n(?=\s*")/g, '');  // Remove newlines before property names
-        fixed = fixed.replace(/\n(?=\s*\})/g, '');  // Remove newlines before closing braces
-        fixed = fixed.replace(/\n(?=\s*\])/g, '');  // Remove newlines before closing brackets
+        // The key fix: convert literal \n in JSON to actual newlines, then back to escaped
+        // This handles cases where AI returns {\n instead of proper JSON
+        if (fixed.startsWith('{\\n') || fixed.includes('\\n  "')) {
+          // Replace escaped newlines with actual newlines first
+          fixed = fixed.replace(/\\n/g, '\n');
+          // Then compact the JSON by removing unnecessary whitespace
+          fixed = fixed.replace(/\n\s+/g, ' ');
+          fixed = fixed.replace(/\n/g, '');
+          // Clean up any double spaces
+          fixed = fixed.replace(/\s+/g, ' ');
+          fixed = fixed.replace(/\s*{\s*/g, '{');
+          fixed = fixed.replace(/\s*}\s*/g, '}');
+          fixed = fixed.replace(/\s*\[\s*/g, '[');
+          fixed = fixed.replace(/\s*\]\s*/g, ']');
+          fixed = fixed.replace(/\s*,\s*/g, ',');
+          fixed = fixed.replace(/\s*:\s*/g, ':');
+        }
         
-        // Fix trailing commas
-        fixed = fixed.replace(/,(\s*[}\]])/g, '$1');
-        
-        // Fix unescaped quotes in strings
-        fixed = fixed.replace(/"([^"]*)"([^"]*)"([^"]*)"([^,}\]]*)/g, (match, p1, p2, p3, p4) => {
-          if (p2.includes('<') || p4.includes('<')) {
-            return `"${p1}\\"${p2}\\"${p3}\\"${p4}"`;
-          }
-          return match;
-        });
-        
-        // Step 3: Try parsing the fixed content
         return JSON.parse(fixed);
         
       } catch (secondError) {
-        console.warn('Advanced JSON fixing failed, trying fallback approach...');
+        console.warn('Advanced JSON fixing failed, trying manual reconstruction...');
         
         try {
-          // Fallback: Try to parse line by line and reconstruct
-          const lines = content.split('\n');
-          let reconstructed = '';
-          let inString = false;
-          let escapeNext = false;
+          // Last resort: manually reconstruct valid JSON
+          let fixed = content.trim();
           
-          for (const line of lines) {
-            for (let i = 0; i < line.length; i++) {
-              const char = line[i];
-              
-              if (escapeNext) {
-                reconstructed += char;
-                escapeNext = false;
-                continue;
-              }
-              
-              if (char === '\\') {
-                escapeNext = true;
-                reconstructed += char;
-                continue;
-              }
-              
-              if (char === '"' && !escapeNext) {
-                inString = !inString;
-              }
-              
-              reconstructed += char;
-            }
+          // Extract JSON boundaries more aggressively
+          const start = fixed.indexOf('{');
+          const end = fixed.lastIndexOf('}') + 1;
+          
+          if (start !== -1 && end > start) {
+            fixed = fixed.substring(start, end);
             
-            if (!inString) {
-              reconstructed += '';  // Don't add newline outside strings
-            } else {
-              reconstructed += '\\n';  // Escape newline inside strings
-            }
+            // Replace problematic characters and patterns
+            fixed = fixed.replace(/\n/g, ' ');  // Replace all newlines with spaces
+            fixed = fixed.replace(/\r/g, ' ');  // Replace carriage returns
+            fixed = fixed.replace(/\t/g, ' ');  // Replace tabs
+            fixed = fixed.replace(/\s+/g, ' '); // Collapse multiple spaces
+            fixed = fixed.replace(/,\s*}/g, '}'); // Remove trailing commas
+            fixed = fixed.replace(/,\s*]/g, ']'); // Remove trailing commas in arrays
+            
+            // Try parsing the cleaned JSON
+            return JSON.parse(fixed);
           }
           
-          return JSON.parse(reconstructed);
+          throw new Error('Could not find valid JSON boundaries');
           
         } catch (thirdError) {
           console.error('All JSON parsing attempts failed:');
           console.error('Original error:', error.message);
           console.error('Second error:', secondError.message);
           console.error('Third error:', thirdError.message);
-          console.error('Content sample:', content.substring(0, 300));
+          console.error('Content sample:', content.substring(0, 500));
           
           // Final fallback: extract what we can
           try {
