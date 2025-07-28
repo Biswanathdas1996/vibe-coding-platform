@@ -20,7 +20,7 @@ export interface FileStructure {
 
 export interface FileSpec {
   name: string;
-  type: 'html' | 'css' | 'js';
+  type: "html" | "css" | "js";
   purpose: string;
   dependencies: string[];
   linkedFiles: string[];
@@ -54,10 +54,14 @@ export class AdvancedAppGenerator {
   private model: any;
   private progressCallback?: (step: string, details: string) => void;
 
-  constructor(apiKey: string, progressCallback?: (step: string, details: string) => void) {
+  constructor(
+    apiKey: string,
+    progressCallback?: (step: string, details: string) => void,
+  ) {
+    const apiKey = process.env.GOOGLE_API_KEY;
     this.genAI = new GoogleGenAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-exp"
+    this.model = this.genAI.getGenerativeModel({
+      model: "gemini-2.0-flash-exp",
     });
     this.progressCallback = progressCallback;
   }
@@ -69,9 +73,14 @@ export class AdvancedAppGenerator {
     }
   }
 
-  async generateComplete(prompt: string, isFirstPrompt: boolean = true): Promise<GenerationResponse> {
+  async generateComplete(
+    prompt: string,
+    isFirstPrompt: boolean = true,
+  ): Promise<GenerationResponse> {
     if (isFirstPrompt) {
-      console.log("🎯 First prompt detected - Starting complete app generation");
+      console.log(
+        "🎯 First prompt detected - Starting complete app generation",
+      );
       return await this.generateCompleteApp(prompt);
     } else {
       console.log("🔄 Modifying existing application");
@@ -80,39 +89,78 @@ export class AdvancedAppGenerator {
     }
   }
 
-  private async generateCompleteApp(prompt: string): Promise<GenerationResponse> {
-    this.reportProgress("📋 Step 1/6", "Analyzing app features and functionality using advanced AI");
+  private async generateCompleteApp(
+    prompt: string,
+  ): Promise<GenerationResponse> {
+    this.reportProgress(
+      "📋 Step 1/6",
+      "Analyzing app features and functionality using advanced AI",
+    );
     const appFeatures = await this.analyzeAppFeatures(prompt);
-    this.reportProgress("✅ Step 1 Complete", `Identified ${appFeatures.features.length} key features: ${appFeatures.features.slice(0, 3).join(', ')}${appFeatures.features.length > 3 ? '...' : ''}`);
-    
-    this.reportProgress("🏗️ Step 2/6", "Determining optimal file structure and architecture");
+    this.reportProgress(
+      "✅ Step 1 Complete",
+      `Identified ${appFeatures.features.length} key features: ${appFeatures.features.slice(0, 3).join(", ")}${appFeatures.features.length > 3 ? "..." : ""}`,
+    );
+
+    this.reportProgress(
+      "🏗️ Step 2/6",
+      "Determining optimal file structure and architecture",
+    );
     const fileStructure = await this.determineFileStructure(appFeatures);
-    this.reportProgress("✅ Step 2 Complete", `Planned ${fileStructure.files.length} files with ${fileStructure.architecture} architecture`);
-    
+    this.reportProgress(
+      "✅ Step 2 Complete",
+      `Planned ${fileStructure.files.length} files with ${fileStructure.architecture} architecture`,
+    );
+
     this.reportProgress("📁 Step 3/6", "Creating optimized folder structure");
     // Folder structure is just planning - actual files created in step 4
-    this.reportProgress("✅ Step 3 Complete", `Designed ${fileStructure.folderStructure} with proper file organization`);
-    
-    this.reportProgress("⚡ Step 4/6", "Generating individual files with modern HTML5, CSS3, and JavaScript");
+    this.reportProgress(
+      "✅ Step 3 Complete",
+      `Designed ${fileStructure.folderStructure} with proper file organization`,
+    );
+
+    this.reportProgress(
+      "⚡ Step 4/6",
+      "Generating individual files with modern HTML5, CSS3, and JavaScript",
+    );
     const files = await this.generateAllFiles(fileStructure, appFeatures);
-    this.reportProgress("✅ Step 4 Complete", `Generated ${Object.keys(files).length} production-ready files with modern code`);
-    
-    this.reportProgress("🔗 Step 5/6", "Setting up navigation and routing system");
+    this.reportProgress(
+      "✅ Step 4 Complete",
+      `Generated ${Object.keys(files).length} production-ready files with modern code`,
+    );
+
+    this.reportProgress(
+      "🔗 Step 5/6",
+      "Setting up navigation and routing system",
+    );
     const routedFiles = await this.setupNavigation(files, fileStructure);
-    this.reportProgress("✅ Step 5 Complete", `Implemented ${fileStructure.navigation.type} with responsive navigation`);
-    
+    this.reportProgress(
+      "✅ Step 5 Complete",
+      `Implemented ${fileStructure.navigation.type} with responsive navigation`,
+    );
+
     this.reportProgress("🎯 Step 6/6", "Final integration and optimization");
-    const finalFiles = await this.finalizeIntegration(routedFiles, fileStructure);
-    this.reportProgress("✅ Generation Complete", `Created fully functional app with ${Object.keys(finalFiles).length} integrated files`);
-    
+    const finalFiles = await this.finalizeIntegration(
+      routedFiles,
+      fileStructure,
+    );
+    this.reportProgress(
+      "✅ Generation Complete",
+      `Created fully functional app with ${Object.keys(finalFiles).length} integrated files`,
+    );
+
     return {
       plan: this.createImplementationPlan(appFeatures, fileStructure),
       files: finalFiles,
       reasoning: appFeatures.description,
       architecture: fileStructure.architecture,
-      nextSteps: ["Test all functionality", "Add responsive design", "Optimize performance"],
+      nextSteps: [
+        "Test all functionality",
+        "Add responsive design",
+        "Optimize performance",
+      ],
       dependencies: fileStructure.dependencies,
-      testingStrategy: "Manual testing of all features and navigation"
+      testingStrategy: "Manual testing of all features and navigation",
     };
   }
 
@@ -145,7 +193,9 @@ Focus on extracting specific, actionable features that can be implemented in HTM
     }
   }
 
-  private async determineFileStructure(appFeatures: AppFeatures): Promise<FileStructure> {
+  private async determineFileStructure(
+    appFeatures: AppFeatures,
+  ): Promise<FileStructure> {
     const systemPrompt = `You are an expert web architect. Based on the app features, determine the optimal file structure.
 
 App Features: ${JSON.stringify(appFeatures)}
@@ -191,29 +241,60 @@ Create all necessary HTML pages, one main CSS file, and one main JavaScript file
     }
   }
 
-  private async generateAllFiles(fileStructure: FileStructure, appFeatures: AppFeatures): Promise<Record<string, string>> {
+  private async generateAllFiles(
+    fileStructure: FileStructure,
+    appFeatures: AppFeatures,
+  ): Promise<Record<string, string>> {
     const files: Record<string, string> = {};
-    
+
     // Generate each file with a separate AI call for maximum quality
     for (const fileSpec of fileStructure.files) {
-      this.reportProgress(`🔧 Generating`, `Creating ${fileSpec.name} for ${fileSpec.purpose}`);
-      
-      if (fileSpec.type === 'html') {
-        files[fileSpec.name] = await this.generateHTMLFile(fileSpec, appFeatures, fileStructure);
-        this.reportProgress(`✅ HTML Generated`, `${fileSpec.name} with semantic HTML5 structure`);
-      } else if (fileSpec.type === 'css') {
-        files[fileSpec.name] = await this.generateCSSFile(fileSpec, appFeatures, fileStructure);
-        this.reportProgress(`✅ CSS Generated`, `${fileSpec.name} with modern responsive design`);
-      } else if (fileSpec.type === 'js') {
-        files[fileSpec.name] = await this.generateJSFile(fileSpec, appFeatures, fileStructure);
-        this.reportProgress(`✅ JavaScript Generated`, `${fileSpec.name} with ES6+ functionality`);
+      this.reportProgress(
+        `🔧 Generating`,
+        `Creating ${fileSpec.name} for ${fileSpec.purpose}`,
+      );
+
+      if (fileSpec.type === "html") {
+        files[fileSpec.name] = await this.generateHTMLFile(
+          fileSpec,
+          appFeatures,
+          fileStructure,
+        );
+        this.reportProgress(
+          `✅ HTML Generated`,
+          `${fileSpec.name} with semantic HTML5 structure`,
+        );
+      } else if (fileSpec.type === "css") {
+        files[fileSpec.name] = await this.generateCSSFile(
+          fileSpec,
+          appFeatures,
+          fileStructure,
+        );
+        this.reportProgress(
+          `✅ CSS Generated`,
+          `${fileSpec.name} with modern responsive design`,
+        );
+      } else if (fileSpec.type === "js") {
+        files[fileSpec.name] = await this.generateJSFile(
+          fileSpec,
+          appFeatures,
+          fileStructure,
+        );
+        this.reportProgress(
+          `✅ JavaScript Generated`,
+          `${fileSpec.name} with ES6+ functionality`,
+        );
       }
     }
-    
+
     return files;
   }
 
-  private async generateHTMLFile(fileSpec: FileSpec, appFeatures: AppFeatures, fileStructure: FileStructure): Promise<string> {
+  private async generateHTMLFile(
+    fileSpec: FileSpec,
+    appFeatures: AppFeatures,
+    fileStructure: FileStructure,
+  ): Promise<string> {
     const systemPrompt = `You are an expert HTML5 developer. Generate a complete, modern HTML file.
 
 File Specification: ${JSON.stringify(fileSpec)}
@@ -242,7 +323,11 @@ Return only the HTML code, no explanations.`;
     }
   }
 
-  private async generateCSSFile(fileSpec: FileSpec, appFeatures: AppFeatures, fileStructure: FileStructure): Promise<string> {
+  private async generateCSSFile(
+    fileSpec: FileSpec,
+    appFeatures: AppFeatures,
+    fileStructure: FileStructure,
+  ): Promise<string> {
     const systemPrompt = `You are an expert CSS3 developer. Generate a complete, modern CSS file.
 
 File Specification: ${JSON.stringify(fileSpec)}
@@ -272,7 +357,11 @@ Return only the CSS code, no explanations.`;
     }
   }
 
-  private async generateJSFile(fileSpec: FileSpec, appFeatures: AppFeatures, fileStructure: FileStructure): Promise<string> {
+  private async generateJSFile(
+    fileSpec: FileSpec,
+    appFeatures: AppFeatures,
+    fileStructure: FileStructure,
+  ): Promise<string> {
     const systemPrompt = `You are an expert JavaScript developer. Generate complete, modern JavaScript code.
 
 File Specification: ${JSON.stringify(fileSpec)}
@@ -303,7 +392,10 @@ Return only the JavaScript code, no explanations.`;
     }
   }
 
-  private async setupNavigation(files: Record<string, string>, fileStructure: FileStructure): Promise<Record<string, string>> {
+  private async setupNavigation(
+    files: Record<string, string>,
+    fileStructure: FileStructure,
+  ): Promise<Record<string, string>> {
     const navigationPrompt = `You are an expert web developer. Enhance the navigation and routing in these files.
 
 Current Files: ${JSON.stringify(Object.keys(files))}
@@ -322,7 +414,7 @@ Return the updated files as JSON: {"filename": "updated content", ...}`;
       const response = await this.model.generateContent(navigationPrompt);
       const content = response.response.text();
       const updates = this.parseJSON(content);
-      
+
       // Merge updates with existing files
       return { ...files, ...updates };
     } catch (error) {
@@ -331,7 +423,10 @@ Return the updated files as JSON: {"filename": "updated content", ...}`;
     }
   }
 
-  private async finalizeIntegration(files: Record<string, string>, fileStructure: FileStructure): Promise<Record<string, string>> {
+  private async finalizeIntegration(
+    files: Record<string, string>,
+    fileStructure: FileStructure,
+  ): Promise<Record<string, string>> {
     const integrationPrompt = `You are an expert web developer. Perform final integration and optimization.
 
 Files: ${JSON.stringify(Object.keys(files))}
@@ -351,7 +446,7 @@ Return the finalized files as JSON: {"filename": "final content", ...}`;
       const response = await this.model.generateContent(integrationPrompt);
       const content = response.response.text();
       const finalFiles = this.parseJSON(content);
-      
+
       // Merge with existing files
       return { ...files, ...finalFiles };
     } catch (error) {
@@ -360,21 +455,24 @@ Return the finalized files as JSON: {"filename": "final content", ...}`;
     }
   }
 
-  private createImplementationPlan(appFeatures: AppFeatures, fileStructure: FileStructure): string[] {
+  private createImplementationPlan(
+    appFeatures: AppFeatures,
+    fileStructure: FileStructure,
+  ): string[] {
     return [
       `Analyzed app requirements: ${appFeatures.description}`,
       `Identified ${appFeatures.features.length} key features`,
       `Created ${fileStructure.files.length} files with proper architecture`,
       `Implemented ${fileStructure.navigation.type} navigation`,
       `Generated modern, responsive design with full functionality`,
-      `Integrated all components with proper routing and data flow`
+      `Integrated all components with proper routing and data flow`,
     ];
   }
 
   private parseJSON(content: string): any {
     try {
       // Remove markdown code blocks if present
-      const cleanContent = content.replace(/```json\s*|\s*```/g, '').trim();
+      const cleanContent = content.replace(/```json\s*|\s*```/g, "").trim();
       return JSON.parse(cleanContent);
     } catch (error) {
       console.error("JSON parsing failed:", error);
