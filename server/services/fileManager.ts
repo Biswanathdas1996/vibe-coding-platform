@@ -101,6 +101,14 @@ export class FileManager {
     });
   }
 
+  notifyAllClients(message: string): void {
+    this.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  }
+
   getPublicDir(): string {
     return this.publicDir;
   }

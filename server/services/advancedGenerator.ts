@@ -52,12 +52,21 @@ export interface GenerationResponse {
 export class AdvancedAppGenerator {
   private genAI: GoogleGenAI;
   private model: any;
+  private progressCallback?: (step: string, details: string) => void;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, progressCallback?: (step: string, details: string) => void) {
     this.genAI = new GoogleGenAI({ apiKey });
     this.model = this.genAI.getGenerativeModel({ 
       model: "gemini-2.0-flash-exp"
     });
+    this.progressCallback = progressCallback;
+  }
+
+  private reportProgress(step: string, details: string) {
+    console.log(`${step}: ${details}`);
+    if (this.progressCallback) {
+      this.progressCallback(step, details);
+    }
   }
 
   async generateComplete(prompt: string, isFirstPrompt: boolean = true): Promise<GenerationResponse> {
@@ -72,23 +81,29 @@ export class AdvancedAppGenerator {
   }
 
   private async generateCompleteApp(prompt: string): Promise<GenerationResponse> {
-    console.log("📋 Step 1/6: Analyzing app features and functionality...");
+    this.reportProgress("📋 Step 1/6", "Analyzing app features and functionality using advanced AI");
     const appFeatures = await this.analyzeAppFeatures(prompt);
+    this.reportProgress("✅ Step 1 Complete", `Identified ${appFeatures.features.length} key features: ${appFeatures.features.slice(0, 3).join(', ')}${appFeatures.features.length > 3 ? '...' : ''}`);
     
-    console.log("🏗️ Step 2/6: Determining file structure and architecture...");
+    this.reportProgress("🏗️ Step 2/6", "Determining optimal file structure and architecture");
     const fileStructure = await this.determineFileStructure(appFeatures);
+    this.reportProgress("✅ Step 2 Complete", `Planned ${fileStructure.files.length} files with ${fileStructure.architecture} architecture`);
     
-    console.log("📁 Step 3/6: Creating folder structure...");
+    this.reportProgress("📁 Step 3/6", "Creating optimized folder structure");
     // Folder structure is just planning - actual files created in step 4
+    this.reportProgress("✅ Step 3 Complete", `Designed ${fileStructure.folderStructure} with proper file organization`);
     
-    console.log("⚡ Step 4/6: Generating individual file content...");
+    this.reportProgress("⚡ Step 4/6", "Generating individual files with modern HTML5, CSS3, and JavaScript");
     const files = await this.generateAllFiles(fileStructure, appFeatures);
+    this.reportProgress("✅ Step 4 Complete", `Generated ${Object.keys(files).length} production-ready files with modern code`);
     
-    console.log("🔗 Step 5/6: Setting up navigation and routing...");
+    this.reportProgress("🔗 Step 5/6", "Setting up navigation and routing system");
     const routedFiles = await this.setupNavigation(files, fileStructure);
+    this.reportProgress("✅ Step 5 Complete", `Implemented ${fileStructure.navigation.type} with responsive navigation`);
     
-    console.log("✅ Step 6/6: Final integration and optimization...");
+    this.reportProgress("🎯 Step 6/6", "Final integration and optimization");
     const finalFiles = await this.finalizeIntegration(routedFiles, fileStructure);
+    this.reportProgress("✅ Generation Complete", `Created fully functional app with ${Object.keys(finalFiles).length} integrated files`);
     
     return {
       plan: this.createImplementationPlan(appFeatures, fileStructure),
@@ -181,14 +196,17 @@ Create all necessary HTML pages, one main CSS file, and one main JavaScript file
     
     // Generate each file with a separate AI call for maximum quality
     for (const fileSpec of fileStructure.files) {
-      console.log(`🔧 Generating ${fileSpec.name}...`);
+      this.reportProgress(`🔧 Generating`, `Creating ${fileSpec.name} for ${fileSpec.purpose}`);
       
       if (fileSpec.type === 'html') {
         files[fileSpec.name] = await this.generateHTMLFile(fileSpec, appFeatures, fileStructure);
+        this.reportProgress(`✅ HTML Generated`, `${fileSpec.name} with semantic HTML5 structure`);
       } else if (fileSpec.type === 'css') {
         files[fileSpec.name] = await this.generateCSSFile(fileSpec, appFeatures, fileStructure);
+        this.reportProgress(`✅ CSS Generated`, `${fileSpec.name} with modern responsive design`);
       } else if (fileSpec.type === 'js') {
         files[fileSpec.name] = await this.generateJSFile(fileSpec, appFeatures, fileStructure);
+        this.reportProgress(`✅ JavaScript Generated`, `${fileSpec.name} with ES6+ functionality`);
       }
     }
     

@@ -364,28 +364,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
           throw new Error("GOOGLE_API_KEY environment variable is required");
         }
         
-        const advancedGenerator = new AdvancedAppGenerator(apiKey);
+        // Create or get project first to have an ID for progress tracking
+        let currentProjectId = projectId;
+        if (!currentProjectId) {
+          const tempProject = await storage.createProject({
+            name: `Generated App ${Date.now()}`,
+            description: prompt.substring(0, 100),
+            files: {}
+          });
+          currentProjectId = tempProject?.id;
+        }
+
+        // Create progress callback to send real-time updates
+        const progressCallback = async (step: string, details: string) => {
+          // Send progress update to all connected WebSocket clients
+          const progressMessage = JSON.stringify({
+            type: 'progress',
+            step: step,
+            details: details,
+            timestamp: new Date().toISOString()
+          });
+          
+          // Send to WebSocket clients for real-time updates
+          fileManager.notifyAllClients(progressMessage);
+          
+          // Save progress as assistant messages for chat history
+          if (currentProjectId) {
+            await storage.createMessage({
+              projectId: currentProjectId,
+              role: 'assistant',
+              content: `${step}: ${details}`
+            });
+          }
+        };
+        
+        const advancedGenerator = new AdvancedAppGenerator(apiKey, progressCallback);
         const result = await advancedGenerator.generateComplete(prompt, true);
         
         // Write files to public directory
         await fileManager.writeFiles(result.files);
         
-        // Create new project
-        const project = await storage.createProject({
-          name: `Generated App ${Date.now()}`,
-          description: prompt.substring(0, 100),
-          files: result.files
+        // Update project with final files
+        const project = await storage.updateProject(currentProjectId!, {
+          files: result.files,
+          updatedAt: new Date()
         });
 
-        // Save messages
+        // Save initial user message
         await storage.createMessage({
-          projectId: project?.id,
+          projectId: currentProjectId,
           role: 'user',
           content: prompt
         });
 
+        // Save final completion message
         await storage.createMessage({
-          projectId: project?.id,
+          projectId: currentProjectId,
           role: 'assistant',
           content: 'Complete application generated successfully using advanced multi-step AI generation',
           plan: result.plan,
