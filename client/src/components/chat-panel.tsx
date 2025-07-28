@@ -22,9 +22,20 @@ export function ChatPanel({ onCodeGenerated, projectId }: ChatPanelProps) {
   // Update currentProjectId when projectId prop changes (fresh start)
   useEffect(() => {
     if (projectId !== currentProjectId) {
+      // Invalidate the old project's messages query before switching
+      if (currentProjectId) {
+        queryClient.removeQueries({
+          queryKey: ['/api/projects', currentProjectId, 'messages']
+        });
+      }
+      
       setCurrentProjectId(projectId);
       if (projectId) {
         console.log('ChatPanel: Fresh start with project ID:', projectId);
+        // Invalidate and refetch messages for the new project to ensure fresh data
+        queryClient.invalidateQueries({
+          queryKey: ['/api/projects', projectId, 'messages']
+        });
       }
     }
   }, [projectId, currentProjectId]);

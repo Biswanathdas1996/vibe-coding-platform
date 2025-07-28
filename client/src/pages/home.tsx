@@ -21,10 +21,12 @@ export default function Home() {
       const storedProjectId = localStorage.getItem('projectId');
       const selectedTemplate = localStorage.getItem('selectedTemplate');
       
-      // Always clear previous state for fresh start
-      setLastResponse(undefined);
+      // Reset state for fresh start when projectId changes
+      if (storedProjectId !== projectId) {
+        setLastResponse(undefined);
+      }
       
-      if (storedProjectId) {
+      if (storedProjectId && storedProjectId !== projectId) {
         // Project was already created in template selector, just use it
         setProjectId(storedProjectId);
         console.log('Home: Loaded project ID from localStorage:', storedProjectId);
