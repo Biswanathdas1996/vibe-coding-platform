@@ -3,8 +3,10 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import express from "express";
 import path from "path";
+import fs from "fs/promises";
 import { storage } from "./storage";
 import { generateCode } from "./services/gemini";
+import { AdvancedAppGenerator } from "./services/advancedGenerator";
 import { fileManager } from "./services/fileManager";
 import { getTemplate } from "./services/templates";
 import { promptRequestSchema } from "@shared/schema";
@@ -314,25 +316,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Start file watching
   fileManager.startWatching();
 
+  // Helper function to check if this is the first prompt
+  async function isFirstPromptInDevelopmentChat(projectId?: string): Promise<boolean> {
+    if (projectId) {
+      const messages = await storage.getProjectMessages(projectId);
+      return messages.length === 0;
+    }
+    
+    // Check if public folder is empty (no existing files)
+    const existingFiles = await fileManager.readFiles();
+    return Object.keys(existingFiles).length === 0;
+  }
+
+  // Helper function to clear public folder for first prompts
+  async function clearPublicFolder(): Promise<void> {
+    try {
+      const publicDir = fileManager.getPublicDir();
+      const files = await fs.readdir(publicDir);
+      
+      for (const file of files) {
+        await fs.unlink(path.join(publicDir, file));
+      }
+      
+      console.log("🧹 Cleared public folder for new app generation");
+    } catch (error) {
+      console.warn("Could not clear public folder:", error);
+    }
+  }
+
   // API Routes
   app.post('/api/prompt', async (req, res) => {
     try {
       const { prompt, projectId } = promptRequestSchema.parse(req.body);
       
-      // Get existing files if this is an update to existing project
+      // Check if this is the first prompt in development chat
+      const isFirstPrompt = await isFirstPromptInDevelopmentChat(projectId);
+      
+      console.log(`🎯 Processing ${isFirstPrompt ? 'FIRST' : 'SUBSEQUENT'} prompt in development chat`);
+      
+      if (isFirstPrompt) {
+        // Clear public folder for fresh start
+        await clearPublicFolder();
+        
+        // Use advanced generator for complete app generation
+        const apiKey = process.env.GOOGLE_API_KEY;
+        if (!apiKey) {
+          throw new Error("GOOGLE_API_KEY environment variable is required");
+        }
+        
+        const advancedGenerator = new AdvancedAppGenerator(apiKey);
+        const result = await advancedGenerator.generateComplete(prompt, true);
+        
+        // Write files to public directory
+        await fileManager.writeFiles(result.files);
+        
+        // Create new project
+        const project = await storage.createProject({
+          name: `Generated App ${Date.now()}`,
+          description: prompt.substring(0, 100),
+          files: result.files
+        });
+
+        // Save messages
+        await storage.createMessage({
+          projectId: project?.id,
+          role: 'user',
+          content: prompt
+        });
+
+        await storage.createMessage({
+          projectId: project?.id,
+          role: 'assistant',
+          content: 'Complete application generated successfully using advanced multi-step AI generation',
+          plan: result.plan,
+          files: result.files
+        });
+
+        res.json(result);
+        return;
+      }
+      
+      // For subsequent prompts, get existing files and modify
       let existingFiles: Record<string, string> | undefined;
       if (projectId) {
         const project = await storage.getProject(projectId);
         existingFiles = project?.files || undefined;
       } else {
-        // Try to read existing files from public directory
         existingFiles = await fileManager.readFiles();
         if (Object.keys(existingFiles).length === 0) {
           existingFiles = undefined;
         }
       }
 
-      // Generate code using enhanced AI agent
+      // Use existing generation logic for modifications
       const result = await generateCode(prompt, existingFiles);
       
       // Ensure files object exists before writing
