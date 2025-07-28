@@ -15,40 +15,49 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  // Initialize project with selected template
+  // Initialize project ID from localStorage (created when template was selected)
   useEffect(() => {
-    const initializeTemplate = async () => {
+    const initializeProject = async () => {
+      const storedProjectId = localStorage.getItem('projectId');
       const selectedTemplate = localStorage.getItem('selectedTemplate');
-      if (selectedTemplate && !projectId) {
-        setIsInitializing(true);
-        try {
-          const template = JSON.parse(selectedTemplate);
-          const response = await apiRequest('POST', '/api/projects/init-template', {
-            templateId: template.id
-          });
-          const data = await response.json();
-          
-          setLastResponse(data);
-          setProjectId(data.projectId);
-          
-          toast({
-            title: "Template Initialized",
-            description: `${template.name} is ready for customization`,
-          });
-        } catch (error) {
-          console.error('Template initialization error:', error);
-          toast({
-            title: "Initialization Failed",
-            description: "Failed to initialize template. Please try again.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsInitializing(false);
+      
+      if (storedProjectId && !projectId) {
+        // Project was already created in template selector, just use it
+        setProjectId(storedProjectId);
+        
+        if (selectedTemplate) {
+          setIsInitializing(true);
+          try {
+            // Fetch project data to show in preview
+            const response = await apiRequest('GET', `/api/projects/${storedProjectId}`);
+            const projectData = await response.json();
+            
+            const template = JSON.parse(selectedTemplate);
+            setLastResponse({
+              plan: [`Initialized ${template.name} template`, 'Files created and ready for customization'],
+              files: projectData.files,
+              previewUrl: '/preview/index.html'
+            });
+            
+            toast({
+              title: "Template Ready",
+              description: `${template.name} is ready for customization`,
+            });
+          } catch (error) {
+            console.error('Project loading error:', error);
+            toast({
+              title: "Loading Failed",
+              description: "Failed to load project. Please try again.",
+              variant: "destructive",
+            });
+          } finally {
+            setIsInitializing(false);
+          }
         }
       }
     };
 
-    initializeTemplate();
+    initializeProject();
   }, [projectId, toast]);
 
   const handleCodeGenerated = (response: PromptResponse & { projectId?: string }) => {
@@ -60,6 +69,7 @@ export default function Home() {
 
   const handleBackToTemplates = () => {
     localStorage.removeItem('selectedTemplate');
+    localStorage.removeItem('projectId');
     setLocation('/');
   };
 

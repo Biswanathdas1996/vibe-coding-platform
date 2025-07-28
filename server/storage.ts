@@ -1,4 +1,6 @@
-import { type User, type InsertUser, type Project, type InsertProject, type Message, type InsertMessage } from "@shared/schema";
+import { users, projects, messages, type User, type InsertUser, type Project, type InsertProject, type Message, type InsertMessage } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -53,6 +55,7 @@ export class MemStorage implements IStorage {
       id,
       name: insertProject.name,
       description: insertProject.description ?? null,
+      templateId: insertProject.templateId ?? null,
       files: insertProject.files || {},
       createdAt: now,
       updatedAt: now,
@@ -87,7 +90,7 @@ export class MemStorage implements IStorage {
       projectId: insertMessage.projectId ?? null,
       role: insertMessage.role,
       content: insertMessage.content,
-      plan: insertMessage.plan ? [...insertMessage.plan] : null,
+      plan: insertMessage.plan ? Array.from(insertMessage.plan) : null,
       files: insertMessage.files ?? null,
       createdAt: new Date(),
     };
@@ -96,4 +99,66 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database implementation
+export class DatabaseStorage implements IStorage {
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getProject(id: string): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project || undefined;
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const [project] = await db
+      .insert(projects)
+      .values(insertProject)
+      .returning();
+    return project;
+  }
+
+  async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {
+    const [project] = await db
+      .update(projects)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(projects.id, id))
+      .returning();
+    return project || undefined;
+  }
+
+  async getProjectMessages(projectId: string): Promise<Message[]> {
+    return await db.select().from(messages)
+      .where(eq(messages.projectId, projectId))
+      .orderBy(messages.createdAt);
+  }
+
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const messageData = {
+      ...insertMessage,
+      plan: insertMessage.plan ? Array.from(insertMessage.plan) : null
+    };
+    
+    const [message] = await db
+      .insert(messages)
+      .values(messageData)
+      .returning();
+    return message;
+  }
+}
+
+export const storage = new DatabaseStorage();

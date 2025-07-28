@@ -350,8 +350,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API Routes
   app.post('/api/prompt', async (req, res) => {
+    let prompt: string = '';
+    let projectId: string | undefined;
+    
     try {
-      const { prompt, projectId } = promptRequestSchema.parse(req.body);
+      const parsed = promptRequestSchema.parse(req.body);
+      prompt = parsed.prompt;
+      projectId = parsed.projectId;
       
       // Check if this is the first prompt in development chat
       const isFirstPrompt = await isFirstPromptInDevelopmentChat(projectId);
@@ -635,6 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const project = await storage.createProject({
         name: template.name,
         description: template.description,
+        templateId: templateId,
         files: template.files
       });
 

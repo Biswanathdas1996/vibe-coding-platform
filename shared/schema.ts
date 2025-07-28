@@ -13,6 +13,7 @@ export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description"),
+  templateId: text("template_id"),
   files: json("files").$type<Record<string, string>>().default({}),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -23,8 +24,8 @@ export const messages = pgTable("messages", {
   projectId: varchar("project_id").references(() => projects.id),
   role: text("role").notNull(), // 'user' | 'assistant'
   content: text("content").notNull(),
-  plan: json("plan").$type<string[]>(),
-  files: json("files").$type<Record<string, string>>(),
+  plan: json("plan").$type<string[]>().default([]),
+  files: json("files").$type<Record<string, string>>().default({}),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -59,7 +60,7 @@ export const promptRequestSchema = z.object({
 
 export const promptResponseSchema = z.object({
   plan: z.array(z.string()),
-  files: z.record(z.string()),
+  files: z.record(z.string(), z.string()),
   previewUrl: z.string(),
 });
 

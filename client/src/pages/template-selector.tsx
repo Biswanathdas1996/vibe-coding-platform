@@ -113,9 +113,32 @@ export default function TemplateSelector() {
     return categoryMatch && difficultyMatch;
   });
 
-  const handleTemplateSelect = (template: Template) => {
+  const handleTemplateSelect = async (template: Template) => {
     // Store selected template in localStorage
     localStorage.setItem('selectedTemplate', JSON.stringify(template));
+    
+    // Generate project ID and save to database
+    try {
+      const response = await fetch('/api/projects/init-template', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ templateId: template.id }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Store project ID for dev chat
+        localStorage.setItem('projectId', data.projectId);
+        console.log('Project created with ID:', data.projectId);
+      } else {
+        console.error('Failed to create project');
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+    }
+    
     // Navigate to development interface
     setLocation('/dev');
   };
