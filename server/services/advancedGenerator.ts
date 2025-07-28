@@ -55,7 +55,7 @@ export class AdvancedAppGenerator {
   private progressCallback?: (step: string, details: string) => void;
 
   constructor(apiKey: string, progressCallback?: (step: string, details: string) => void) {
-    this.genAI = new GoogleGenAI({ apiKey });
+    this.genAI = new GoogleGenAI(apiKey);
     this.model = this.genAI.getGenerativeModel({ 
       model: "gemini-2.0-flash-exp"
     });

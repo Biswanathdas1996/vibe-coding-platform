@@ -43,6 +43,9 @@ export function ChatPanel({ onCodeGenerated, projectId }: ChatPanelProps) {
     onSuccess: (data: PromptResponse & { projectId?: string }) => {
       setPrompt("");
       setCurrentProjectId(data.projectId);
+      setIsGenerating(false);
+      setProgressMessages([]);
+      setGenerationProgress(0);
       onCodeGenerated(data);
       
       // Invalidate messages query to refetch
