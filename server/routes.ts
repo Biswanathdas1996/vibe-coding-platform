@@ -644,14 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         files: template.files
       });
 
-      // Create initial message
-      await storage.createMessage({
-        projectId: project.id,
-        role: 'assistant',
-        content: `Project initialized with ${template.name} template`,
-        plan: [`Initialized ${template.name} template`, 'Files created and ready for customization'],
-        files: template.files
-      });
+      // No initial message - start with empty chat for fresh experience
 
       const previewUrl = '/preview/index.html';
       
