@@ -59,7 +59,7 @@ export class AdvancedGeminiAgent {
   private memory: Map<string, any>;
 
   constructor(apiKey: string) {
-    this.genAI = new GoogleGenAI(apiKey);
+    this.genAI = new GoogleGenAI({ apiKey });
     this.context = {
       previousInteractions: [],
       projectGoals: [],
@@ -1957,7 +1957,7 @@ Return ONLY the complete JavaScript content (no JSON, no markdown):`;
     fileStructure: any
   ): Promise<Record<string, string>> {
     // Verify all HTML files have proper navigation
-    const htmlFiles = fileStructure.files.filter(f => f.type === 'html');
+    const htmlFiles = fileStructure.files.filter((f: any) => f.type === 'html');
     
     for (const htmlFile of htmlFiles) {
       const content = files[htmlFile.name];
@@ -1993,7 +1993,7 @@ Return ONLY the complete JavaScript content (no JSON, no markdown):`;
       {
         step: 2,
         action: "File Structure",
-        details: `Created ${fileStructure.files.length} files: ${fileStructure.files.map(f => f.name).join(', ')}`
+        details: `Created ${fileStructure.files.length} files: ${fileStructure.files.map((f: any) => f.name).join(', ')}`
       },
       {
         step: 3,
@@ -2024,7 +2024,7 @@ Return ONLY the complete JavaScript content (no JSON, no markdown):`;
     if (existingFiles && Object.keys(existingFiles).length > 0) {
       return await this.modifyExistingApplicationWithAI(prompt, existingFiles);
     } else {
-      return await this.generateCompleteApplicationWithAI(prompt);
+      return await this.generateCode(prompt);
     }
   }
 
@@ -2545,7 +2545,7 @@ REASONING REQUIREMENTS:
         const result = await this.genAI.models.generateContent({
           model: options.model,
           contents: [{ role: 'user', parts: [{ text: options.contents }] }],
-          generationConfig: {
+          config: {
             temperature: options.config.temperature,
             topP: options.config.topP,
             topK: options.config.topK,
@@ -2557,7 +2557,7 @@ REASONING REQUIREMENTS:
           throw new Error("No response from AI service");
         }
         
-        const text = result.candidates[0].content.parts[0].text;
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (!text || text.trim().length === 0) {
           throw new Error("Empty response from AI service");
@@ -2567,7 +2567,7 @@ REASONING REQUIREMENTS:
         
       } catch (error) {
         lastError = error as Error;
-        console.warn(`AI generation attempt ${attempt}/${maxRetries} failed:`, error.message);
+        console.warn(`AI generation attempt ${attempt}/${maxRetries} failed:`, (error as Error).message);
         
         if (attempt < maxRetries) {
           // Exponential backoff
