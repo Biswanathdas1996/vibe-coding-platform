@@ -1,1 +1,20 @@
-// Welcome to your blank canvas!console.log('🎨 Welcome to your new project!'); // Add some sparkle to the pagedocument.addEventListener('DOMContentLoaded',function(){console.log('✨ Page loaded and ready for your creativity!'); // Add a subtle animation to the container const container = document.querySelector('.container'); if (container){container.style.opacity = '0'; container.style.transform = 'translateY(20px)'; setTimeout(() =>{container.style.transition = 'all 0.8s ease-out'; container.style.opacity = '1'; container.style.transform = 'translateY(0)';},100);}// Navigation document.querySelectorAll('nav a').forEach(link =>{link.addEventListener('click',function(e){e.preventDefault(); const page = this.dataset.page; console.log(`Navigating to:${page}`); // In a real application,you would load content here based on the 'page' variable. let content = ''; switch (page){case 'products':content = '<h1>Products</h1><p>This is the products page.</p>'; break; case 'cart':content = '<h1>Cart</h1><p>This is the cart page.</p>'; break; case 'orders':content = '<h1>Orders</h1><p>This is the orders page.</p>'; break; default:content = `<h1>Welcome</h1><p>This is the home page.</p><div class="getting-started"><h2>Getting Started</h2><ul><li>Describe your vision in the chat</li><li>I'll help you build it step by step</li><li>Modify,iterate,and perfect your creation</li></ul></div>`;}document.getElementById('content').innerHTML = content;});});});
+// Welcome to your blank canvas!
+console.log('🎨 Welcome to your new project!');
+
+// Add some sparkle to the page
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✨ Page loaded and ready for your creativity!');
+    
+    // Add a subtle animation to the container
+    const container = document.querySelector('.container');
+    if (container) {
+        container.style.opacity = '0';
+        container.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            container.style.transition = 'all 0.8s ease-out';
+            container.style.opacity = '1';
+            container.style.transform = 'translateY(0)';
+        }, 100);
+    }
+});

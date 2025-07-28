@@ -24,6 +24,7 @@ export default function Home() {
       if (storedProjectId && !projectId) {
         // Project was already created in template selector, just use it
         setProjectId(storedProjectId);
+        console.log('Home: Loaded project ID from localStorage:', storedProjectId);
         
         if (selectedTemplate) {
           setIsInitializing(true);
@@ -99,11 +100,27 @@ export default function Home() {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${isInitializing ? 'bg-yellow-500 animate-pulse' : 'bg-emerald-500 animate-pulse'}`}></div>
-            <span className="text-sm text-slate-400">
-              {isInitializing ? 'Initializing...' : 'Connected'}
-            </span>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${isInitializing ? 'bg-yellow-500 animate-pulse' : 'bg-emerald-500 animate-pulse'}`}></div>
+              <span className="text-sm text-slate-400">
+                {isInitializing ? 'Initializing...' : 'Connected'}
+              </span>
+            </div>
+            
+            {projectId && (
+              <div className="flex items-center space-x-2 px-3 py-1 bg-slate-700 rounded-md">
+                <span className="text-xs text-slate-400">Project ID:</span>
+                <span className="text-xs text-slate-200 font-mono">{projectId.slice(0, 8)}...</span>
+                <button 
+                  onClick={() => navigator.clipboard.writeText(projectId)}
+                  className="text-xs text-blue-400 hover:text-blue-300"
+                  title="Copy full project ID"
+                >
+                  Copy
+                </button>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center space-x-2">

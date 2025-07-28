@@ -18,6 +18,14 @@ interface ChatPanelProps {
 export function ChatPanel({ onCodeGenerated, projectId }: ChatPanelProps) {
   const [prompt, setPrompt] = useState("");
   const [currentProjectId, setCurrentProjectId] = useState(projectId);
+
+  // Update currentProjectId when projectId prop changes
+  useEffect(() => {
+    if (projectId && projectId !== currentProjectId) {
+      setCurrentProjectId(projectId);
+      console.log('ChatPanel: Updated project ID to:', projectId);
+    }
+  }, [projectId, currentProjectId]);
   const [progressMessages, setProgressMessages] = useState<Array<{step: string, details: string, timestamp: string}>>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -137,7 +145,14 @@ export function ChatPanel({ onCodeGenerated, projectId }: ChatPanelProps) {
     <div className="w-1/2 bg-slate-800 border-r border-slate-700 flex flex-col">
       {/* Chat Header */}
       <div className="px-6 py-4 border-b border-slate-700">
-        <h2 className="text-lg font-semibold text-slate-50 mb-1">Development Chat</h2>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-lg font-semibold text-slate-50">Development Chat</h2>
+          {currentProjectId && (
+            <span className="text-xs text-slate-400 font-mono bg-slate-700 px-2 py-1 rounded">
+              ID: {currentProjectId.slice(0, 8)}...
+            </span>
+          )}
+        </div>
         <p className="text-sm text-slate-400">Describe what you want to build and watch it come to life</p>
       </div>
 

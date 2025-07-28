@@ -147,6 +147,12 @@ Preferred communication style: Simple, everyday language.
    - **Solution**: Write files to `/public` directory served by Express
    - **Benefits**: Simple preview mechanism, standard web hosting compatibility
 
+5. **Project-Based Chat History**: Template selection creates persistent projects
+   - **Problem**: Need to associate dev chat conversations with specific projects
+   - **Solution**: Generate unique project ID on template selection, store in database
+   - **Benefits**: Persistent conversation history, project tracking, better organization
+   - **Implementation Date**: January 28, 2025 - Added project ID generation and database storage
+
 ## Advanced Agentic AI Features (July 27, 2025)
 
 ### Model Context Protocol (MCP) Integration
