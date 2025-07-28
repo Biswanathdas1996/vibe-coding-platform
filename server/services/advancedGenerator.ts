@@ -56,7 +56,7 @@ export class AdvancedAppGenerator {
 
   constructor(
     apiKey?: string,
-    progressCallback?: (step: string, details: string) => void,
+    progressCallback?: (step: string, details: string) => void
   ) {
     const key = apiKey || process.env.GOOGLE_API_KEY;
     if (!key) {
@@ -78,78 +78,131 @@ export class AdvancedAppGenerator {
 
   async generateComplete(
     prompt: string,
-    isFirstPrompt: boolean = true,
+    isFirstPrompt: boolean = true
   ): Promise<GenerationResponse> {
     if (isFirstPrompt) {
       console.log(
-        "🎯 First prompt detected - Starting complete app generation",
+        "🎯 First prompt detected - Starting comprehensive app generation"
       );
-      return await this.generateCompleteApp(prompt);
+      this.reportProgress(
+        "🔍 Initial Analysis",
+        "Analyzing complete application requirements"
+      );
+
+      // First step: Detailed feature analysis
+      const appFeatures = await this.analyzeAppFeatures(prompt);
+      this.reportProgress(
+        "✅ Analysis Complete",
+        `Extracted ${appFeatures.features.length} core features and requirements`
+      );
+
+      // Second step: Determine detailed file structure
+      this.reportProgress(
+        "� Planning Structure",
+        "Determining optimal file organization"
+      );
+      const fileStructure = await this.determineFileStructure(appFeatures);
+      this.reportProgress(
+        "✅ Structure Complete",
+        `Planned ${fileStructure.files.length} files and folder structure`
+      );
+
+      // Third step: Generate all files
+      return await this.generateCompleteApp(prompt, appFeatures, fileStructure);
     } else {
       console.log("🔄 Modifying existing application");
-      // TODO: Implement modification logic
-      throw new Error("Modification logic not yet implemented");
+      throw new Error("Modification of existing apps not yet implemented");
     }
   }
 
   private async generateCompleteApp(
     prompt: string,
+    initialFeatures?: AppFeatures,
+    initialStructure?: FileStructure
   ): Promise<GenerationResponse> {
-    this.reportProgress(
-      "📋 Step 1/6",
-      "Analyzing app features and functionality using advanced AI",
-    );
-    const appFeatures = await this.analyzeAppFeatures(prompt);
-    this.reportProgress(
-      "✅ Step 1 Complete",
-      `Identified ${appFeatures.features.length} key features: ${appFeatures.features.slice(0, 3).join(", ")}${appFeatures.features.length > 3 ? "..." : ""}`,
-    );
+    // Use provided features or analyze new ones
+    let appFeatures: AppFeatures;
+    if (initialFeatures) {
+      appFeatures = initialFeatures;
+      this.reportProgress(
+        "📋 Using Initial Analysis",
+        `Working with ${appFeatures.features.length} identified features`
+      );
+    } else {
+      this.reportProgress(
+        "📋 Step 1/6",
+        "Analyzing app features and functionality"
+      );
+      appFeatures = await this.analyzeAppFeatures(prompt);
+      this.reportProgress(
+        "✅ Step 1 Complete",
+        `Identified ${
+          appFeatures.features.length
+        } key features: ${appFeatures.features.slice(0, 3).join(", ")}${
+          appFeatures.features.length > 3 ? "..." : ""
+        }`
+      );
+    }
 
-    this.reportProgress(
-      "🏗️ Step 2/6",
-      "Determining optimal file structure and architecture",
-    );
-    const fileStructure = await this.determineFileStructure(appFeatures);
-    this.reportProgress(
-      "✅ Step 2 Complete",
-      `Planned ${fileStructure.files.length} files with ${fileStructure.architecture} architecture`,
-    );
+    // Use provided structure or determine new one
+    let fileStructure: FileStructure;
+    if (initialStructure) {
+      fileStructure = initialStructure;
+      this.reportProgress(
+        "🏗️ Using Provided Structure",
+        `Working with ${fileStructure.files.length} planned files`
+      );
+    } else {
+      this.reportProgress(
+        "🏗️ Step 2/6",
+        "Determining optimal file structure and architecture"
+      );
+      fileStructure = await this.determineFileStructure(appFeatures);
+      this.reportProgress(
+        "✅ Step 2 Complete",
+        `Planned ${fileStructure.files.length} files with ${fileStructure.architecture} architecture`
+      );
+    }
 
     this.reportProgress("📁 Step 3/6", "Creating optimized folder structure");
     // Folder structure is just planning - actual files created in step 4
     this.reportProgress(
       "✅ Step 3 Complete",
-      `Designed ${fileStructure.folderStructure} with proper file organization`,
+      `Designed ${fileStructure.folderStructure} with proper file organization`
     );
 
     this.reportProgress(
       "⚡ Step 4/6",
-      "Generating individual files with modern HTML5, CSS3, and JavaScript",
+      "Generating individual files with modern HTML5, CSS3, and JavaScript"
     );
     const files = await this.generateAllFiles(fileStructure, appFeatures);
     this.reportProgress(
       "✅ Step 4 Complete",
-      `Generated ${Object.keys(files).length} production-ready files with modern code`,
+      `Generated ${
+        Object.keys(files).length
+      } production-ready files with modern code`
     );
 
     this.reportProgress(
       "🔗 Step 5/6",
-      "Setting up navigation and routing system",
+      "Setting up navigation and routing system"
     );
     const routedFiles = await this.setupNavigation(files, fileStructure);
     this.reportProgress(
       "✅ Step 5 Complete",
-      `Implemented ${fileStructure.navigation.type} with responsive navigation`,
+      `Implemented ${fileStructure.navigation.type} with responsive navigation`
     );
 
     this.reportProgress("🎯 Step 6/6", "Final integration and optimization");
     const finalFiles = await this.finalizeIntegration(
       routedFiles,
-      fileStructure,
+      fileStructure
     );
     this.reportProgress(
       "✅ Generation Complete",
-      `Created fully functional app with ${Object.keys(finalFiles).length} integrated files`,
+      `Created fully functional app with ${
+        Object.keys(finalFiles).length
+      } integrated files`
     );
 
     return {
@@ -168,23 +221,51 @@ export class AdvancedAppGenerator {
   }
 
   private async analyzeAppFeatures(prompt: string): Promise<AppFeatures> {
-    const systemPrompt = `You are an expert product analyst. Analyze the user's prompt and extract detailed features and functionality.
+    const systemPrompt = `As an expert system architect, provide a comprehensive analysis of this application request.
 
-User Request: "${prompt}"
+USER REQUEST: "${prompt}"
 
-Provide a comprehensive analysis in JSON format:
+Analyze this as if building a production application. Return a detailed JSON with this structure:
 
 {
-  "description": "Clear, detailed description of what the app does",
-  "features": ["Feature 1", "Feature 2", ...],
-  "functionality": ["Core function 1", "Core function 2", ...],
-  "userTypes": ["User type 1", "User type 2", ...],
-  "keyComponents": ["Component 1", "Component 2", ...],
-  "businessLogic": ["Logic rule 1", "Logic rule 2", ...],
-  "dataRequirements": ["Data type 1", "Data type 2", ...]
+  "description": "Detailed explanation of the application's purpose and goals",
+  "features": [
+    "Detailed list of all features, both explicit and implied",
+    "Include user interface features",
+    "Include data management features",
+    "Include user interaction features"
+  ],
+  "functionality": [
+    "Core functions the app must perform",
+    "Background processes",
+    "Data operations",
+    "User interactions"
+  ],
+  "userTypes": [
+    "All potential user roles",
+    "Their permissions and capabilities"
+  ],
+  "keyComponents": [
+    "Major UI components needed",
+    "Backend services required",
+    "Data storage components",
+    "Integration points"
+  ],
+  "businessLogic": [
+    "Core business rules",
+    "Validation rules",
+    "Process flows",
+    "State management needs"
+  ],
+  "dataRequirements": [
+    "Data types to be stored",
+    "Data relationships",
+    "Storage requirements",
+    "Cache needs"
+  ]
 }
 
-Focus on extracting specific, actionable features that can be implemented in HTML, CSS, and JavaScript.`;
+BE COMPREHENSIVE - Include everything needed for a production application. Think beyond the basic requirements.`;
 
     try {
       const response = await this.model.generateContent(systemPrompt);
@@ -197,42 +278,61 @@ Focus on extracting specific, actionable features that can be implemented in HTM
   }
 
   private async determineFileStructure(
-    appFeatures: AppFeatures,
+    appFeatures: AppFeatures
   ): Promise<FileStructure> {
-    const systemPrompt = `You are an expert web architect. Based on the app features, determine the optimal file structure.
+    const systemPrompt = `As an expert web architect, create a detailed file structure plan for this application.
 
-App Features: ${JSON.stringify(appFeatures)}
+APP REQUIREMENTS: ${JSON.stringify(appFeatures, null, 2)}
 
-Determine the file structure in JSON format:
+Create a comprehensive file structure plan following modern web development best practices. Return a JSON with this structure:
 
 {
   "files": [
     {
-      "name": "index.html",
-      "type": "html",
-      "purpose": "Main landing page",
-      "dependencies": ["styles.css", "script.js"],
-      "linkedFiles": ["about.html", "contact.html"]
+      "name": "Filename with extension",
+      "type": "html|css|js",
+      "purpose": "Detailed purpose of this file",
+      "dependencies": [
+        "List of files this depends on",
+        "Including framework files",
+        "And third-party libraries"
+      ],
+      "linkedFiles": [
+        "Other files this interacts with",
+        "Navigation targets",
+        "Dynamic content sources"
+      ]
     }
   ],
-  "folderStructure": "Describe the folder organization",
-  "architecture": "Describe the overall architecture pattern",
-  "dependencies": ["HTML5", "CSS3", "Vanilla JavaScript"],
+  "folderStructure": "Detailed description of directory organization",
+  "architecture": "Detailed description of the technical architecture",
+  "dependencies": [
+    "List ALL required technologies",
+    "Include versions if critical",
+    "List build tools if needed",
+    "List runtime dependencies"
+  ],
   "navigation": {
-    "type": "SPA with client-side routing",
-    "structure": "Header navigation with sidebar",
+    "type": "Navigation architecture type (SPA, MPA, etc)",
+    "structure": "Detailed navigation structure description",
     "routes": [
       {
-        "path": "/",
-        "file": "index.html",
-        "title": "Home",
-        "description": "Main page"
+        "path": "URL path",
+        "file": "Source file",
+        "title": "Page title",
+        "description": "Detailed page purpose"
       }
     ]
   }
 }
 
-Create all necessary HTML pages, one main CSS file, and one main JavaScript file. Ensure proper linking between files.`;
+REQUIREMENTS:
+1. Consider modern web standards and best practices
+2. Include ALL necessary files for a production app
+3. Plan for proper code organization and maintainability
+4. Consider build and deployment needs
+5. Include error handling and fallback files
+6. Consider performance optimization`;
 
     try {
       const response = await this.model.generateContent(systemPrompt);
@@ -246,47 +346,86 @@ Create all necessary HTML pages, one main CSS file, and one main JavaScript file
 
   private async generateAllFiles(
     fileStructure: FileStructure,
-    appFeatures: AppFeatures,
+    appFeatures: AppFeatures
   ): Promise<Record<string, string>> {
     const files: Record<string, string> = {};
 
-    // Generate each file with a separate AI call for maximum quality
-    for (const fileSpec of fileStructure.files) {
+    // Sort files by dependencies to ensure proper generation order
+    const sortedFiles = this.sortFilesByDependencies(fileStructure.files);
+
+    // Generate each file with a dedicated LLM call for maximum quality
+    for (const fileSpec of sortedFiles) {
       this.reportProgress(
         `🔧 Generating`,
-        `Creating ${fileSpec.name} for ${fileSpec.purpose}`,
+        `Creating ${fileSpec.name} (${fileSpec.purpose})`
       );
 
-      if (fileSpec.type === "html") {
-        files[fileSpec.name] = await this.generateHTMLFile(
-          fileSpec,
-          appFeatures,
-          fileStructure,
+      // Get context from already generated files
+      const context = this.getFileGenerationContext(fileSpec, files);
+
+      try {
+        let content: string;
+        switch (fileSpec.type) {
+          case "html":
+            content = await this.generateHTMLFile(
+              fileSpec,
+              appFeatures,
+              fileStructure,
+              context
+            );
+            this.reportProgress(
+              `✅ HTML Generated`,
+              `${fileSpec.name} with modern semantic structure`
+            );
+            break;
+
+          case "css":
+            content = await this.generateCSSFile(
+              fileSpec,
+              appFeatures,
+              fileStructure,
+              context
+            );
+            this.reportProgress(
+              `✅ CSS Generated`,
+              `${fileSpec.name} with responsive design`
+            );
+            break;
+
+          case "js":
+            content = await this.generateJSFile(
+              fileSpec,
+              appFeatures,
+              fileStructure,
+              context
+            );
+            this.reportProgress(
+              `✅ JavaScript Generated`,
+              `${fileSpec.name} with modern features`
+            );
+            break;
+
+          default:
+            throw new Error(`Unknown file type: ${fileSpec.type}`);
+        }
+
+        // Validate generated content
+        this.validateGeneratedContent(content, fileSpec);
+
+        // Store the file
+        files[fileSpec.name] = content;
+
+        // Optional: Check for cross-file consistency
+        if (Object.keys(files).length > 1) {
+          await this.validateCrossFileConsistency(files, fileStructure);
+        }
+      } catch (error) {
+        console.error(`Failed to generate ${fileSpec.name}:`, error);
+        files[fileSpec.name] = this.generateFallbackContent(
+          fileSpec.type,
+          fileSpec.name
         );
-        this.reportProgress(
-          `✅ HTML Generated`,
-          `${fileSpec.name} with semantic HTML5 structure`,
-        );
-      } else if (fileSpec.type === "css") {
-        files[fileSpec.name] = await this.generateCSSFile(
-          fileSpec,
-          appFeatures,
-          fileStructure,
-        );
-        this.reportProgress(
-          `✅ CSS Generated`,
-          `${fileSpec.name} with modern responsive design`,
-        );
-      } else if (fileSpec.type === "js") {
-        files[fileSpec.name] = await this.generateJSFile(
-          fileSpec,
-          appFeatures,
-          fileStructure,
-        );
-        this.reportProgress(
-          `✅ JavaScript Generated`,
-          `${fileSpec.name} with ES6+ functionality`,
-        );
+        this.reportProgress(`⚠️ Warning`, `Used fallback for ${fileSpec.name}`);
       }
     }
 
@@ -297,29 +436,65 @@ Create all necessary HTML pages, one main CSS file, and one main JavaScript file
     fileSpec: FileSpec,
     appFeatures: AppFeatures,
     fileStructure: FileStructure,
+    context?: { dependencies: string[]; content: string[] }
   ): Promise<string> {
-    const systemPrompt = `You are an expert HTML5 developer. Generate a complete, modern HTML file.
+    const systemPrompt = `As an expert HTML5 developer, generate a complete, modern HTML file.
 
-File Specification: ${JSON.stringify(fileSpec)}
-App Features: ${JSON.stringify(appFeatures)}
-File Structure: ${JSON.stringify(fileStructure)}
+FILE DETAILS:
+Name: ${fileSpec.name}
+Purpose: ${fileSpec.purpose}
+Dependencies: ${JSON.stringify(fileSpec.dependencies)}
+Linked Files: ${JSON.stringify(fileSpec.linkedFiles)}
 
-Generate a complete HTML5 file with:
-- Semantic HTML5 elements
-- Proper document structure
-- Meta tags for SEO
-- Responsive viewport meta tag
-- Links to CSS and JavaScript files
-- Modern, accessible markup
-- All necessary content for this specific page
+APP FEATURES:
+${JSON.stringify(appFeatures, null, 2)}
 
-The HTML should be production-ready with proper structure, semantic elements, and all content needed for the ${fileSpec.purpose}.
+FILE STRUCTURE:
+${JSON.stringify(fileStructure, null, 2)}
 
-Return only the HTML code, no explanations.`;
+${
+  context
+    ? `RELATED FILES:
+${context.dependencies
+  .map((dep, i) => `${dep}:\n${context.content[i]}\n`)
+  .join("\n")}`
+    : ""
+}
+
+REQUIREMENTS:
+1. Use modern HTML5 semantic elements appropriately
+2. Include comprehensive meta tags for SEO and social sharing
+3. Ensure proper viewport settings for responsive design
+4. Link all required CSS and JavaScript files
+5. Implement modern, accessible markup (ARIA labels, roles)
+6. Include appropriate schema.org markup if relevant
+7. Add error boundaries and fallback content
+8. Optimize for performance (async/defer scripts)
+9. Include proper security headers
+10. Add favicon and PWA support if applicable
+
+Return ONLY the complete HTML code with no explanations. The code must be production-ready and fully functional.`;
 
     try {
       const response = await this.model.generateContent(systemPrompt);
-      return response.response.text();
+      let content = response.response.text();
+
+      // Clean up the content
+      content = this.cleanGeneratedCode(content, "html");
+
+      // Validate the HTML structure
+      if (!this.isValidHTML(content)) {
+        console.error(
+          `Invalid HTML structure for ${fileSpec.name}, attempting repair...`
+        );
+        content = this.repairHTML(content);
+      }
+
+      if (!content.includes("<!DOCTYPE html>")) {
+        content = `<!DOCTYPE html>\n${content}`;
+      }
+
+      return content;
     } catch (error) {
       console.error(`Failed to generate HTML file ${fileSpec.name}:`, error);
       return this.generateFallbackHTML(fileSpec.name);
@@ -330,30 +505,77 @@ Return only the HTML code, no explanations.`;
     fileSpec: FileSpec,
     appFeatures: AppFeatures,
     fileStructure: FileStructure,
+    context?: { dependencies: string[]; content: string[] }
   ): Promise<string> {
-    const systemPrompt = `You are an expert CSS3 developer. Generate a complete, modern CSS file.
+    const systemPrompt = `As an expert CSS developer, generate a complete, modern stylesheet.
 
-File Specification: ${JSON.stringify(fileSpec)}
-App Features: ${JSON.stringify(appFeatures)}
-File Structure: ${JSON.stringify(fileStructure)}
+FILE DETAILS:
+Name: ${fileSpec.name}
+Purpose: ${fileSpec.purpose}
+Dependencies: ${JSON.stringify(fileSpec.dependencies)}
+Linked Files: ${JSON.stringify(fileSpec.linkedFiles)}
 
-Generate complete CSS3 code with:
-- Modern CSS3 features (Grid, Flexbox, Custom Properties)
-- Responsive design with mobile-first approach
-- Beautiful, modern UI design
-- Consistent color scheme and typography
-- Smooth animations and transitions
-- Professional layout and spacing
-- Cross-browser compatibility
-- Dark mode support (optional)
+APP FEATURES:
+${JSON.stringify(appFeatures, null, 2)}
 
-The CSS should create a beautiful, modern interface that's fully responsive and professional.
+FILE STRUCTURE:
+${JSON.stringify(fileStructure, null, 2)}
 
-Return only the CSS code, no explanations.`;
+${
+  context
+    ? `HTML CONTENT TO STYLE:
+${context.dependencies
+  .filter((d) => d.endsWith(".html"))
+  .map((dep, i) => `${dep}:\n${context.content[i]}\n`)
+  .join("\n")}`
+    : ""
+}
+
+REQUIREMENTS:
+1. Use modern CSS features:
+   - CSS Grid and Flexbox for layout
+   - CSS Custom Properties for theming
+   - CSS Modules or BEM naming for scoping
+   - Modern selectors and pseudo-classes
+2. Implement responsive design:
+   - Mobile-first approach
+   - Fluid typography
+   - Responsive images
+   - Flexible layouts
+3. Create professional UI:
+   - Consistent color scheme
+   - Typography system
+   - Component styles
+   - Interactive states
+4. Add enhancements:
+   - Smooth animations
+   - Loading states
+   - Error states
+   - Focus styles
+5. Optimize for:
+   - Performance
+   - Accessibility
+   - Cross-browser support
+   - Print styles
+
+Return ONLY the complete CSS code with no explanations. The code must be production-ready and fully functional.`;
 
     try {
       const response = await this.model.generateContent(systemPrompt);
-      return response.response.text();
+      let content = response.response.text();
+
+      // Clean up the content
+      content = this.cleanGeneratedCode(content, "css");
+
+      // Validate and repair CSS if needed
+      if (!this.isValidCSS(content)) {
+        console.error(
+          `Invalid CSS structure for ${fileSpec.name}, attempting repair...`
+        );
+        content = this.repairCSS(content);
+      }
+
+      return content;
     } catch (error) {
       console.error(`Failed to generate CSS file ${fileSpec.name}:`, error);
       return this.generateFallbackCSS();
@@ -364,31 +586,81 @@ Return only the CSS code, no explanations.`;
     fileSpec: FileSpec,
     appFeatures: AppFeatures,
     fileStructure: FileStructure,
+    context?: { dependencies: string[]; content: string[] }
   ): Promise<string> {
-    const systemPrompt = `You are an expert JavaScript developer. Generate complete, modern JavaScript code.
+    const systemPrompt = `As an expert JavaScript developer, generate modern, production-ready code.
 
-File Specification: ${JSON.stringify(fileSpec)}
-App Features: ${JSON.stringify(appFeatures)}
-File Structure: ${JSON.stringify(fileStructure)}
+FILE DETAILS:
+Name: ${fileSpec.name}
+Purpose: ${fileSpec.purpose}
+Dependencies: ${JSON.stringify(fileSpec.dependencies)}
+Linked Files: ${JSON.stringify(fileSpec.linkedFiles)}
 
-Generate modern JavaScript code with:
-- ES6+ features (const/let, arrow functions, async/await)
-- Modular, clean code structure
-- Event listeners for all interactive elements
-- Form validation and handling
-- Client-side routing if needed
-- Local storage for data persistence
-- Error handling
-- Modern DOM manipulation
-- Full functionality for all app features
+APP FEATURES:
+${JSON.stringify(appFeatures, null, 2)}
 
-The JavaScript should implement all the functionality described in the app features with modern, clean code.
+FILE STRUCTURE:
+${JSON.stringify(fileStructure, null, 2)}
 
-Return only the JavaScript code, no explanations.`;
+${
+  context
+    ? `RELATED FILES:
+${context.dependencies
+  .map((dep, i) => `${dep}:\n${context.content[i]}\n`)
+  .join("\n")}`
+    : ""
+}
+
+REQUIREMENTS:
+1. Use Modern JavaScript:
+   - ES2024+ features
+   - Modular structure
+   - Clean code practices
+   - Type safety patterns
+2. Implement Core Features:
+   - Event handling
+   - Form validation
+   - API integration
+   - State management
+3. Add Essential Functionality:
+   - Error handling
+   - Loading states
+   - Data persistence
+   - Cache management
+4. Ensure Reliability:
+   - Input validation
+   - Error boundaries
+   - Retry mechanisms
+   - Fallback handling
+5. Optimize Performance:
+   - Lazy loading
+   - Debouncing/throttling
+   - Memory management
+   - Resource cleanup
+6. Enhance Security:
+   - Input sanitization
+   - XSS prevention
+   - CSRF protection
+   - Secure storage
+
+Return ONLY the complete JavaScript code with no explanations. The code must be production-ready and fully functional.`;
 
     try {
       const response = await this.model.generateContent(systemPrompt);
-      return response.response.text();
+      let content = response.response.text();
+
+      // Clean up the content
+      content = this.cleanGeneratedCode(content, "js");
+
+      // Validate and repair JavaScript if needed
+      if (!this.isValidJS(content)) {
+        console.error(
+          `Invalid JavaScript structure for ${fileSpec.name}, attempting repair...`
+        );
+        content = this.repairJS(content);
+      }
+
+      return content;
     } catch (error) {
       console.error(`Failed to generate JS file ${fileSpec.name}:`, error);
       return this.generateFallbackJS();
@@ -397,7 +669,7 @@ Return only the JavaScript code, no explanations.`;
 
   private async setupNavigation(
     files: Record<string, string>,
-    fileStructure: FileStructure,
+    fileStructure: FileStructure
   ): Promise<Record<string, string>> {
     const navigationPrompt = `You are an expert web developer. Enhance the navigation and routing in these files.
 
@@ -428,7 +700,7 @@ Return the updated files as JSON: {"filename": "updated content", ...}`;
 
   private async finalizeIntegration(
     files: Record<string, string>,
-    fileStructure: FileStructure,
+    fileStructure: FileStructure
   ): Promise<Record<string, string>> {
     const integrationPrompt = `You are an expert web developer. Perform final integration and optimization.
 
@@ -460,7 +732,7 @@ Return the finalized files as JSON: {"filename": "final content", ...}`;
 
   private createImplementationPlan(
     appFeatures: AppFeatures,
-    fileStructure: FileStructure,
+    fileStructure: FileStructure
   ): string[] {
     return [
       `Analyzed app requirements: ${appFeatures.description}`,
@@ -474,13 +746,81 @@ Return the finalized files as JSON: {"filename": "final content", ...}`;
 
   private parseJSON(content: string): any {
     try {
-      // Remove markdown code blocks if present
-      const cleanContent = content.replace(/```json\s*|\s*```/g, "").trim();
-      return JSON.parse(cleanContent);
+      // Step 1: Clean up the content
+      let cleanContent = content
+        // Remove code block markers
+        .replace(/```json\s*|\s*```|```javascript\s*|```js\s*/g, "")
+        // Remove any non-JSON text before or after the actual JSON
+        .replace(/^[^{]*/, "")
+        .replace(/[^}]*$/, "")
+        // Normalize whitespace
+        .trim();
+
+      // Step 2: Try to find the actual JSON content
+      const jsonStart = cleanContent.indexOf("{");
+      const jsonEnd = cleanContent.lastIndexOf("}");
+
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error("No valid JSON object found in content");
+      }
+
+      cleanContent = cleanContent.slice(jsonStart, jsonEnd + 1);
+
+      // Step 3: Fix common JSON syntax issues
+      cleanContent = cleanContent
+        // Fix trailing commas
+        .replace(/,(\s*[}\]])/g, "$1")
+        // Fix missing quotes around property names
+        .replace(/([{,]\s*)([a-zA-Z0-9_]+)(\s*:)/g, '$1"$2"$3')
+        // Fix single quotes to double quotes
+        .replace(/'/g, '"')
+        // Remove any comments
+        .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, "");
+
+      // Step 4: Validate and parse
+      const parsed = JSON.parse(cleanContent);
+
+      // Step 5: Basic structure validation
+      if (!parsed || typeof parsed !== "object") {
+        throw new Error("Parsed content is not a valid JSON object");
+      }
+
+      return parsed;
     } catch (error) {
       console.error("JSON parsing failed:", error);
-      console.log("Content:", content);
-      throw new Error("Invalid JSON response from AI");
+      console.error("Original content:", content);
+      console.error("Failed to parse JSON. Attempting alternative cleanup...");
+
+      try {
+        // Last resort: Try to extract just the required properties based on context
+        const extracted: any = {};
+
+        // Extract arrays using regex
+        const featureMatch = content.match(/"features"\s*:\s*\[([\s\S]*?)\]/);
+        if (featureMatch)
+          extracted.features = JSON.parse(`[${featureMatch[1]}]`);
+
+        const funcMatch = content.match(/"functionality"\s*:\s*\[([\s\S]*?)\]/);
+        if (funcMatch)
+          extracted.functionality = JSON.parse(`[${funcMatch[1]}]`);
+
+        // Extract strings using regex
+        const descMatch = content.match(/"description"\s*:\s*"([^"]*)"/);
+        if (descMatch) extracted.description = descMatch[1];
+
+        const archMatch = content.match(/"architecture"\s*:\s*"([^"]*)"/);
+        if (archMatch) extracted.architecture = archMatch[1];
+
+        if (Object.keys(extracted).length > 0) {
+          console.log("Extracted partial content:", extracted);
+          return extracted;
+        }
+
+        throw new Error("Alternative parsing failed");
+      } catch (alternativeError) {
+        console.error("Alternative parsing also failed:", alternativeError);
+        throw new Error(`JSON parsing failed completely`);
+      }
     }
   }
 
@@ -509,5 +849,385 @@ h1 { color: #333; }`;
 
   private generateFallbackJS(): string {
     return `console.log('App loaded');`;
+  }
+
+  private sortFilesByDependencies(files: FileSpec[]): FileSpec[] {
+    const visited = new Set<string>();
+    const result: FileSpec[] = [];
+
+    const visit = (file: FileSpec) => {
+      if (visited.has(file.name)) return;
+
+      // Process dependencies first
+      if (file.dependencies) {
+        for (const dep of file.dependencies) {
+          const depFile = files.find((f) => f.name === dep);
+          if (depFile) visit(depFile);
+        }
+      }
+
+      visited.add(file.name);
+      result.push(file);
+    };
+
+    // Process all files
+    for (const file of files) {
+      visit(file);
+    }
+
+    return result;
+  }
+
+  private getFileGenerationContext(
+    fileSpec: FileSpec,
+    generatedFiles: Record<string, string>
+  ): { dependencies: string[]; content: string[] } {
+    const context = {
+      dependencies: [] as string[],
+      content: [] as string[],
+    };
+
+    // Add content from dependencies
+    if (fileSpec.dependencies) {
+      for (const dep of fileSpec.dependencies) {
+        if (generatedFiles[dep]) {
+          context.dependencies.push(dep);
+          context.content.push(generatedFiles[dep]);
+        }
+      }
+    }
+
+    return context;
+  }
+
+  private validateGeneratedContent(content: string, fileSpec: FileSpec): void {
+    if (!content || content.trim().length === 0) {
+      throw new Error(`Generated empty content for ${fileSpec.name}`);
+    }
+
+    // Basic validation based on file type
+    switch (fileSpec.type) {
+      case "html":
+        if (!content.includes("<!DOCTYPE html>")) {
+          throw new Error(`Invalid HTML content in ${fileSpec.name}`);
+        }
+        break;
+      case "css":
+        if (!content.match(/[a-z-]+\s*{[^}]*}/)) {
+          throw new Error(`Invalid CSS content in ${fileSpec.name}`);
+        }
+        break;
+      case "js":
+        try {
+          Function(`"use strict";${content}`);
+        } catch (e) {
+          throw new Error(`Invalid JavaScript in ${fileSpec.name}: ${e}`);
+        }
+        break;
+    }
+  }
+
+  private async validateCrossFileConsistency(
+    files: Record<string, string>,
+    fileStructure: FileStructure
+  ): Promise<void> {
+    // Check CSS class usage
+    const cssContent =
+      Object.entries(files).find(([name]) => name.endsWith(".css"))?.[1] || "";
+    const cssClasses =
+      cssContent.match(/\.[a-zA-Z-_0-9]+\s*{/g)?.map((c) => c.slice(1, -1)) ||
+      [];
+
+    // Check HTML files reference valid CSS classes
+    for (const [name, content] of Object.entries(files)) {
+      if (!name.endsWith(".html")) continue;
+
+      for (const cssClass of cssClasses) {
+        if (
+          content.includes(`class="${cssClass}"`) ||
+          content.includes(`class='${cssClass}'`)
+        ) {
+          // Class is used, all good
+          continue;
+        }
+      }
+    }
+
+    // Check JavaScript function references
+    const jsContent =
+      Object.entries(files).find(([name]) => name.endsWith(".js"))?.[1] || "";
+    const jsFunctions =
+      jsContent
+        .match(/function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g)
+        ?.map((f) => f.split(" ")[1]) || [];
+
+    // Check HTML files reference valid JavaScript functions
+    for (const [name, content] of Object.entries(files)) {
+      if (!name.endsWith(".html")) continue;
+
+      for (const func of jsFunctions) {
+        if (
+          content.includes(`onclick="${func}"`) ||
+          content.includes(`onclick='${func}'`)
+        ) {
+          // Function is used, all good
+          continue;
+        }
+      }
+    }
+  }
+
+  private generateFallbackContent(type: string, filename: string): string {
+    switch (type) {
+      case "html":
+        return this.generateFallbackHTML(filename);
+      case "css":
+        return this.generateFallbackCSS();
+      case "js":
+        return this.generateFallbackJS();
+      default:
+        return `// Fallback content for ${filename}`;
+    }
+  }
+
+  private cleanGeneratedCode(
+    content: string,
+    type: "html" | "css" | "js"
+  ): string {
+    // Remove any markdown code block markers
+    content = content.replace(/```[a-z]*\n|\n```/g, "");
+
+    // Remove any response text before or after the actual code
+    switch (type) {
+      case "html":
+        const htmlStart =
+          content.indexOf("<!DOCTYPE") >= 0
+            ? content.indexOf("<!DOCTYPE")
+            : content.indexOf("<html");
+        if (htmlStart >= 0) {
+          content = content.slice(htmlStart);
+        }
+        break;
+
+      case "css":
+        const cssStart = content.search(/[\w-]+\s*{/);
+        if (cssStart >= 0) {
+          content = content.slice(cssStart);
+        }
+        break;
+
+      case "js":
+        // Remove potential explanation text at the start
+        content = content.replace(
+          /^[\s\S]*?(?=(const|let|var|function|class|import|\/\/|\/\*))/m,
+          ""
+        );
+        break;
+    }
+
+    // Normalize line endings
+    content = content.replace(/\r\n/g, "\n");
+
+    return content.trim();
+  }
+
+  private isValidHTML(content: string): boolean {
+    try {
+      // Basic structure checks
+      const hasDoctype = content.includes("<!DOCTYPE");
+      const hasHtml = content.includes("<html");
+      const hasHead = content.includes("<head");
+      const hasBody = content.includes("<body");
+      const hasClosingTags =
+        content.includes("</html>") &&
+        content.includes("</head>") &&
+        content.includes("</body>");
+
+      if (!hasDoctype || !hasHtml || !hasHead || !hasBody || !hasClosingTags) {
+        return false;
+      }
+
+      // Check for unclosed tags
+      const openTags: string[] = [];
+      const tagPattern = /<\/?([a-zA-Z0-9]+)[^>]*>/g;
+      let match;
+
+      while ((match = tagPattern.exec(content)) !== null) {
+        const isClosing = match[0].startsWith("</");
+        const tagName = match[1].toLowerCase();
+
+        if (isClosing) {
+          if (openTags.length === 0 || openTags.pop() !== tagName) {
+            return false;
+          }
+        } else if (
+          !match[0].endsWith("/>") &&
+          !["meta", "link", "br", "hr", "img", "input"].includes(tagName)
+        ) {
+          openTags.push(tagName);
+        }
+      }
+
+      return openTags.length === 0;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private repairHTML(content: string): string {
+    // Ensure basic structure
+    if (!content.includes("<!DOCTYPE html>")) {
+      content = "<!DOCTYPE html>\n" + content;
+    }
+
+    if (!content.includes("<html")) {
+      content = content.replace(
+        "<!DOCTYPE html>",
+        '<!DOCTYPE html>\n<html lang="en">'
+      );
+    }
+
+    if (!content.includes("<head>")) {
+      const htmlPattern = /<html[^>]*>/;
+      content = content.replace(htmlPattern, "$&\n<head>");
+
+      // Add minimal head content if missing
+      if (!content.includes("<title>")) {
+        content = content.replace(
+          "</head>",
+          "  <title>Generated Page</title>\n</head>"
+        );
+      }
+      if (!content.includes("charset")) {
+        content = content.replace("<head>", '<head>\n  <meta charset="UTF-8">');
+      }
+      if (!content.includes("viewport")) {
+        content = content.replace(
+          "</head>",
+          '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n</head>'
+        );
+      }
+    }
+
+    if (!content.includes("<body>")) {
+      content = content.replace("</head>", "</head>\n<body>");
+    }
+
+    // Ensure proper closing
+    if (!content.includes("</body>")) {
+      content += "\n</body>";
+    }
+    if (!content.includes("</html>")) {
+      content += "\n</html>";
+    }
+
+    // Fix common issues
+    content = content
+      // Remove duplicate doctypes
+      .replace(/(<!DOCTYPE html>[\s\n]*)+/g, "<!DOCTYPE html>\n")
+      // Fix self-closing tags
+      .replace(
+        /<(meta|link|br|hr|img|input)([^>]*)>(?![\s\n]*<\/\1>)/g,
+        "<$1$2 />"
+      )
+      // Normalize quotes
+      .replace(/='([^']*)'/g, '="$1"')
+      // Fix malformed attributes
+      .replace(/([a-zA-Z-]+)=([^"'][^\s>]*)/g, '$1="$2"');
+
+    return content;
+  }
+
+  private isValidCSS(content: string): boolean {
+    try {
+      // Basic structure check for CSS
+      const rulePattern = /[a-z0-9\s\-.#:[]]+{[^}]*}/gi;
+      const matches = content.match(rulePattern);
+
+      if (!matches) return false;
+
+      // Check for balanced braces
+      const openBraces = (content.match(/{/g) || []).length;
+      const closeBraces = (content.match(/}/g) || []).length;
+
+      return openBraces === closeBraces;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private repairCSS(content: string): string {
+    // Add root and fallback variables
+    if (!content.includes(":root")) {
+      content = `:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --background-color: #ffffff;
+  --text-color: #212529;
+  --font-family: system-ui, -apple-system, sans-serif;
+}
+
+${content}`;
+    }
+
+    // Fix common issues
+    content = content
+      // Fix missing units
+      .replace(/:\s*0(?![a-z%.])/g, ": 0px")
+      // Fix missing semicolons
+      .replace(/([a-z0-9)%])\s*}/g, "$1; }")
+      // Fix malformed colors
+      .replace(/#([0-9a-f]{3}|[0-9a-f]{6})\b/gi, (match) => match.toLowerCase())
+      // Fix invalid vendor prefixes
+      .replace(/-([a-z]+-)*(?!webkit|moz|ms|o)[a-z]+-/g, "-");
+
+    // Ensure all rules have closing braces
+    let openBraces = (content.match(/{/g) || []).length;
+    let closeBraces = (content.match(/}/g) || []).length;
+    while (openBraces > closeBraces) {
+      content += "\n}";
+      closeBraces++;
+    }
+
+    return content;
+  }
+
+  private isValidJS(content: string): boolean {
+    try {
+      new Function("'use strict';" + content);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private repairJS(content: string): string {
+    // Add strict mode if missing
+    if (
+      !content.includes("'use strict'") &&
+      !content.includes('"use strict"')
+    ) {
+      content = "'use strict';\n\n" + content;
+    }
+
+    // Add basic error handling
+    if (!content.includes("try") && !content.includes("catch")) {
+      content = `try {
+${content}
+} catch (error) {
+  console.error('An error occurred:', error);
+}`;
+    }
+
+    // Fix common issues
+    content = content
+      // Fix missing semicolons
+      .replace(/([a-z0-9"'`])\n/g, "$1;\n")
+      // Ensure proper function declarations
+      .replace(/function\s+([^(])/g, "function $1")
+      // Fix arrow functions
+      .replace(/=>\s*{([^}]*)(?<!return)}/g, "=> { return $1 }");
+
+    return content;
   }
 }
