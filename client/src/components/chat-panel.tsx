@@ -19,11 +19,13 @@ export function ChatPanel({ onCodeGenerated, projectId }: ChatPanelProps) {
   const [prompt, setPrompt] = useState("");
   const [currentProjectId, setCurrentProjectId] = useState(projectId);
 
-  // Update currentProjectId when projectId prop changes
+  // Update currentProjectId when projectId prop changes (fresh start)
   useEffect(() => {
-    if (projectId && projectId !== currentProjectId) {
+    if (projectId !== currentProjectId) {
       setCurrentProjectId(projectId);
-      console.log('ChatPanel: Updated project ID to:', projectId);
+      if (projectId) {
+        console.log('ChatPanel: Fresh start with project ID:', projectId);
+      }
     }
   }, [projectId, currentProjectId]);
   const [progressMessages, setProgressMessages] = useState<Array<{step: string, details: string, timestamp: string}>>([]);

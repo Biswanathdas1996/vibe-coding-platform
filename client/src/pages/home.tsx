@@ -21,7 +21,10 @@ export default function Home() {
       const storedProjectId = localStorage.getItem('projectId');
       const selectedTemplate = localStorage.getItem('selectedTemplate');
       
-      if (storedProjectId && !projectId) {
+      // Always clear previous state for fresh start
+      setLastResponse(undefined);
+      
+      if (storedProjectId) {
         // Project was already created in template selector, just use it
         setProjectId(storedProjectId);
         console.log('Home: Loaded project ID from localStorage:', storedProjectId);
@@ -41,8 +44,8 @@ export default function Home() {
             });
             
             toast({
-              title: "Template Ready",
-              description: `${template.name} is ready for customization`,
+              title: "New Project Started",
+              description: `${template.name} template loaded with fresh chat`,
             });
           } catch (error) {
             console.error('Project loading error:', error);
@@ -59,7 +62,7 @@ export default function Home() {
     };
 
     initializeProject();
-  }, [projectId, toast]);
+  }, [toast]);
 
   const handleCodeGenerated = (response: PromptResponse & { projectId?: string }) => {
     setLastResponse(response);

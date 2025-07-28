@@ -114,10 +114,14 @@ export default function TemplateSelector() {
   });
 
   const handleTemplateSelect = async (template: Template) => {
-    // Store selected template in localStorage
+    // Clear any previous project data to start fresh
+    localStorage.removeItem('selectedTemplate');
+    localStorage.removeItem('projectId');
+    
+    // Store new selected template in localStorage
     localStorage.setItem('selectedTemplate', JSON.stringify(template));
     
-    // Generate project ID and save to database
+    // Generate new project ID and save to database
     try {
       const response = await fetch('/api/projects/init-template', {
         method: 'POST',
@@ -129,7 +133,7 @@ export default function TemplateSelector() {
       
       if (response.ok) {
         const data = await response.json();
-        // Store project ID for dev chat
+        // Store new project ID for dev chat
         localStorage.setItem('projectId', data.projectId);
         console.log('Project created with ID:', data.projectId);
       } else {
