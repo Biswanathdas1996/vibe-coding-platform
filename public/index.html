@@ -3,187 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TaxEasy - Secure and user-friendly tax filing website with modern interface">
-    <meta name="keywords" content="tax filing, tax return, taxes, IRS, 1040, tax preparation">
-    <meta name="author" content="TaxEasy Team">
-    <meta name="theme-color" content="#007bff">
-    <title>TaxEasy - Your Easy Tax Filing Solution</title>
+    <title>My Project</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <header class="header" role="banner">
-            <div class="header__content">
-                <h1 class="header__logo">TaxEasy</h1>
-                <nav class="header__nav" role="navigation" aria-label="Main navigation">
-                    <ul class="nav-list">
-                        <li><a href="#" class="nav-link nav-link--active">Home</a></li>
-                        <li><a href="#tax-forms" class="nav-link">Tax Forms</a></li>
-                        <li><a href="components/help.html" class="nav-link">Help</a></li>
-                    </ul>
-                </nav>
-                <div class="auth-section" id="auth-section">
-                    <form id="loginForm" class="login-form" aria-label="User login">
-                        <div class="form-field">
-                            <label for="username" class="sr-only">Username</label>
-                            <input type="text" id="username" name="username" placeholder="Username" required aria-required="true">
-                        </div>
-                        <div class="form-field">
-                            <label for="password" class="sr-only">Password</label>
-                            <input type="password" id="password" name="password" placeholder="Password" required aria-required="true">
-                        </div>
-                        <button type="submit" class="btn btn--primary">Login</button>
-                    </form>
-                    <button id="logoutButton" class="btn btn--secondary" style="display: none;">Logout</button>
-                </div>
-            </div>
-        </header>
-
-        <main class="main-content" role="main">
-            <!-- Hero Section -->
-            <section class="hero section">
-                <div class="container">
-                    <h1 class="hero__title">Welcome to TaxEasy</h1>
-                    <p class="hero__subtitle">Your secure, user-friendly tax filing solution. Complete your taxes with confidence using our modern platform.</p>
-                </div>
-            </section>
-
-            <!-- File Upload Section -->
-            <section id="data-import" class="section">
-                <div class="container">
-                    <div class="section__header">
-                        <h2 class="section__title">Import Your Tax Documents</h2>
-                        <p class="section__subtitle">Upload your tax documents to get started quickly</p>
-                    </div>
-                    <div class="card">
-                        <div class="card__content">
-                            <input type="file" id="fileUpload" multiple class="file-input" aria-describedby="file-help">
-                            <p id="file-help" class="text-muted">Supported formats: PDF, CSV, JPG, PNG</p>
-                            <button class="btn btn--primary" onclick="document.getElementById('fileUpload').click()">
-                                Choose Files
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Tax Forms Section -->
-            <section id="tax-forms" class="section">
-                <div class="container">
-                    <div class="section__header">
-                        <h2 class="section__title">Tax Forms</h2>
-                        <p class="section__subtitle">Access and complete your required tax forms</p>
-                    </div>
-                    <div class="grid grid--responsive-3">
-                        <div class="card">
-                            <div class="card__header">
-                                <h3 class="card__title">Form 1040</h3>
-                            </div>
-                            <div class="card__content">
-                                <p>U.S. Individual Income Tax Return - The standard form for most taxpayers.</p>
-                            </div>
-                            <div class="card__footer">
-                                <a href="tax-forms/form1040.html" class="btn btn--primary">Complete Form</a>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card__header">
-                                <h3 class="card__title">Schedule A</h3>
-                            </div>
-                            <div class="card__content">
-                                <p>Itemized Deductions - For taxpayers who want to itemize their deductions.</p>
-                            </div>
-                            <div class="card__footer">
-                                <a href="tax-forms/scheduleA.html" class="btn btn--primary">Complete Schedule</a>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card__header">
-                                <h3 class="card__title">Schedule C</h3>
-                            </div>
-                            <div class="card__content">
-                                <p>Profit or Loss from Business - For sole proprietors and single-member LLCs.</p>
-                            </div>
-                            <div class="card__footer">
-                                <a href="tax-forms/scheduleC.html" class="btn btn--primary">Complete Schedule</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Tax Calculator Section -->
-            <section id="tax-calculator" class="section">
-                <div class="container">
-                    <div class="section__header">
-                        <h2 class="section__title">Tax Calculator</h2>
-                        <p class="section__subtitle">Estimate your tax liability with our calculator</p>
-                    </div>
-                    <div class="card" style="max-width: 600px; margin: 0 auto;">
-                        <div class="card__content">
-                            <form id="taxForm" class="fade-in" aria-label="Tax calculation form">
-                                <div class="form-group">
-                                    <label for="income">Total Annual Income ($):</label>
-                                    <input type="number" id="income" name="income" required min="0" step="0.01" placeholder="Enter your total income">
-                                </div>
-                                <div class="form-group">
-                                    <label for="filingStatus">Filing Status:</label>
-                                    <select id="filingStatus" name="filingStatus" required>
-                                        <option value="">Select filing status</option>
-                                        <option value="single">Single</option>
-                                        <option value="marriedJointly">Married Filing Jointly</option>
-                                        <option value="marriedSeparately">Married Filing Separately</option>
-                                        <option value="headOfHousehold">Head of Household</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn--primary w-full">Calculate Tax</button>
-                                </div>
-                            </form>
-                            <div id="taxResult" class="mt-4 hidden"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Dashboard Section -->
-            <section id="dashboard" class="section">
-                <div class="container">
-                    <div class="section__header">
-                        <h2 class="section__title">Your Dashboard</h2>
-                        <p class="section__subtitle">Track your tax filing progress and history</p>
-                    </div>
-                    <div id="tax-history" class="grid grid--responsive-2">
-                        <!-- Dashboard content will be populated by JavaScript -->
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="footer" role="contentinfo">
-            <div class="container">
-                <div class="footer__content">
-                    <p>&copy; 2025 TaxEasy. All rights reserved.</p>
-                    <nav class="footer__nav" aria-label="Footer navigation">
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                        <a href="components/help.html">Support</a>
-                    </nav>
-                </div>
-            </div>
-        </footer>
+    <div class="container">
+        <h1>Welcome to Your Blank Canvas</h1>
+        <p>This is a clean slate ready for your ideas. Start describing what you'd like to build!</p>
+        <div class="getting-started">
+            <h2>Getting Started</h2>
+            <ul>
+                <li>Describe your vision in the chat</li>
+                <li>I'll help you build it step by step</li>
+                <li>Modify, iterate, and perfect your creation</li>
+            </ul>
+        </div>
     </div>
-
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="loading-overlay hidden" aria-hidden="true">
-        <div class="loading-spinner"></div>
-        <p>Processing...</p>
-    </div>
-
-    <!-- Scripts -->
-    <script type="module" src="app.js"></script>
+    
+    <script src="script.js"></script>
 </body>
 </html>
