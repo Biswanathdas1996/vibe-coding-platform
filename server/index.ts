@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+// dotenv configuration is handled automatically by the environment
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";

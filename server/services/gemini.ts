@@ -1,4 +1,4 @@
-import { GenerativeModel } from "@google/generative-ai";
+import { GenerativeModel } from "@google/genai";
 // Fallback imports removed - only AI-generated implementation plans supported
 
 // Enhanced interfaces for advanced agentic capabilities
@@ -52,19 +52,18 @@ export interface ContentSection {
 }
 
 // Import needed API
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 // Advanced Agentic AI Architecture with MCP-like capabilities
 export class AdvancedGeminiAgent {
-  private model: GenerativeModel;
+  private genAI: GoogleGenAI;
   private context: AgentContext;
   private tools: Map<string, ToolCapability>;
   private memory: Map<string, any>;
 
   constructor(apiKey: string) {
     // Initialize model without using require
-    const genAI = new GoogleGenerativeAI(apiKey);
-    this.model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    this.genAI = new GoogleGenAI(apiKey);
     this.context = {
       previousInteractions: [],
       projectGoals: [],
@@ -3153,7 +3152,8 @@ REASONING REQUIREMENTS:
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const result = await this.model.generateContent({
+        const result = await this.genAI.models.generateContent({
+          model: options.model,
           contents: [{ role: "user", parts: [{ text: options.contents }] }],
           generationConfig: {
             temperature: options.config.temperature,
@@ -3163,11 +3163,11 @@ REASONING REQUIREMENTS:
           },
         });
 
-        if (!result || !result.response) {
+        if (!result || !result.candidates || result.candidates.length === 0) {
           throw new Error("No response from AI service");
         }
 
-        const text = result.response.text();
+        const text = result.candidates[0].content.parts[0].text;
 
         if (!text || text.trim().length === 0) {
           throw new Error("Empty response from AI service");

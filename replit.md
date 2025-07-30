@@ -51,6 +51,12 @@ Preferred communication style: Simple, everyday language.
 - **Comprehensive Apps**: Creates complete, production-ready applications from first prompts
 - **Update (July 27, 2025)**: Major upgrade to advanced agentic AI architecture with MCP capabilities and dynamic theming
 - **Enhancement Completed**: Pure AI-driven implementation plan generation with all fallback mechanisms removed per user requirement
+- **Update (July 30, 2025)**: Refactored advancedGenerator.ts to implement a 5-step process:
+  1. Analyze and enhance prompts with detailed features and functionality
+  2. Generate ONLY browser-executable HTML, CSS, and JavaScript file structure in JSON format
+  3. Create file structure in public folder
+  4. Generate each file content separately with different LLM calls asynchronously
+  5. Save all files to public folder
 - **Major Update (January 27, 2025)**: Implemented intelligent page analysis system that dynamically determines required pages based on prompt keywords and application type instead of using fixed templates
 - **Architecture Change (January 27, 2025)**: Completely removed all fallback mechanisms ensuring 100% AI-generated implementation plans without any template-based responses
 - **Major Enhancement (January 27, 2025)**: Implemented complete AI-driven application generation that analyzes user prompts and creates applications that exactly match the specific requirements instead of generic templates

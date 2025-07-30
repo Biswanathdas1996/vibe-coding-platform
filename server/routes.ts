@@ -411,9 +411,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let result;
         try {
           const advancedGenerator = new AdvancedAppGenerator(apiKey, progressCallback);
-          result = await advancedGenerator.generateComplete(prompt, true);
+          result = await advancedGenerator.generateComplete(prompt);
         } catch (initError) {
-          console.log("🔄 Advanced generator failed, using fallback gemini service with progress simulation");
+          console.error("🔄 Advanced generator failed:", initError);
+          console.log("🔄 Using fallback gemini service with progress simulation");
           
           // Simulate multi-step progress for user experience
           await progressCallback('Step 1/6', 'Analyzing app requirements using AI');
@@ -457,11 +458,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
 
         // Save final completion message
+        const planData = 'generationSteps' in result ? result.generationSteps : result.plan;
         await storage.createMessage({
           projectId: currentProjectId,
           role: 'assistant',
           content: 'Complete application generated successfully using advanced multi-step AI generation',
-          plan: result.plan,
+          plan: planData,
           files: result.files
         });
 
