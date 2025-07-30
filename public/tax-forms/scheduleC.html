@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Schedule C Tax Form">
+    <meta name="keywords" content="tax, form, schedule c, irs">
+    <title>TaxEasy - Schedule C</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <h1>Schedule C - Profit or Loss from Business (Sole Proprietorship)</h1>
+    </header>
+    <main>
+        <form id="scheduleCForm" novalidate>
+            <!-- Part I: General Information -->
+            <section aria-labelledby="part1Label">
+                <h2 id="part1Label">Part I: General Information</h2>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required aria-required="true">
+                <label for="businessName">Business Name:</label>
+                <input type="text" id="businessName" name="businessName" required aria-required="true">
+                <label for="ein">Employer Identification Number (EIN):</label>
+                <input type="text" id="ein" name="ein">
+                </section>
+
+            <!-- Part II: Income -->
+            <section aria-labelledby="part2Label">
+                <h2 id="part2Label">Part II: Income</h2>
+                <label for="grossReceipts">Gross Receipts or Sales:</label>
+                <input type="number" id="grossReceipts" name="grossReceipts" required aria-required="true">
+                <label for="returnsAndAllowances">Returns and Allowances:</label>
+                <input type="number" id="returnsAndAllowances" name="returnsAndAllowances">
+                <label for="grossProfit">Gross Profit (subtract line 2 from line 1):</label>
+                <input type="number" id="grossProfit" name="grossProfit" readonly>
+            </section>
+
+            <!-- Part III: Expenses -->
+            <section aria-labelledby="part3Label">
+                <h2 id="part3Label">Part III: Expenses</h2>
+                <!-- Add more expense fields as needed -->
+            </section>
+
+
+            <button type="submit">Calculate and Submit</button>
+            <div id="loadingState" style="display:none;">Loading...</div>
+            <div id="errorState" style="display:none; color:red;"></div>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2023 TaxEasy</p>
+    </footer>
+    <script src="../form-validation.js"></script>
+    <script>
+      // Add JavaScript for form submission, calculations, loading states and error handling here.
+      document.getElementById('scheduleCForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          const grossReceipts = parseFloat(document.getElementById('grossReceipts').value);
+          const returnsAndAllowances = parseFloat(document.getElementById('returnsAndAllowances').value) || 0;
+          document.getElementById('grossProfit').value = grossReceipts - returnsAndAllowances;
+          // Add further processing here and handle submission
+      });
+
+    </script>
+</body>
+</html>

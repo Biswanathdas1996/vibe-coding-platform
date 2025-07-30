@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Schedule A Tax Form">
+    <meta name="keywords" content="taxes, tax form, schedule A, IRS">
+    <title>TaxEasy - Schedule A</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <h1>TaxEasy - Schedule A (Itemized Deductions)</h1>
+    </header>
+    <main>
+        <form id="scheduleAForm" novalidate>
+            <!--loading state-->
+            <div id="loadingState" style="display:none;">
+                <p>Loading...</p>
+            </div>
+            <!--error state-->
+            <div id="errorState" style="display:none; color:red;">
+                <p id="errorMessage"></p>
+            </div>
+
+            <section>
+                <h2>Medical Expenses</h2>
+                <label for="medicalExpenses">Amount:</label>
+                <input type="number" id="medicalExpenses" name="medicalExpenses" aria-labelledby="medicalExpenses" required>
+            </section>
+            <section>
+                <h2>Taxes You Paid</h2>
+                <label for="stateLocalTaxes">State and Local Taxes:</label>
+                <input type="number" id="stateLocalTaxes" name="stateLocalTaxes" aria-labelledby="stateLocalTaxes">
+                <label for="realEstateTaxes">Real Estate Taxes:</label>
+                <input type="number" id="realEstateTaxes" name="realEstateTaxes" aria-labelledby="realEstateTaxes">
+            </section>
+            <section>
+                <h2>Interest You Paid</h2>
+                <label for="homeMortgageInterest">Home Mortgage Interest:</label>
+                <input type="number" id="homeMortgageInterest" name="homeMortgageInterest" aria-labelledby="homeMortgageInterest">
+                <label for="otherInterest">Other Interest:</label>
+                <input type="number" id="otherInterest" name="otherInterest" aria-labelledby="otherInterest">
+
+            </section>
+            <section>
+                <h2>Gifts to Charity</h2>
+                <label for="cashContributions">Cash Contributions:</label>
+                <input type="number" id="cashContributions" name="cashContributions" aria-labelledby="cashContributions">
+                <label for="nonCashContributions">Non-Cash Contributions:</label>
+                <input type="number" id="nonCashContributions" name="nonCashContributions" aria-labelledby="nonCashContributions">
+            </section>
+            <section>
+                <h2>Other Itemized Deductions</h2>
+                <label for="otherDeductions">Other Deductions (Please specify):</label>
+                <textarea id="otherDeductions" name="otherDeductions" aria-labelledby="otherDeductions"></textarea>
+            </section>
+            <button type="submit">Calculate</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 TaxEasy</p>
+    </footer>
+    <script src="../form-validation.js"></script>
+    <script>
+      // Add JavaScript for form submission and calculation here.  This would typically involve
+      //  1. Preventing default form submission
+      //  2. Validating the form fields using form-validation.js
+      //  3. Performing calculations based on user input
+      //  4. Displaying the results
+      //  5. Handling loading and error states
+    </script>
+</body>
+</html>
