@@ -1,1 +1,94 @@
-html\n<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Tax Filing Website - Registration</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n\n    <header class="header">\n        <div class="header-content">\n            <a href="/preview/index.html" class="logo">TaxFiler</a>\n            <nav class="navigation">\n                <a href="/preview/index.html">Home</a>\n                <a href="/preview/login.html">Login</a>\n                <a href="#">Register</a>\n            </nav>\n        </div>\n    </header>\n\n    <div class="container">\n        <aside class="sidebar">\n            <nav class="sidebar-nav">\n                <a href="/preview/index.html">Home</a>\n                <a href="/preview/login.html">Login</a>\n                <a href="#">Register</a>\n                <a href="#">FAQ</a>\n                <a href="#">Contact</a>\n            </nav>\n        </aside>\n\n        <main class="main-content">\n            <section class="registration-section">\n                <h1>Create Your Account</h1>\n                <p>Start filing your taxes with ease.  It's secure, fast, and accurate.</p>\n\n                <form id="registrationForm" class="registration-form" action="#" method="post">\n                    <div class="form-group">\n                        <label for="firstName">First Name:</label>\n                        <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required aria-label="First Name">\n                        <span class="error-message" id="firstNameError" aria-live="polite"></span>\n                    </div>\n\n                    <div class="form-group">\n                        <label for="lastName">Last Name:</label>\n                        <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required aria-label="Last Name">\n                        <span class="error-message" id="lastNameError" aria-live="polite"></span>\n                    </div>\n\n                    <div class="form-group">\n                        <label for="email">Email:</label>\n                        <input type="email" id="email" name="email" placeholder="Enter your email address" required aria-label="Email">\n                        <span class="error-message" id="emailError" aria-live="polite"></span>\n                    </div>\n\n                    <div class="form-group">\n                        <label for="password">Password:</label>\n                        <input type="password" id="password" name="password" placeholder="Create a password" required aria-label="Password">\n                        <span class="error-message" id="passwordError" aria-live="polite"></span>\n                    </div>\n\n                    <div class="form-group">\n                        <label for="confirmPassword">Confirm Password:</label>\n                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required aria-label="Confirm Password">\n                        <span class="error-message" id="confirmPasswordError" aria-live="polite"></span>\n                    </div>\n\n                    <div class="form-group">\n                        <label for="agreeTerms" class="terms-label">\n                            <input type="checkbox" id="agreeTerms" name="agreeTerms" required aria-label="Agree to Terms and Conditions">\n                            I agree to the <a href="#" aria-label="Terms and Conditions">Terms and Conditions</a> and <a href="#" aria-label="Privacy Policy">Privacy Policy</a>.\n                        </label>\n                        <span class="error-message" id="agreeTermsError" aria-live="polite"></span>\n                    </div>\n\n                    <button type="submit" class="button primary" aria-label="Register">Register</button>\n                </form>\n\n                <p>Already have an account? <a href="/preview/login.html">Login here</a>.</p>\n            </section>\n        </main>\n    </div>\n\n    <footer class="footer">\n        <p>&copy; 2024 TaxFiler. All rights reserved.</p>\n        <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>\n    </footer>\n\n    <script src="script.js"></script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Filing Website - Registration</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header__content">
+            <a href="/preview/index.html" class="header__logo">TaxFiler</a>
+            <nav class="header__nav">
+                <ul class="header__nav-list">
+                    <li><a href="/preview/index.html">Home</a></li>
+                    <li><a href="/preview/login.html">Login</a></li>
+                    <li><a href="/preview/help.html">Help</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="sidebar__nav">
+                <ul class="sidebar__nav-list">
+                    <li><a href="/preview/index.html">Dashboard</a></li>
+                    <li><a href="/preview/index.html">Tax Forms</a></li>
+                    <li><a href="/preview/index.html">Support</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <section class="register-section">
+                <h1 class="register-section__title">Create Your Account</h1>
+                <p class="register-section__subtitle">Get started with TaxFiler and simplify your tax filing.</p>
+
+                <form id="registrationForm" class="register-form" aria-label="Registration Form">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" class="form-input" placeholder="Enter your first name" aria-required="true" required>
+                        <span class="form-error" id="firstNameError" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">Last Name:</label>
+                        <input type="text" id="lastName" name="lastName" class="form-input" placeholder="Enter your last name" aria-required="true" required>
+                        <span class="form-error" id="lastNameError" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address:</label>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email address" aria-required="true" required>
+                        <span class="form-error" id="emailError" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password:</label>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Create a password" aria-required="true" required>
+                        <span class="form-error" id="passwordError" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirm Password:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" placeholder="Confirm your password" aria-required="true" required>
+                        <span class="form-error" id="confirmPasswordError" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="terms" class="form-label">
+                            <input type="checkbox" id="terms" name="terms" required> I agree to the <a href="/preview/index.html">Terms of Service</a> and <a href="/preview/index.html">Privacy Policy</a>.
+                        </label>
+                        <span class="form-error" id="termsError" aria-live="polite"></span>
+                    </div>
+
+
+                    <button type="submit" class="button button--primary">Create Account</button>
+                    <p class="register-form__login-link">Already have an account? <a href="/preview/login.html">Login</a></p>
+
+                </form>
+
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 TaxFiler. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

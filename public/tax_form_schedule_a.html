@@ -1,0 +1,36 @@
+{
+          const medicalExpenses = parseFloat(document.getElementById('medicalExpenses').value);
+          const agi = parseFloat(document.getElementById('agi').value);
+
+          if (isNaN(medicalExpenses) || medicalExpenses < 0) {
+            document.getElementById('medicalExpensesError').textContent = 'Please enter a valid amount.';
+            return;
+          } else {
+              document.getElementById('medicalExpensesError').textContent = '';
+          }
+
+          if (isNaN(agi) || agi < 0) {
+            document.getElementById('agiError').textContent = 'Please enter a valid amount.';
+            return;
+          } else {
+            document.getElementById('agiError').textContent = '';
+          }
+
+
+          const threshold = agi * 0.075;
+          const deductibleAmount = Math.max(0, medicalExpenses - threshold);
+          document.getElementById('deductibleMedicalExpenses').textContent = `$${deductibleAmount.toFixed(2)}`;
+        }
+
+        function calculateTaxes() {
+          // Placeholder - Add calculations here.  Example:  displaying entered value.
+          const stateAndLocalTaxes = document.getElementById('stateAndLocalTaxes').value;
+          alert(`State and Local Taxes entered: ${stateAndLocalTaxes}`);
+        }
+
+        function calculateOther(){
+            const charitableContributions = document.getElementById('charitableContributions').value;
+            const noncashContributions = document.getElementById('noncashContributions').value;
+             alert(`Charitable Contributions entered: ${charitableContributions}, Noncash contributions: ${noncashContributions}`);
+
+        }

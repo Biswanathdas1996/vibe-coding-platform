@@ -1,1 +1,108 @@
-html\n<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Income Tax Filing Website - User Profile</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n\n    <header class="header">\n        <div class="header__container">\n            <h1 class="header__title">TaxFilerPro</h1>\n            <nav class="header__nav">\n                <ul>\n                    <li><a href="/preview/dashboard.html">Dashboard</a></li>\n                    <!-- Add other navigation links as needed -->\n                </ul>\n            </nav>\n        </div>\n    </header>\n\n    <div class="grid-container">\n\n        <aside class="sidebar">\n            <div class="sidebar__container">\n                <h2 class="sidebar__title">User Profile</h2>\n                <nav class="sidebar__nav">\n                    <ul>\n                        <li><a href="#">Profile Overview</a></li>\n                        <li><a href="#">Account Settings</a></li>\n                        <li><a href="#">Security</a></li>\n                        <li><a href="#">Tax Filing History</a></li>\n                        <li><a href="#">Support</a></li>\n                    </ul>\n                </nav>\n            </div>\n        </aside>\n\n        <main class="main-content">\n            <div class="main-content__container">\n                <h2 class="main-content__title">Welcome, [User Name]!</h2>\n\n                <section class="profile-overview">\n                    <h3 class="section-title">Profile Information</h3>\n                    <div class="profile-card">\n                        <div class="profile-card__header">\n                            <img src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-card__image">\n                            <h4 class="profile-card__name">[User Name]</h4>\n                        </div>\n                        <div class="profile-card__body">\n                            <p><strong>Email:</strong> [user@example.com]</p>\n                            <p><strong>Tax ID:</strong> [Tax ID]</p>\n                            <p><strong>Address:</strong> [Address]</p>\n                            <button class="button primary-button" aria-label="Edit Profile">Edit Profile</button>\n                        </div>\n                    </div>\n                </section>\n\n                <section class="account-settings">\n                    <h3 class="section-title">Account Settings</h3>\n                    <form class="form">\n                        <div class="form-group">\n                            <label for="email">Email Address:</label>\n                            <input type="email" id="email" name="email" value="[user@example.com]" required>\n                        </div>\n                        <div class="form-group">\n                            <label for="password">Change Password:</label>\n                            <input type="password" id="password" name="password">\n                        </div>\n                         <button class="button primary-button" type="submit" aria-label="Save Account Settings">Save Settings</button>\n                    </form>\n                </section>\n\n                <section class="recent-filings">\n                    <h3 class="section-title">Recent Tax Filings</h3>\n                    <div class="filing-table">\n                        <table>\n                            <thead>\n                                <tr>\n                                    <th>Year</th>\n                                    <th>Status</th>\n                                    <th>Tax Liability</th>\n                                    <th>Actions</th>\n                                </tr>\n                            </thead>\n                            <tbody>\n                                <tr>\n                                    <td>2023</td>\n                                    <td>Filed</td>\n                                    <td>$1,500.00</td>\n                                    <td><a href="#" class="button secondary-button" aria-label="View Filing">View</a></td>\n                                </tr>\n                                <tr>\n                                    <td>2022</td>\n                                    <td>Filed</td>\n                                    <td>$1,200.00</td>\n                                    <td><a href="#" class="button secondary-button" aria-label="View Filing">View</a></td>\n                                </tr>\n                                <!-- Add more rows as needed -->\n                            </tbody>\n                        </table>\n                    </div>\n                </section>\n\n\n            </div>\n        </main>\n    </div>\n\n    <footer class="footer">\n        <div class="footer__container">\n            <p>&copy; 2024 TaxFilerPro. All rights reserved.</p>\n            <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>\n        </div>\n    </footer>\n\n    <script src="script.js"></script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Filing Website - Profile</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Tax Filing Website</div>
+            <nav class="main-nav">
+                <ul role="navigation" aria-label="Main Navigation">
+                    <li><a href="/preview/dashboard.html">Dashboard</a></li>
+                    <li><a href="/preview/tax_forms.html">Tax Forms</a></li>
+                    <li><a href="/preview/help.html">Help</a></li>
+                </ul>
+            </nav>
+            <div class="user-profile">
+                <button class="profile-button" aria-label="User Profile Menu">
+                    <span class="profile-icon" aria-hidden="true">👤</span>
+                    <span class="profile-name">John Doe</span>
+                </button>
+                <div class="profile-dropdown" aria-label="Profile Menu">
+                    <a href="#" class="profile-link">Profile Settings</a>
+                    <a href="#" class="profile-link">Account Security</a>
+                    <a href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="sidebar-nav" aria-label="Sidebar Navigation">
+                <ul role="navigation">
+                    <li><a href="/preview/dashboard.html">Dashboard</a></li>
+                    <li><a href="/preview/tax_forms.html">Tax Forms</a></li>
+                    <li><a href="#" class="active">Profile</a></li>
+                    <li><a href="/preview/help.html">Help</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="profile-section">
+                <h1 class="section-title">User Profile</h1>
+
+                <div class="profile-card card">
+                    <div class="profile-card-header">
+                        <h2>John Doe</h2>
+                        <p>Account Information</p>
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="profile-field">
+                            <label for="email">Email:</label>
+                            <span id="email" aria-label="User email">john.doe@example.com</span>
+                        </div>
+                        <div class="profile-field">
+                            <label for="phone">Phone:</label>
+                            <span id="phone" aria-label="User phone number">+1-555-123-4567</span>
+                        </div>
+                        <div class="profile-field">
+                            <label for="address">Address:</label>
+                            <span id="address" aria-label="User address">123 Main St, Anytown, CA 91234</span>
+                        </div>
+                    </div>
+                    <div class="profile-card-footer">
+                        <button class="button primary" aria-label="Edit Profile">Edit Profile</button>
+                        <button class="button secondary" aria-label="Change Password">Change Password</button>
+                    </div>
+                </div>
+
+                <section class="security-settings card">
+                    <h2 class="section-subtitle">Security Settings</h2>
+                    <div class="security-setting">
+                        <label for="password">Password:</label>
+                        <span id="password" aria-label="User password">*********</span>
+                        <button class="button secondary small" aria-label="Change Password">Change</button>
+                    </div>
+                    <div class="security-setting">
+                         <label for="2fa">Two-Factor Authentication:</label>
+                         <span>Enabled</span>
+                         <button class="button secondary small" aria-label="Manage 2FA">Manage</button>
+                    </div>
+                </section>
+
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Tax Filing Website. All rights reserved.</p>
+            <nav class="footer-nav">
+                <ul role="navigation" aria-label="Footer Navigation">
+                    <li><a href="/preview/help.html">Help</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

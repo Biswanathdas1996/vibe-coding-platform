@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaxEase - Your Online Tax Filing Solution</title>
+    <title>TaxFiler - Your Secure Tax Filing Solution</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,98 +12,92 @@
 <body>
 
     <header class="header">
-        <div class="header__container">
-            <h1 class="header__logo">TaxEase</h1>
-            <nav class="header__nav">
-                <a href="login.html" class="header__nav-link">Login</a>
-                <a href="register.html" class="header__nav-link header__nav-link--cta">Register</a>
-            </nav>
-        </div>
+        <div class="header__logo">TaxFiler</div>
+        <nav class="header__nav">
+            <a href="/preview/login.html" class="header__nav-link">Login</a>
+            <a href="/preview/register.html" class="header__nav-link header__nav-link--cta">Sign Up</a>
+        </nav>
     </header>
 
-    <main class="main">
-        <section class="hero">
-            <div class="hero__container">
-                <div class="hero__text">
-                    <h2 class="hero__title">Simplify Your Taxes with TaxEase</h2>
-                    <p class="hero__description">File your taxes quickly, securely, and accurately. TaxEase provides a user-friendly platform to manage your income, expenses, and deductions, ensuring you get the maximum refund possible.</p>
-                    <a href="register.html" class="button button--primary">Get Started</a>
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="sidebar__nav">
+                <a href="/preview/dashboard.html" class="sidebar__nav-link">Dashboard</a>
+                <a href="/preview/help.html" class="sidebar__nav-link">Help & Support</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <section class="hero">
+                <div class="hero__content">
+                    <h1 class="hero__title">File Your Taxes with Confidence</h1>
+                    <p class="hero__description">
+                        Simplify your tax filing process with TaxFiler. Our secure and user-friendly platform helps you prepare and file your taxes accurately and efficiently.
+                    </p>
+                    <a href="/preview/register.html" class="button button--primary hero__cta">Get Started</a>
                 </div>
                 <div class="hero__image">
-                    <img src="https://via.placeholder.com/500x300/3498db/ffffff?text=Tax+Filing+Made+Easy" alt="TaxEase - Simplified Tax Filing" loading="lazy">
+                    <img src="placeholder-image.png" alt="Tax Filing Illustration" width="500" height="300">
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="features">
-            <h2 class="section-title">Key Features</h2>
-            <div class="features__grid">
+            <section class="features">
+                <h2 class="section-title">Key Features</h2>
+                <div class="features__grid">
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">User Account Creation & Management</h3>
+                        <p class="feature-card__description">Create, manage, and secure your account with ease. Password resets and profile updates are simple.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Tax Form Selection & Preparation</h3>
+                        <p class="feature-card__description">Select relevant tax forms (e.g., 1040, Schedules) and get guided through data entry fields. Supports various income types, deductions, and credits.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Data Import & Integration</h3>
+                        <p class="feature-card__description">Import financial data from banks, brokerages, and previous tax returns easily.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Tax Calculation</h3>
+                        <p class="feature-card__description">Automated tax calculations based on your data and the selected tax forms, ensuring accuracy and compliance.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Error Checking & Validation</h3>
+                        <p class="feature-card__description">Real-time checks to identify potential errors, providing feedback and suggestions for correction.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Review & Preview</h3>
+                        <p class="feature-card__description">Review your tax information and preview your tax return before filing.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Filing Options</h3>
+                        <p class="feature-card__description">Offers electronic filing to the IRS or state tax agencies, and also provides printable PDF versions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Payment Processing</h3>
+                        <p class="feature-card__description">Secure payment processing for tax preparation fees and services, compliant with security standards.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Security & Privacy</h3>
+                        <p class="feature-card__description">Robust security measures to protect user data, including encryption and secure data storage.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-card__title">Support & Assistance</h3>
+                        <p class="feature-card__description">Access to FAQs, tutorials, customer support, and integrated tools like live chat or email support.</p>
+                    </div>
 
-                <div class="feature-card">
-                    <h3 class="feature-card__title">User Registration and Authentication</h3>
-                    <p class="feature-card__description">Securely create an account, log in, and manage your profile.</p>
                 </div>
+            </section>
 
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Income Source Input</h3>
-                    <p class="feature-card__description">Easily enter income from various sources (salary, freelance, investments).</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Expense Input</h3>
-                    <p class="feature-card__description">Input deductible expenses with amount, category, and documentation.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Tax Deduction Calculation</h3>
-                    <p class="feature-card__description">Automatic calculation of eligible tax deductions based on your inputs.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Tax Liability Calculation</h3>
-                    <p class="feature-card__description">Calculate your total tax liability accurately and transparently.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Tax Form Generation</h3>
-                    <p class="feature-card__description">Generate pre-filled tax forms (e.g., 1040) ready for download and submission.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Tax Payment Options</h3>
-                    <p class="feature-card__description">Integrates with payment gateways and provides instructions for tax payments.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Year-over-Year Comparison</h3>
-                    <p class="feature-card__description">Compare your tax filings from previous years for financial analysis.</p>
-                </div>
-
-                <div class="feature-card">
-                    <h3 class="feature-card__title">Security and Data Privacy</h3>
-                    <p class="feature-card__description">Robust security measures including encryption and compliance with privacy regulations.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta">
-            <div class="cta__container">
-                <h2 class="cta__title">Ready to File?</h2>
-                <p class="cta__description">Sign up today and experience the easiest way to file your taxes!</p>
-                <a href="register.html" class="button button--secondary">Register Now</a>
-            </div>
-        </section>
-    </main>
+            <section class="call-to-action">
+                <h2 class="section-title">Ready to Get Started?</h2>
+                <p>Sign up today and experience the ease of tax filing with TaxFiler.</p>
+                <a href="/preview/register.html" class="button button--secondary">Sign Up Now</a>
+            </section>
+        </main>
+    </div>
 
     <footer class="footer">
-        <div class="footer__container">
-            <p class="footer__copyright">&copy; 2024 TaxEase. All rights reserved.</p>
-            <nav class="footer__nav">
-                <a href="#" class="footer__nav-link">Privacy Policy</a>
-                <a href="#" class="footer__nav-link">Terms of Service</a>
-                <a href="#" class="footer__nav-link">Contact</a>
-            </nav>
-        </div>
+        <p>&copy; 2024 TaxFiler. All rights reserved. <a href="/preview/help.html">Help</a> | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
     </footer>
 
     <script src="script.js"></script>

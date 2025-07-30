@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Filing Options - YourTaxAssistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header__container">
+            <a href="/" class="header__logo">YourTaxAssistant</a>
+            <nav class="header__nav">
+                <a href="/preview/review.html">Review</a>
+                <a href="/help.html">Help</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="sidebar__nav">
+                <ul>
+                    <li><a href="/review.html">Review Return</a></li>
+                    <li><a href="/confirmation.html">Confirmation</a></li>
+                    <li><a href="/help.html">Help & Support</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="filing-options">
+                <h1>Filing Options</h1>
+                <p>Choose how you'd like to file your tax return:</p>
+
+                <div class="filing-option-card">
+                    <div class="card__content">
+                        <h2 class="card__title">E-file (Fastest and Most Convenient)</h2>
+                        <p>Submit your return electronically directly to the IRS and your state tax agency. Receive confirmation and track your refund status online.</p>
+                        <button class="button primary-button" aria-label="E-file your tax return">E-file Now</button>
+                    </div>
+                </div>
+
+                <div class="filing-option-card">
+                    <div class="card__content">
+                        <h2 class="card__title">Print and Mail</h2>
+                        <p>Generate a printable PDF of your tax return. Print it out and mail it to the IRS and your state tax agency. (Processing times may vary.)</p>
+                        <button class="button secondary-button" aria-label="Generate printable PDF for mailing">Generate PDF</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <section class="payment-options">
+                <h2>Payment</h2>
+                <p>Securely pay your tax preparation fees.</p>
+                <div class="payment-card">
+                    <div class="card__content">
+                        <form class="payment-form">
+                            <div class="form-group">
+                                <label for="card-number" class="form-label">Credit Card Number</label>
+                                <input type="text" id="card-number" name="card-number" class="form-input" placeholder="Enter credit card number" aria-label="Credit card number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expiry" class="form-label">Expiry Date</label>
+                                <input type="text" id="expiry" name="expiry" class="form-input" placeholder="MM/YY" aria-label="Expiry date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" id="cvv" name="cvv" class="form-input" placeholder="CVV" aria-label="CVV" required>
+                            </div>
+                             <div class="form-group">
+                                 <label for="billing-zip" class="form-label">Billing Zip Code</label>
+                                 <input type="text" id="billing-zip" name="billing-zip" class="form-input" placeholder="Zip Code" aria-label="Billing Zip Code" required>
+                             </div>
+                            <button type="submit" class="button primary-button" aria-label="Submit payment">Pay Now</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 YourTaxAssistant. All rights reserved. <a href="/help.html">Privacy Policy</a> | <a href="/help.html">Terms of Service</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

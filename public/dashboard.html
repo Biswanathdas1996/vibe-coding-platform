@@ -1,1 +1,82 @@
-html\n<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Income Tax Filing - Dashboard</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n\n    <header class="header">\n        <div class="header-content">\n            <h1 class="header-title">Income Tax Filing</h1>\n            <button class="menu-toggle" aria-label="Open Menu"><span class="menu-icon">&#9776;</span></button>\n        </div>\n    </header>\n\n    <div class="container">\n        <aside class="sidebar">\n            <nav class="sidebar-nav">\n                <ul class="sidebar-menu">\n                    <li><a href="/preview/income.html" aria-label="Income Input">Income</a></li>\n                    <li><a href="/preview/expenses.html" aria-label="Expense Input">Expenses</a></li>\n                    <li><a href="/preview/tax_calculation.html" aria-label="Tax Calculation">Tax Calculation</a></li>\n                    <li><a href="/preview/tax_forms.html" aria-label="Tax Forms">Tax Forms</a></li>\n                    <li><a href="/preview/payment.html" aria-label="Tax Payment">Payment</a></li>\n                    <li><a href="/preview/history.html" aria-label="Year-over-Year Comparison">History</a></li>\n                    <li><a href="/preview/profile.html" aria-label="Profile">Profile</a></li>\n                </ul>\n            </nav>\n        </aside>\n\n        <main class="main-content">\n            <section class="overview">\n                <h2 class="section-title">Dashboard Overview</h2>\n                <div class="overview-cards">\n                    <div class="card">\n                        <h3 class="card-title">Income Summary</h3>\n                        <p class="card-text">Total Income: <span id="total-income">$0.00</span></p>\n                        <a href="/preview/income.html" class="card-link">View Income Details</a>\n                    </div>\n                    <div class="card">\n                        <h3 class="card-title">Deductions Summary</h3>\n                        <p class="card-text">Total Deductions: <span id="total-deductions">$0.00</span></p>\n                        <a href="/preview/expenses.html" class="card-link">View Expense Details</a>\n                    </div>\n                    <div class="card">\n                        <h3 class="card-title">Tax Liability</h3>\n                        <p class="card-text">Estimated Tax: <span id="estimated-tax">$0.00</span></p>\n                        <a href="/preview/tax_calculation.html" class="card-link">Calculate Tax</a>\n                    </div>\n                </div>\n            </section>\n\n            <section class="recent-activity">\n                <h2 class="section-title">Recent Activity</h2>\n                <div class="activity-log">\n                    <ul>\n                        <li><span class="activity-date">Oct 26, 2023</span> - Income source added: Salary</li>\n                        <li><span class="activity-date">Oct 25, 2023</span> - Expense added: Medical expense</li>\n                        <li><span class="activity-date">Oct 24, 2023</span> - Tax calculation updated</li>\n                    </ul>\n                </div>\n            </section>\n\n            <section class="quick-links">\n                <h2 class="section-title">Quick Links</h2>\n                <div class="quick-links-grid">\n                    <a href="/preview/income.html" class="quick-link-card">\n                        <span class="quick-link-icon">&#128187;</span>\n                        <span class="quick-link-text">Enter Income</span>\n                    </a>\n                    <a href="/preview/expenses.html" class="quick-link-card">\n                        <span class="quick-link-icon">&#128188;</span>\n                        <span class="quick-link-text">Enter Expenses</span>\n                    </a>\n                    <a href="/preview/tax_calculation.html" class="quick-link-card">\n                        <span class="quick-link-icon">&#128202;</span>\n                        <span class="quick-link-text">Calculate Tax</span>\n                    </a>\n                    <a href="/preview/tax_forms.html" class="quick-link-card">\n                         <span class="quick-link-icon">&#128221;</span>\n                         <span class="quick-link-text">View Tax Forms</span>\n                    </a>\n                </div>\n            </section>\n        </main>\n    </div>\n\n    <footer class="footer">\n        <p>&copy; 2023 Income Tax Filing Website. All rights reserved.</p>\n    </footer>\n\n    <script src="script.js"></script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxFiler - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-container">
+            <div class="header-logo">
+                <a href="/preview/index.html">TaxFiler</a>
+            </div>
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="/preview/profile.html">Profile</a></li>
+                    <li><a href="/preview/help.html">Help</a></li>
+                    <li><button class="logout-button">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="grid-container">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/preview/index.html"><span aria-hidden="true">🏠</span> Dashboard</a></li>
+                    <li><a href="/preview/tax_forms.html"><span aria-hidden="true">📝</span> File Taxes</a></li>
+                    <li><a href="/preview/profile.html"><span aria-hidden="true">👤</span> Profile</a></li>
+                    <li><a href="/preview/help.html"><span aria-hidden="true">❓</span> Help & Support</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="dashboard-welcome">
+                <h1>Welcome, [User Name]!</h1>
+                <p>Ready to file your taxes? Let's get started!</p>
+            </section>
+
+            <section class="dashboard-cards">
+                <div class="card">
+                    <h2>Start a New Return</h2>
+                    <p>Begin a new tax filing for the current tax year.</p>
+                    <a href="/preview/tax_forms.html" class="button primary">Start Now</a>
+                </div>
+
+                <div class="card">
+                    <h2>Tax Form Progress</h2>
+                    <p>Track your progress and review your forms.</p>
+                    <a href="/preview/tax_forms.html" class="button secondary">View Progress</a>
+                </div>
+
+                <div class="card">
+                    <h2>Import Data</h2>
+                    <p>Import financial data from your bank, brokerage, or previous tax returns.</p>
+                    <button class="button secondary disabled" aria-disabled="true">Coming Soon</button>
+                </div>
+            </section>
+
+            <section class="dashboard-alerts">
+                <h2>Important Alerts</h2>
+                <div class="alert info">
+                    <p>Tax season is open!  File your taxes by April 15th to avoid penalties.</p>
+                </div>
+                <div class="alert warning">
+                     <p>Remember to gather your W-2 forms and 1099 forms before starting!</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 TaxFiler. All rights reserved. <a href="/preview/help.html">Terms of Service</a> | <a href="/preview/help.html">Privacy Policy</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

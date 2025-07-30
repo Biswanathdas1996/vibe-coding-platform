@@ -1,1 +1,104 @@
-html\n<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Income Tax Filing - Forms</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n\n    <header class="header">\n        <div class="header__container">\n            <h1 class="header__title">Income Tax Filing</h1>\n            <nav class="header__nav">\n                <ul class="header__nav-list">\n                    <li><a href="/preview/dashboard.html" class="header__nav-link">Dashboard</a></li>\n                    <li><a href="/preview/tax_calculation.html" class="header__nav-link">Tax Calculation</a></li>\n                    <li><a href="/preview/payment.html" class="header__nav-link">Payment</a></li>\n                </ul>\n            </nav>\n        </div>\n    </header>\n\n    <div class="container">\n        <aside class="sidebar">\n            <nav class="sidebar__nav">\n                <ul class="sidebar__nav-list">\n                    <li><a href="/preview/dashboard.html" class="sidebar__nav-link">Dashboard</a></li>\n                    <li><a href="/preview/tax_calculation.html" class="sidebar__nav-link">Calculate Tax</a></li>\n                    <li><a href="#" class="sidebar__nav-link sidebar__nav-link--active">Forms & Downloads</a></li>\n                    <li><a href="/preview/payment.html" class="sidebar__nav-link">Payment</a></li>\n                    <li><a href="#" class="sidebar__nav-link">Profile</a></li>\n                    <li><a href="#" class="sidebar__nav-link">Help & Support</a></li>\n                </ul>\n            </nav>\n        </aside>\n\n        <main class="main-content">\n            <section class="section">\n                <h2 class="section__title">Tax Forms</h2>\n                <p class="section__description">Download your pre-filled tax forms below.  Ensure all information is accurate before filing.</p>\n\n                <div class="form-download-section">\n                    <div class="form-card">\n                        <h3 class="form-card__title">Form 1040</h3>\n                        <p class="form-card__description">U.S. Individual Income Tax Return</p>\n                        <button class="btn btn--primary" onclick="downloadForm('1040.pdf')">Download Form 1040 (PDF)</button>\n                    </div>\n\n                    <div class="form-card">\n                        <h3 class="form-card__title">Schedule A</h3>\n                        <p class="form-card__description">Itemized Deductions</p>\n                        <button class="btn btn--secondary" onclick="downloadForm('ScheduleA.pdf')">Download Schedule A (PDF)</button>\n                    </div>\n\n                    <div class="form-card">\n                        <h3 class="form-card__title">Schedule SE</h3>\n                        <p class="form-card__description">Self-Employment Tax</p>\n                        <button class="btn btn--tertiary" onclick="downloadForm('ScheduleSE.pdf')">Download Schedule SE (PDF)</button>\n                    </div>\n                </div>\n\n                <section class="form-submission-guidance">\n                  <h3 class="section__subtitle">Filing Instructions</h3>\n                    <ol class="instructions">\n                        <li><b>Review:</b> Carefully review all downloaded forms for accuracy.</li>\n                        <li><b>Sign:</b> Sign and date all required forms.</li>\n                        <li><b>Submit:</b>  Follow the instructions on the forms for submission (e.g., mail or e-file).</li>\n                        <li><b>Keep Records:</b> Keep copies of your filed forms and supporting documentation for at least three years.</li>\n                    </ol>\n                </section>\n\n\n                <section class="help-section">\n                  <h3 class="section__subtitle">Need Help?</h3>\n                  <p>If you have any questions or need assistance, please consult our <a href="#">FAQ</a> or contact our support team at <a href="mailto:support@incometaxfiling.com">support@incometaxfiling.com</a>.</p>\n                </section>\n\n            </section>\n        </main>\n    </div>\n\n\n    <footer class="footer">\n        <div class="footer__container">\n            <p>&copy; 2024 Income Tax Filing. All rights reserved.</p>\n        </div>\n    </footer>\n\n    <script src="script.js"></script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Filing Website - Form Selection</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header__container">
+            <a href="/preview/dashboard.html" class="header__logo">TaxFiler</a>
+            <nav class="header__nav">
+                <ul class="header__nav-list">
+                    <li><a href="/preview/dashboard.html">Dashboard</a></li>
+                    <li><a href="/preview/help.html">Help</a></li>
+                </ul>
+            </nav>
+            <button class="header__menu-toggle" aria-label="Open Menu"><span class="hamburger"></span></button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="sidebar__nav">
+                <ul class="sidebar__nav-list">
+                    <li><a href="/preview/dashboard.html">Dashboard</a></li>
+                    <li class="active"><a href="#">Select Forms</a></li>
+                    <li><a href="/preview/help.html">Help</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar__user-info">
+                <img src="placeholder-user.png" alt="User Profile Picture" class="sidebar__user-image">
+                <p class="sidebar__user-name">John Doe</p>
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="main__section" aria-label="Form Selection">
+                <h1 class="main__heading">Select Your Tax Forms</h1>
+                <p class="main__description">Choose the forms you need to file your taxes. Start by selecting the primary form and then add any schedules or other forms you require.</p>
+
+                <div class="form-grid">
+
+                    <div class="card">
+                        <h2 class="card__title">Form 1040</h2>
+                        <p class="card__description">U.S. Individual Income Tax Return.  This is the primary form for most taxpayers.</p>
+                        <button class="button button--primary" onclick="window.location.href='/preview/tax_form_1040.html'">Select Form 1040</button>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card__title">Schedule 1 (Form 1040)</h2>
+                        <p class="card__description">Additional Income and Adjustments to Income. For reporting additional income and adjustments.</p>
+                        <button class="button button--secondary" disabled>Coming Soon</button>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card__title">Schedule A (Form 1040)</h2>
+                        <p class="card__description">Itemized Deductions.  For taxpayers who wish to itemize deductions.</p>
+                        <button class="button button--secondary" disabled>Coming Soon</button>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card__title">Schedule B (Form 1040)</h2>
+                        <p class="card__description">Interest and Ordinary Dividends. For reporting interest and dividends.</p>
+                        <button class="button button--secondary" disabled>Coming Soon</button>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card__title">Form W-2</h2>
+                        <p class="card__description">Wage and Tax Statement.  For employees to report their wages and tax withheld.</p>
+                        <button class="button button--secondary" disabled>Coming Soon</button>
+                    </div>
+
+                    <div class="card">
+                        <h2 class="card__title">Form 1099-MISC</h2>
+                        <p class="card__description">Miscellaneous Income. For reporting payments made in the course of a trade or business.</p>
+                        <button class="button button--secondary" disabled>Coming Soon</button>
+                    </div>
+
+
+                </div>
+
+            </section>
+
+            <section class="main__section" aria-label="Quick Links">
+                <h2 class="main__heading">Quick Links</h2>
+                <ul class="quick-links-list">
+                    <li><a href="/preview/help.html">Tax Help and FAQs</a></li>
+                    <li><a href="#">IRS Website</a></li>
+                    <li><a href="#">Contact Support</a></li>
+                </ul>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 TaxFiler. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
