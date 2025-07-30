@@ -52,9 +52,7 @@ export class AdvancedAppGenerator {
     this.progressCallback = progressCallback;
     
     // Initialize Google Generative AI
-    this.genAI = new GoogleGenAI({
-      apiKey: key
-    });
+    this.genAI = new GoogleGenAI({ apiKey: key });
   }
 
   private reportProgress(step: string, details: string) {
@@ -174,12 +172,14 @@ Return a JSON object with this exact structure:
 Be thorough and think like a product manager and developer combined.`;
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(systemPrompt);
-      if (!result.response || !result.response.text()) {
+      const result = await this.genAI.chats.generateContent({
+        model: "gemini-1.5-flash",
+        messages: [{ content: systemPrompt }]
+      });
+      if (!result?.content) {
         throw new Error("Empty response from AI model");
       }
-      const response = result.response.text();
+      const response = result.content;
       return this.parseJSON(response);
     } catch (error) {
       console.error("Failed to analyze prompt:", error);
@@ -227,12 +227,14 @@ Return a JSON object with this exact structure:
 Generate a complete file structure that implements all the features and functionality described.`;
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(systemPrompt);
-      if (!result.response || !result.response.text()) {
+      const result = await this.genAI.chats.generateContent({
+        model: "gemini-1.5-flash",
+        messages: [{ content: systemPrompt }]
+      });
+      if (!result?.content) {
         throw new Error("Empty response from AI model");
       }
-      const response = result.response.text();
+      const response = result.content;
       return this.parseJSON(response);
     } catch (error) {
       console.error("Failed to generate file structure:", error);
@@ -343,12 +345,14 @@ Generate a complete file structure that implements all the features and function
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(systemPrompt);
-      if (!result.response || !result.response.text()) {
+      const result = await this.genAI.chats.generateContent({
+        model: "gemini-1.5-flash",
+        messages: [{ content: systemPrompt }]
+      });
+      if (!result?.content) {
         throw new Error("Empty response from AI model");
       }
-      let content = result.response.text();
+      let content = result.content;
       
       // Clean up the content
       content = this.cleanGeneratedCode(content, fileSpec.type);
