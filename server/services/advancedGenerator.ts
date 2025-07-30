@@ -52,7 +52,7 @@ export class AdvancedAppGenerator {
     this.progressCallback = progressCallback;
     
     // Initialize Google Generative AI
-    this.genAI = new GoogleGenAI({ apiKey: key });
+    this.genAI = new GoogleGenAI(key);
   }
 
   private reportProgress(step: string, details: string) {
@@ -176,11 +176,6 @@ Be thorough and think like a product manager and developer combined.`;
         model: "gemini-1.5-flash",
         contents: [{ parts: [{ text: systemPrompt }], role: "user" }]
       });
-      
-      if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-        throw new Error("No response text received from AI");
-      }
-      
       const response = result.candidates[0].content.parts[0].text;
       return this.parseJSON(response);
     } catch (error) {
@@ -239,11 +234,6 @@ Generate a complete file structure that implements all the features and function
         model: "gemini-1.5-flash",
         contents: [{ parts: [{ text: systemPrompt }], role: "user" }]
       });
-      
-      if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-        throw new Error("No response text received from AI");
-      }
-      
       const response = result.candidates[0].content.parts[0].text;
       return this.parseJSON(response);
     } catch (error) {
@@ -362,11 +352,6 @@ Generate a complete file structure that implements all the features and function
         model: "gemini-1.5-flash",
         contents: [{ parts: [{ text: systemPrompt }], role: "user" }]
       });
-      
-      if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
-        throw new Error("No response text received from AI");
-      }
-      
       let content = result.candidates[0].content.parts[0].text;
       
       // Clean up the content
@@ -414,12 +399,6 @@ REQUIREMENTS:
 6. Include loading states and error handling
 7. Make it fully responsive with viewport meta tag
 8. Add meaningful comments for complex sections
-9. CRITICAL: Implement FUNCTIONAL navigation that works properly:
-   - Create navigation links with proper href attributes
-   - Use data-nav attributes or IDs to link to different sections/views
-   - Ensure clicking nav items actually shows/hides content sections
-   - Add active states for current navigation items
-   - Include proper navigation structure (nav element with meaningful links)
 
 Return ONLY the complete HTML code. Do not include any explanations or markdown formatting.`;
   }
@@ -490,13 +469,6 @@ REQUIREMENTS:
 8. Add event listeners with proper cleanup
 9. Use async/await for asynchronous operations
 10. Add helpful comments and JSDoc documentation
-11. CRITICAL: Implement FUNCTIONAL navigation system:
-    - Add event listeners for navigation links/buttons
-    - Create functions to show/hide different sections or views
-    - Implement active state management for navigation items
-    - Handle route changes or view switching logic
-    - Ensure smooth transitions between different app sections
-    - Include navigation history management if applicable
 
 Return ONLY the complete JavaScript code. Do not include any explanations or markdown formatting.`;
   }
