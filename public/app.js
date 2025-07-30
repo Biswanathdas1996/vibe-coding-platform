@@ -1,116 +1,169 @@
 /**
  * @file app.js
- * @description Main JavaScript file handling user interactions and workflow.  This is a simplified example and does not include full tax calculation logic, secure e-filing, or robust security features.  A real-world application would require significant additional features and security considerations.
+ * @description Main JavaScript file for the e-commerce website.
  */
 
-import { DataStorage } from './data-storage.js';
-import { calculateTax, validateData } from './tax-calculator.js';
-import { FormValidator } from './form-validation.js';
+// Import necessary modules (replace with actual imports based on your project structure)
+import { getProductCatalog, getProductById, searchProducts } from './api/productApi';
+import { createUser, loginUser, getUserProfile, updateUserProfile } from './api/userApi';
+import { addToCart, getCart, updateCartItem, removeFromCart, checkout } from './api/cartApi';
+import { createOrder, getOrderStatus, updateOrderStatus } from './api/orderApi';
+import { createReview, getReviews } from './api/reviewApi';
 
 
-// Replace with your actual encryption key - THIS IS A PLACEHOLDER AND NOT SUITABLE FOR PRODUCTION
-const encryptionKey = 'MySuperSecretEncryptionKey';
-const dataStorage = new DataStorage(encryptionKey);
+// State management (consider using a dedicated state management library like Redux or Zustand for larger applications)
+let cart = [];
+let user = null;
+
+// Event listeners and UI updates (replace with actual DOM manipulation using your preferred library)
+
+// Product browsing and search
+async function loadProducts() {
+  try {
+    const products = await getProductCatalog();
+    // Update UI to display products
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+async function handleSearch(query) {
+  try {
+    const results = await searchProducts(query);
+    // Update UI to display search results
+  } catch (error) {
+    handleError(error);
+  }
+}
 
 
-//Simulate user authentication. Replace with your actual authentication mechanism.
-let isAuthenticated = false;
-const login = async (username, password) => {
-    //Simulate API call to authenticate user.
-    const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-    });
-    const data = await response.json();
-
-    if(response.ok) {
-        isAuthenticated = true;
-        //Store user session data securely.  This is a placeholder!
-        await dataStorage.storeData('session', { username, token: data.token });
-    } else {
-        throw new Error(data.message || "Authentication failed.");
-    }
-};
-
-
-const logout = async () => {
-    await dataStorage.removeData('session');
-    isAuthenticated = false;
-};
-
-const checkAuthentication = async () => {
-    const sessionData = await dataStorage.retrieveData('session');
-    if (sessionData && sessionData.token) {
-        isAuthenticated = true; //Or verify token with server.
-    }
-};
-
-
-const handleTaxFormSubmission = async (event) => {
-    event.preventDefault();
-    if (!isAuthenticated) {
-        alert("Please login to continue.");
-        return;
-    }
-    //Your tax form submission logic here.  This is a placeholder
-    const formData = new FormData(event.target);
-    const data = {};
-    formData.forEach((value, key) => data[key] = value);
-
-    const validatedData = validateData(data);
-    if (!validatedData) {
-      alert('Invalid input. Please check your entries.');
-      return;
-    }
-
+// Add to cart
+async function handleAddToCart(productId, quantity) {
     try {
-      const tax = calculateTax(validatedData.income);
-      alert(`Your estimated tax is: $${tax.toFixed(2)}`);
-      //Save tax data securely using dataStorage.
-      await dataStorage.storeData('taxData', validatedData);
-    } catch (error) {
-      console.error("Error calculating tax:", error);
-      alert("An error occurred while calculating the tax.");
-    }
-};
-
-// Initialize form validator
-const taxFormValidator = new FormValidator('taxForm');
-const taxForm = document.getElementById('taxForm');
-if (taxForm) {
-    taxForm.addEventListener('submit', handleTaxFormSubmission);
-}
-
-//Add event listeners for other UI components, for example, login, logout, data import, etc.  These are placeholders.
-
-const loginForm = document.getElementById('loginForm');
-if(loginForm) {
-    loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const username = loginForm.username.value;
-        const password = loginForm.password.value;
-        try {
-            await login(username, password);
-            alert("Login successful!");
-            //Redirect to appropriate page
-        } catch (error) {
-            console.error("Login error:", error);
-            alert("Login failed. Please check your credentials.");
+        const product = await getProductById(productId);
+        if(product){
+            const cartItem = { productId, quantity, product };
+            await addToCart(cartItem);
+            cart.push(cartItem);
+            updateCartUI();
+        } else {
+            throw new Error("Product not found");
         }
-    });
+    } catch (error){
+        handleError(error);
+    }
 }
 
-const logoutButton = document.getElementById('logoutButton');
-if(logoutButton) {
-    logoutButton.addEventListener('click', async () => {
-        await logout();
-        alert("Logout successful!");
-        //Redirect to appropriate page.
-    });
+// Update Cart
+async function handleUpdateCartItem(productId, quantity) {
+    try {
+        await updateCartItem(productId, quantity);
+        cart = cart.map(item => item.productId === productId ? { ...item, quantity } : item);
+        updateCartUI();
+    } catch (error) {
+        handleError(error);
+    }
 }
 
-//Initialize checkAuthentication on page load
-checkAuthentication();
 
-//Add data import, tax optimization, e-filing and other functionality here.  These are major components and will require substantial code.  This example only provides a rudimentary structure.  Remember to implement comprehensive error handling and security measures.  Implement appropriate cleanup on component unmount.
+//Remove from cart
+async function handleRemoveFromCart(productId) {
+    try {
+        await removeFromCart(productId);
+        cart = cart.filter(item => item.productId !== productId);
+        updateCartUI();
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+//Checkout
+async function handleCheckout(orderDetails) {
+    try {
+        const order = await checkout(orderDetails, cart);
+        // Update UI, send email notification
+        //Clear cart after successfull checkout
+        cart = [];
+        updateCartUI();
+
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+// User Authentication
+async function handleRegister(userData) {
+  try {
+    const newUser = await createUser(userData);
+    user = newUser;
+    // Update UI, redirect to profile
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+async function handleLogin(credentials) {
+  try {
+    const loggedInUser = await loginUser(credentials);
+    user = loggedInUser;
+    // Update UI, redirect to profile
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// Profile Management
+async function handleUpdateProfile(updatedData) {
+  try {
+    await updateUserProfile(updatedData);
+    user = { ...user, ...updatedData }; // Update local user state
+    // Update UI
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// Order Management (Admin)
+// ... (Similar async functions for order management)
+
+// Inventory Management (Admin)
+// ... (Similar async functions for inventory management)
+
+// Customer Relationship Management (CRM) (Admin)
+// ... (Similar async functions for CRM)
+
+// Review System
+async function handleSubmitReview(reviewData) {
+    try {
+        await createReview(reviewData);
+        // Update UI, refresh reviews
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+//Reporting and Analytics
+// ... (Functions to fetch and display reports)
+
+//Error Handling
+function handleError(error) {
+  console.error("An error occurred:", error);
+  // Display error message to the user
+}
+
+
+// Initialize the application
+loadProducts();
+
+// Attach event listeners (example)
+document.addEventListener('DOMContentLoaded', () => {
+    //Attach event listeners for add to cart, update cart, remove from cart, search, login, register and checkout
+});
+
+//Cleanup event listeners (when component unmounts in React or similar framework)
+//document.removeEventListener(...)
+
+//Helper functions to update the UI
+function updateCartUI(){
+    //Update the UI with the contents of the cart array
+}

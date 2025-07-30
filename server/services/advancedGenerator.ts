@@ -23,7 +23,7 @@ export interface FileStructure {
 
 export interface FileSpec {
   filename: string;
-  type: "html" | "css" | "js";
+  type: "html" | "css";
   path: string;
   purpose: string;
   dependencies: string[];
@@ -52,7 +52,9 @@ export class AdvancedAppGenerator {
     this.progressCallback = progressCallback;
     
     // Initialize Google Generative AI
-    this.genAI = new GoogleGenAI(key);
+    this.genAI = new GoogleGenAI({
+      apiKey: key
+    });
   }
 
   private reportProgress(step: string, details: string) {
@@ -172,11 +174,12 @@ Return a JSON object with this exact structure:
 Be thorough and think like a product manager and developer combined.`;
 
     try {
-      const result = await this.genAI.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: [{ parts: [{ text: systemPrompt }], role: "user" }]
-      });
-      const response = result.candidates[0].content.parts[0].text;
+      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(systemPrompt);
+      if (!result.response || !result.response.text()) {
+        throw new Error("Empty response from AI model");
+      }
+      const response = result.response.text();
       return this.parseJSON(response);
     } catch (error) {
       console.error("Failed to analyze prompt:", error);
@@ -191,11 +194,12 @@ ENHANCED PROMPT DATA:
 ${JSON.stringify(enhancedPrompt, null, 2)}
 
 Requirements:
-1. Create ONLY HTML, CSS, and JavaScript files
-2. The application must be fully browser-executable (no server-side code)
-3. Use modern web standards and best practices
+1. Create ONLY HTML and CSS files - NO JavaScript files allowed
+2. The application must be fully browser-executable using pure HTML5 and CSS
+3. Use modern HTML5 semantic elements and CSS Grid/Flexbox
 4. Keep the structure simple but scalable
-5. Include all necessary files for a complete application
+5. Include all necessary files for a complete static web application
+6. Focus on interactive CSS features like :hover, :focus, and form validation
 
 Return a JSON object with this exact structure:
 {
@@ -206,20 +210,13 @@ Return a JSON object with this exact structure:
       "type": "html",
       "path": "/",
       "purpose": "Main entry point of the application",
-      "dependencies": ["styles.css", "app.js"]
+      "dependencies": ["styles.css"]
     },
     {
       "filename": "styles.css",
       "type": "css",
       "path": "/",
-      "purpose": "Main stylesheet for the application",
-      "dependencies": []
-    },
-    {
-      "filename": "app.js",
-      "type": "js",
-      "path": "/",
-      "purpose": "Main JavaScript file with application logic",
+      "purpose": "Main stylesheet for the application with modern CSS features",
       "dependencies": []
     }
   ],
@@ -230,11 +227,12 @@ Return a JSON object with this exact structure:
 Generate a complete file structure that implements all the features and functionality described.`;
 
     try {
-      const result = await this.genAI.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: [{ parts: [{ text: systemPrompt }], role: "user" }]
-      });
-      const response = result.candidates[0].content.parts[0].text;
+      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(systemPrompt);
+      if (!result.response || !result.response.text()) {
+        throw new Error("Empty response from AI model");
+      }
+      const response = result.response.text();
       return this.parseJSON(response);
     } catch (error) {
       console.error("Failed to generate file structure:", error);
@@ -342,17 +340,15 @@ Generate a complete file structure that implements all the features and function
       case "css":
         systemPrompt = this.createCSSGenerationPrompt(fileSpec, fileStructure, enhancedPrompt, existingFiles);
         break;
-      case "js":
-        systemPrompt = this.createJSGenerationPrompt(fileSpec, fileStructure, enhancedPrompt, existingFiles);
-        break;
     }
 
     try {
-      const result = await this.genAI.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: [{ parts: [{ text: systemPrompt }], role: "user" }]
-      });
-      let content = result.candidates[0].content.parts[0].text;
+      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(systemPrompt);
+      if (!result.response || !result.response.text()) {
+        throw new Error("Empty response from AI model");
+      }
+      let content = result.response.text();
       
       // Clean up the content
       content = this.cleanGeneratedCode(content, fileSpec.type);
@@ -391,14 +387,16 @@ ${JSON.stringify(fileStructure, null, 2)}
 ${this.getDependencyContext(fileSpec, existingFiles)}
 
 REQUIREMENTS:
-1. Use semantic HTML5 elements
+1. Use semantic HTML5 elements (header, main, section, article, aside, footer)
 2. Include proper meta tags for SEO and responsiveness
-3. Link all CSS and JavaScript dependencies correctly
-4. Implement all UI components from the enhanced prompt
-5. Add proper accessibility attributes (ARIA labels, roles)
-6. Include loading states and error handling
+3. Link CSS dependencies correctly - NO JavaScript files allowed
+4. Implement all UI components from the enhanced prompt using pure HTML and CSS
+5. Add proper accessibility attributes (ARIA labels, roles, semantic markup)
+6. Use CSS-only interactive features (forms, animations, hover states)
 7. Make it fully responsive with viewport meta tag
 8. Add meaningful comments for complex sections
+9. Use CSS Grid and Flexbox for layouts
+10. Include proper form validation using HTML5 attributes
 
 Return ONLY the complete HTML code. Do not include any explanations or markdown formatting.`;
   }
@@ -421,56 +419,23 @@ ${JSON.stringify(enhancedPrompt, null, 2)}
 ${this.getDependencyContext(fileSpec, existingFiles)}
 
 REQUIREMENTS:
-1. Use modern CSS features (Grid, Flexbox, Custom Properties)
+1. Use modern CSS features (Grid, Flexbox, Custom Properties, CSS transforms)
 2. Implement a cohesive design system with:
-   - Consistent color palette
-   - Typography scale
-   - Spacing system
-   - Component styles
+   - Consistent color palette using CSS custom properties
+   - Typography scale with fluid font sizes
+   - Spacing system using CSS variables
+   - Component styles with proper naming conventions
 3. Make it fully responsive (mobile-first approach)
-4. Include interactive states (hover, focus, active)
-5. Add smooth transitions and animations
-6. Implement loading and error states
+4. Include interactive states (hover, focus, active, :checked for forms)
+5. Add smooth transitions and CSS animations
+6. Implement loading and error states using CSS
 7. Ensure cross-browser compatibility
-8. Use CSS variables for theming
-9. Add comments for major sections
+8. Use CSS variables for theming and easy customization
+9. Add CSS-only interactivity where possible (dropdowns, tabs, modals)
+10. Include form styling and validation indicators
+11. Add comments for major sections
 
 Return ONLY the complete CSS code. Do not include any explanations or markdown formatting.`;
-  }
-
-  private createJSGenerationPrompt(
-    fileSpec: FileSpec,
-    fileStructure: FileStructure,
-    enhancedPrompt: EnhancedPrompt,
-    existingFiles: Record<string, string>
-  ): string {
-    return `You are an expert JavaScript developer. Generate modern, production-ready JavaScript code.
-
-FILE DETAILS:
-- Filename: ${fileSpec.filename}
-- Purpose: ${fileSpec.purpose}
-
-PROJECT CONTEXT:
-${JSON.stringify(enhancedPrompt, null, 2)}
-
-${this.getDependencyContext(fileSpec, existingFiles)}
-
-REQUIREMENTS:
-1. Use modern ES6+ JavaScript features
-2. Implement all functionality from the enhanced prompt:
-   - ${enhancedPrompt.functionality.join("\n   - ")}
-3. Handle all user interactions:
-   - ${enhancedPrompt.userInteractions.join("\n   - ")}
-4. Implement proper data flow:
-   - ${enhancedPrompt.dataFlow.join("\n   - ")}
-5. Add comprehensive error handling
-6. Include input validation
-7. Implement state management if needed
-8. Add event listeners with proper cleanup
-9. Use async/await for asynchronous operations
-10. Add helpful comments and JSDoc documentation
-
-Return ONLY the complete JavaScript code. Do not include any explanations or markdown formatting.`;
   }
 
   private getDependencyContext(fileSpec: FileSpec, existingFiles: Record<string, string>): string {
@@ -553,7 +518,7 @@ Return ONLY the complete JavaScript code. Do not include any explanations or mar
     return levels;
   }
 
-  private cleanGeneratedCode(content: string, type: "html" | "css" | "js"): string {
+  private cleanGeneratedCode(content: string, type: "html" | "css"): string {
     // Remove markdown code block markers
     content = content.replace(/```[a-z]*\n?/gi, "");
     content = content.replace(/\n?```/g, "");
@@ -577,13 +542,7 @@ Return ONLY the complete JavaScript code. Do not include any explanations or mar
         }
         break;
 
-      case "js":
-        // Find the first JS code
-        const jsMatch = content.match(/(\/\/|\/\*|const|let|var|function|class|import|export|\()/);
-        if (jsMatch && jsMatch.index && jsMatch.index > 0) {
-          content = content.slice(jsMatch.index);
-        }
-        break;
+
     }
 
     return content.trim();
@@ -599,16 +558,6 @@ Return ONLY the complete JavaScript code. Do not include any explanations or mar
         return content.includes("<!DOCTYPE") || content.includes("<html");
       case "css":
         return content.includes("{") && content.includes("}");
-      case "js":
-        // Basic syntax check
-        try {
-          // Check if it's valid JavaScript syntax
-          new Function(content);
-          return true;
-        } catch {
-          // Even if syntax check fails, accept if it looks like JS
-          return /(?:const|let|var|function|class|\()/.test(content);
-        }
       default:
         return true;
     }
@@ -626,32 +575,55 @@ Return ONLY the complete JavaScript code. Do not include any explanations or mar
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>App Generation Failed</h1>
-    <p>Failed to generate content for ${filename}. Please try again.</p>
-    <script src="app.js"></script>
+    <header>
+        <h1>App Generation Failed</h1>
+    </header>
+    <main>
+        <p>Failed to generate content for ${filename}. Please try again.</p>
+    </main>
 </body>
 </html>`;
 
       case "css":
-        return `/* Fallback CSS */
+        return `/* Fallback CSS for ${filename} */
+:root {
+  --primary-color: #007bff;
+  --text-color: #333;
+  --bg-color: #f5f5f5;
+  --font-family: system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-family);
   margin: 0;
   padding: 20px;
-  background-color: #f5f5f5;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+header, main, section, article, aside, footer {
+  display: block;
 }
 
 h1 {
-  color: #333;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
 }`;
 
-      case "js":
-        return `// Fallback JavaScript
-console.log('App loaded - ${filename}');
-console.error('Content generation failed for this file');`;
-
       default:
-        return `// Fallback content for ${filename}`;
+        return `/* Fallback content for ${filename} */`;
     }
   }
 
