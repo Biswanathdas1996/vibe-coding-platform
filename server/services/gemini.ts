@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GenerativeModel } from "@google/generative-ai";
 // Fallback imports removed - only AI-generated implementation plans supported
 
 // Enhanced interfaces for advanced agentic capabilities
@@ -51,15 +51,20 @@ export interface ContentSection {
   priority: number;
 }
 
+// Import needed API
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 // Advanced Agentic AI Architecture with MCP-like capabilities
 export class AdvancedGeminiAgent {
-  private genAI: GoogleGenAI;
+  private model: GenerativeModel;
   private context: AgentContext;
   private tools: Map<string, ToolCapability>;
   private memory: Map<string, any>;
 
   constructor(apiKey: string) {
-    this.genAI = new GoogleGenAI({ apiKey });
+    // Initialize model without using require
+    const genAI = new GoogleGenerativeAI(apiKey);
+    this.model = genAI.getGenerativeModel({ model: "gemini-pro" });
     this.context = {
       previousInteractions: [],
       projectGoals: [],
@@ -2081,15 +2086,25 @@ console.log('Enhanced ${appType} application fully initialized');`;
 
         // Step 5: Generate each file with separate LLM calls
         console.log("🎨 Step 4/6: Generating individual files...");
-        for (const file of fileStructure.files) {
-          console.log(`   📄 Generating ${file.name}...`);
-          const fileContent = await this.generateFileContent(
-            prompt,
-            appFeatures,
-            fileStructure,
-            file
+        if (fileStructure.files && Array.isArray(fileStructure.files)) {
+          for (const file of fileStructure.files) {
+            console.log(`   📄 Generating ${file.name}...`);
+            const fileContent = await this.generateFileContent(
+              prompt,
+              appFeatures,
+              fileStructure,
+              file
+            );
+            files[file.name] = fileContent;
+          }
+        } else {
+          console.error(
+            "No valid files array in fileStructure:",
+            fileStructure
           );
-          files[file.name] = fileContent;
+          throw new Error(
+            "Invalid file structure - files array is missing or not an array"
+          );
         }
 
         // Step 6: Ensure proper routing and navigation
@@ -3138,11 +3153,9 @@ REASONING REQUIREMENTS:
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        // Use the correct Google GenAI API structure
-        const result = await this.genAI.models.generateContent({
-          model: options.model,
+        const result = await this.model.generateContent({
           contents: [{ role: "user", parts: [{ text: options.contents }] }],
-          config: {
+          generationConfig: {
             temperature: options.config.temperature,
             topP: options.config.topP,
             topK: options.config.topK,
@@ -3150,11 +3163,11 @@ REASONING REQUIREMENTS:
           },
         });
 
-        if (!result || !result.candidates || result.candidates.length === 0) {
+        if (!result || !result.response) {
           throw new Error("No response from AI service");
         }
 
-        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        const text = result.response.text();
 
         if (!text || text.trim().length === 0) {
           throw new Error("Empty response from AI service");

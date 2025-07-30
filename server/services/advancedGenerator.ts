@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export interface AppFeatures {
   description: string;
@@ -50,7 +50,6 @@ export interface GenerationResponse {
 }
 
 export class AdvancedAppGenerator {
-  private genAI: GoogleGenAI;
   private model: any;
   private progressCallback?: (step: string, details: string) => void;
 
@@ -62,11 +61,49 @@ export class AdvancedAppGenerator {
     if (!key) {
       throw new Error("Google API key is required");
     }
-    this.genAI = new GoogleGenAI({ apiKey: key });
-    this.model = this.genAI.models.get({
-      model: "gemini-2.0-flash-exp",
-    });
     this.progressCallback = progressCallback;
+
+    // Initialize the AI model directly
+    this.model = {
+      generateContent: async (prompt: string) => {
+        try {
+          const response = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${key}`,
+              },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [
+                      {
+                        text: prompt,
+                      },
+                    ],
+                  },
+                ],
+              }),
+            }
+          );
+
+          const data = await response.json();
+          if (!data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+            throw new Error("Invalid API response structure");
+          }
+          return {
+            response: {
+              text: () => data.candidates[0].content.parts[0].text,
+            },
+          };
+        } catch (error) {
+          console.error("AI generation error:", error);
+          throw error;
+        }
+      },
+    };
   }
 
   private reportProgress(step: string, details: string) {
@@ -269,7 +306,20 @@ BE COMPREHENSIVE - Include everything needed for a production application. Think
 
     try {
       const response = await this.model.generateContent(systemPrompt);
-      const content = response.response.text();
+      let content = response.response.text();
+
+      // Clean up the response and ensure we get valid JSON
+      content = content.trim();
+
+      // Remove any markdown code block markers
+      content = content.replace(/```json\s*|\s*```/g, "");
+
+      // Extract JSON if it's wrapped in other text
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        content = jsonMatch[0];
+      }
+
       return this.parseJSON(content);
     } catch (error) {
       console.error("Failed to analyze app features:", error);
